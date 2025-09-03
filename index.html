@@ -204,10 +204,12 @@
                                 <span data-i18n="contract.paymentType">Tipo de pago</span> *
                             </label>
                             <select id="tipoPago" name="tipoPago" required class="form-input" data-field="tipoPago">
-                                <option value="Tarjeta">Tarjeta</option>
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Transferencia">Transferencia</option>
-                                <option value="Otros">Otros</option>
+                                <option value="TARJT">Tarjeta</option>
+                                <option value="EFECT">Efectivo</option>
+                                <option value="TRANS">Transferencia</option>
+                                <option value="PLATF">Plataforma</option>
+                                <option value="MOVIL">Móvil</option>
+                                <option value="OTRO">Otros</option>
                             </select>
                             <div class="field-error" data-field="tipoPago"></div>
                         </div>
@@ -216,7 +218,7 @@
                             <label for="medioPago" class="block text-sm font-medium text-gray-700 mb-2">
                                 <span data-i18n="contract.paymentMethod">Medio de pago</span>
                             </label>
-                            <input type="text" id="medioPago" name="medioPago" value="tarjeta"
+                            <input type="text" id="medioPago" name="medioPago" value="VISA ****1234"
                                    class="form-input" data-field="medioPago">
                             <div class="field-error" data-field="medioPago"></div>
                         </div>
