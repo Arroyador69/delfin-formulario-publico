@@ -999,13 +999,40 @@
                     throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
                 }
                 
-                // Mostrar mensaje de éxito
+                // Mostrar mensaje de éxito según el idioma
+                const successText = currentLanguage === 'es' ? 
+                    '✅ ¡Registro enviado correctamente! Los datos han sido recibidos en el sistema.' :
+                    currentLanguage === 'en' ? 
+                    '✅ Registration sent successfully! The data has been received in the system.' :
+                    '✅ Enregistrement envoyé avec succès ! Les données ont été reçues dans le système.';
+                
+                successMessage.querySelector('span').textContent = successText;
                 successMessage.style.display = 'block';
                 
-                // Redirigir al dashboard después de 3 segundos
+                // Limpiar el formulario después del éxito
+                e.target.reset();
+                
+                // Restaurar fechas por defecto
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 2);
+                
+                const formatDate = (date) => {
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const year = date.getFullYear();
+                    return `${day}/${month}/${year}`;
+                };
+                
+                document.getElementById('fechaContrato').value = formatDate(today);
+                document.getElementById('fechaEntrada').value = formatDate(today);
+                document.getElementById('fechaSalida').value = formatDate(tomorrow);
+                document.getElementById('fechaNacimiento').value = '11/06/1987';
+                
+                // Redirigir al dashboard después de 5 segundos
                 setTimeout(() => {
                     window.open('https://admin.delfincheckin.com/guest-registrations-dashboard', '_blank');
-                }, 3000);
+                }, 5000);
                 
             } catch (error) {
                 console.error('Error:', error);
