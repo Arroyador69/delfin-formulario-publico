@@ -802,6 +802,8 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM CARGADO - Configurando formulario...');
+            
             // Configurar fechas por defecto en formato DD/MM/AAAA
             const today = new Date();
             const tomorrow = new Date(today);
@@ -837,10 +839,23 @@
                     document.getElementById('languageDropdown').classList.remove('show');
                 }
             });
+            
+            console.log('✅ DOMContentLoaded completado - Formulario configurado');
         });
 
         // Manejo del formulario
-        document.getElementById('guestRegistrationForm').addEventListener('submit', async function(e) {
+        console.log('🔧 Configurando event listener del formulario...');
+        
+        const form = document.getElementById('guestRegistrationForm');
+        console.log('📝 Formulario encontrado:', form);
+        
+        if (!form) {
+            console.error('❌ NO SE ENCONTRÓ EL FORMULARIO!');
+            return;
+        }
+        
+        form.addEventListener('submit', async function(e) {
+            console.log('🎯 EVENTO SUBMIT DISPARADO!');
             e.preventDefault();
             
             // Limpiar errores anteriores
