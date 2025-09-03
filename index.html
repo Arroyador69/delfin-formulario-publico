@@ -601,6 +601,11 @@
             const errorElement = document.querySelector(`[data-field="${field}"]`);
             const inputElement = document.getElementById(field);
             
+            // Limpiar estado anterior
+            inputElement.classList.remove('error');
+            errorElement.style.display = 'none';
+            
+            // Validación de campo requerido
             if (required && (!value || value.trim() === '')) {
                 inputElement.classList.add('error');
                 errorElement.style.display = 'block';
@@ -608,22 +613,112 @@
                 return false;
             }
             
-            // Validaciones específicas
-            if (field === 'fechaEntrada' && field === 'fechaSalida') {
-                const entrada = new Date(document.getElementById('fechaEntrada').value);
-                const salida = new Date(document.getElementById('fechaSalida').value);
-                if (entrada >= salida) {
-                    inputElement.classList.add('error');
-                    errorElement.style.display = 'block';
-                    errorElement.textContent = getErrorMessage(field, 'dateRange');
+            // Validaciones específicas por tipo de campo
+            if (value && value.trim() !== '') {
+                // Validación de fechas
+                if (field === 'fechaContrato' || field === 'fechaPago') {
+                    if (!isValidDate(value)) {
+                        inputElement.classList.add('error');
+                        errorElement.style.display = 'block';
+                        errorElement.textContent = getErrorMessage(field, 'invalidDate');
+                        return false;
+                    }
+                }
+                
+                // Validación de fechas con hora
+                if (field === 'fechaEntrada' || field === 'fechaSalida') {
+                    if (!isValidDateTime(value)) {
+                        inputElement.classList.add('error');
+                        errorElement.style.display = 'block';
+                        errorElement.textContent = getErrorMessage(field, 'invalidDateTime');
+                        return false;
+                    }
+                }
+                
+                // Validación de email
+                if (field === 'correo' && value) {
+                    if (!isValidEmail(value)) {
+                        inputElement.classList.add('error');
+                        errorElement.style.display = 'block';
+                        errorElement.textContent = getErrorMessage(field, 'invalidEmail');
+                        return false;
+                    }
+                }
+                
+                // Validación de teléfono
+                if (field === 'telefono' && value) {
+                    if (!isValidPhone(value)) {
+                        inputElement.classList.add('error');
+                        errorElement.style.display = 'block';
+                        errorElement.textContent = getErrorMessage(field, 'invalidPhone');
+                        return false;
+                    }
+                }
+                
+                // Validación de código postal
+                if (field === 'codigoPostal' && value) {
+                    if (!isValidPostalCode(value)) {
+                        inputElement.classList.add('error');
+                        errorElement.style.display = 'block';
+                        errorElement.textContent = getErrorMessage(field, 'invalidPostalCode');
+                        return false;
+                    }
+                }
+            }
+            
+            // Validación de rango de fechas
+            if (field === 'fechaEntrada' || field === 'fechaSalida') {
+                const entrada = document.getElementById('fechaEntrada').value;
+                const salida = document.getElementById('fechaSalida').value;
+                
+                if (entrada && salida && entrada >= salida) {
+                    const entradaElement = document.getElementById('fechaEntrada');
+                    const salidaElement = document.getElementById('fechaSalida');
+                    const entradaError = document.querySelector(`[data-field="fechaEntrada"]`);
+                    const salidaError = document.querySelector(`[data-field="fechaSalida"]`);
+                    
+                    entradaElement.classList.add('error');
+                    salidaElement.classList.add('error');
+                    entradaError.style.display = 'block';
+                    salidaError.style.display = 'block';
+                    entradaError.textContent = getErrorMessage('fechaEntrada', 'dateRange');
+                    salidaError.textContent = getErrorMessage('fechaSalida', 'dateRange');
                     return false;
                 }
             }
             
             // Si pasa todas las validaciones
-            inputElement.classList.remove('error');
-            errorElement.style.display = 'none';
             return true;
+        }
+
+        // Función para validar fecha (YYYY-MM-DD)
+        function isValidDate(dateString) {
+            const date = new Date(dateString);
+            return date instanceof Date && !isNaN(date) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+        }
+
+        // Función para validar fecha con hora (YYYY-MM-DDTHH:MM:SS)
+        function isValidDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date instanceof Date && !isNaN(date) && dateTimeString.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+        }
+
+        // Función para validar email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Función para validar teléfono
+        function isValidPhone(phone) {
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]{9,}$/;
+            return phoneRegex.test(phone);
+        }
+
+        // Función para validar código postal
+        function isValidPostalCode(postalCode) {
+            const postalRegex = /^[0-9]{5}$/;
+            return postalRegex.test(postalCode);
         }
 
         // Función para obtener mensajes de error en el idioma correcto
@@ -631,21 +726,30 @@
             const errorMessages = {
                 es: {
                     required: "Este campo es obligatorio",
-                    dateRange: "La fecha de salida debe ser posterior a la de entrada",
-                    email: "Formato de email inválido",
-                    phone: "Formato de teléfono inválido"
+                    invalidDate: "Formato de fecha inválido. Use AAAA-MM-DD",
+                    invalidDateTime: "Formato de fecha y hora inválido. Use AAAA-MM-DDThh:mm:ss",
+                    invalidEmail: "Formato de email inválido",
+                    invalidPhone: "Formato de teléfono inválido",
+                    invalidPostalCode: "Código postal debe tener 5 dígitos",
+                    dateRange: "La fecha de entrada debe ser anterior a la de salida"
                 },
                 en: {
                     required: "This field is required",
-                    dateRange: "Check-out date must be after check-in date",
-                    email: "Invalid email format",
-                    phone: "Invalid phone format"
+                    invalidDate: "Invalid date format. Use YYYY-MM-DD",
+                    invalidDateTime: "Invalid date and time format. Use YYYY-MM-DDThh:mm:ss",
+                    invalidEmail: "Invalid email format",
+                    invalidPhone: "Invalid phone format",
+                    invalidPostalCode: "Postal code must have 5 digits",
+                    dateRange: "Check-in date must be before check-out date"
                 },
                 fr: {
                     required: "Ce champ est obligatoire",
-                    dateRange: "La date de départ doit être postérieure à la date d'arrivée",
-                    email: "Format d'email invalide",
-                    phone: "Format de téléphone invalide"
+                    invalidDate: "Format de date invalide. Utilisez AAAA-MM-JJ",
+                    invalidDateTime: "Format de date et heure invalide. Utilisez AAAA-MM-JJThh:mm:ss",
+                    invalidEmail: "Format d'email invalide",
+                    invalidPhone: "Format de téléphone invalide",
+                    invalidPostalCode: "Le code postal doit avoir 5 chiffres",
+                    dateRange: "La date d'arrivée doit être antérieure à la date de départ"
                 }
             };
             
@@ -660,6 +764,34 @@
             document.querySelectorAll('.form-input').forEach(input => {
                 input.classList.remove('error');
             });
+        }
+
+        // Función para mostrar resumen de errores
+        function showErrorSummary(errors) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = errorMessage.querySelector('span');
+            
+            let errorSummary = '';
+            if (currentLanguage === 'es') {
+                errorSummary = 'El formulario tiene los siguientes errores:\n';
+            } else if (currentLanguage === 'en') {
+                errorSummary = 'The form has the following errors:\n';
+            } else {
+                errorSummary = 'Le formulaire a les erreurs suivantes:\n';
+            }
+            
+            errorSummary += errors.join('\n');
+            errorText.textContent = errorSummary;
+            errorMessage.style.display = 'block';
+        }
+
+        // Función para determinar el tipo de error de un campo
+        function getFieldErrorType(field, value) {
+            if (field === 'correo') return 'invalidEmail';
+            if (field === 'telefono') return 'invalidPhone';
+            if (field === 'codigoPostal') return 'invalidPostalCode';
+            if (field === 'fechaPago') return 'invalidDate';
+            return 'required';
         }
 
         // Event listeners
@@ -717,14 +849,33 @@
             ];
             
             let isValid = true;
+            const errors = [];
+            
+            // Validar cada campo y recopilar errores
             requiredFields.forEach(field => {
                 const value = document.getElementById(field).value;
                 if (!validateField(field, value, true)) {
                     isValid = false;
+                    const fieldLabel = document.querySelector(`label[for="${field}"]`).textContent.replace(' *', '').trim();
+                    errors.push(`• ${fieldLabel}: ${getErrorMessage(field, 'required')}`);
                 }
             });
             
+            // Validar campos opcionales que tienen formato específico
+            const optionalFields = ['correo', 'telefono', 'codigoPostal', 'fechaPago'];
+            optionalFields.forEach(field => {
+                const value = document.getElementById(field).value;
+                if (value && !validateField(field, value, false)) {
+                    isValid = false;
+                    const fieldLabel = document.querySelector(`label[for="${field}"]`).textContent.replace(' *', '').trim();
+                    const errorType = getFieldErrorType(field, value);
+                    errors.push(`• ${fieldLabel}: ${getErrorMessage(field, errorType)}`);
+                }
+            });
+            
+            // Si hay errores, mostrarlos y detener el envío
             if (!isValid) {
+                showErrorSummary(errors);
                 return;
             }
             
