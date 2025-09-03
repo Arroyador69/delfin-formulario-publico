@@ -152,47 +152,33 @@
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="codigoEstablecimiento" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.establishment">Código establecimiento</span> *
-                            </label>
-                            <input type="text" id="codigoEstablecimiento" name="codigoEstablecimiento" value="214" required
-                                   class="form-input" data-field="codigoEstablecimiento">
-                            <div class="field-error" data-field="codigoEstablecimiento"></div>
-                        </div>
-                        
-                        <div>
-                            <label for="referencia" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.reference">Referencia</span> *
-                            </label>
-                            <input type="text" id="referencia" name="referencia" value="214" required
-                                   class="form-input" data-field="referencia">
-                            <div class="field-error" data-field="referencia"></div>
-                        </div>
+                        <!-- Campos ocultos con valores internos -->
+                        <input type="hidden" id="codigoEstablecimiento" name="codigoEstablecimiento" value="0000256653">
+                        <input type="hidden" id="referencia" name="referencia" value="0000146967">
                         
                         <div>
                             <label for="fechaContrato" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.date">Fecha contrato (AAAA-MM-DD)</span> *
+                                <span data-i18n="contract.date">Fecha contrato (DD/MM/AAAA)</span> *
                             </label>
-                            <input type="date" id="fechaContrato" name="fechaContrato" required
+                            <input type="text" id="fechaContrato" name="fechaContrato" placeholder="DD/MM/AAAA" required
                                    class="form-input" data-field="fechaContrato">
                             <div class="field-error" data-field="fechaContrato"></div>
                         </div>
                         
                         <div>
                             <label for="fechaEntrada" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.checkin">Entrada (AAAA-MM-DDThh:mm:ss)</span> *
+                                <span data-i18n="contract.checkin">Entrada (DD/MM/AAAA)</span> *
                             </label>
-                            <input type="datetime-local" id="fechaEntrada" name="fechaEntrada" required
+                            <input type="text" id="fechaEntrada" name="fechaEntrada" placeholder="DD/MM/AAAA" required
                                    class="form-input" data-field="fechaEntrada">
                             <div class="field-error" data-field="fechaEntrada"></div>
                         </div>
                         
                         <div>
                             <label for="fechaSalida" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.checkout">Salida (AAAA-MM-DDThh:mm:ss)</span> *
+                                <span data-i18n="contract.checkout">Salida (DD/MM/AAAA)</span> *
                             </label>
-                            <input type="datetime-local" id="fechaSalida" name="fechaSalida" required
+                            <input type="text" id="fechaSalida" name="fechaSalida" placeholder="DD/MM/AAAA" required
                                    class="form-input" data-field="fechaSalida">
                             <div class="field-error" data-field="fechaSalida"></div>
                         </div>
@@ -237,9 +223,9 @@
                         
                         <div>
                             <label for="fechaPago" class="block text-sm font-medium text-gray-700 mb-2">
-                                <span data-i18n="contract.paymentDate">Fecha de pago (AAAA-MM-DD)</span>
+                                <span data-i18n="contract.paymentDate">Fecha de pago (DD/MM/AAAA)</span>
                             </label>
-                            <input type="date" id="fechaPago" name="fechaPago"
+                            <input type="text" id="fechaPago" name="fechaPago" placeholder="DD/MM/AAAA"
                                    class="form-input" data-field="fechaPago">
                             <div class="field-error" data-field="fechaPago"></div>
                         </div>
@@ -625,12 +611,12 @@
                     }
                 }
                 
-                // Validación de fechas con hora
+                // Validación de fechas
                 if (field === 'fechaEntrada' || field === 'fechaSalida') {
-                    if (!isValidDateTime(value)) {
+                    if (!isValidDate(value)) {
                         inputElement.classList.add('error');
                         errorElement.style.display = 'block';
-                        errorElement.textContent = getErrorMessage(field, 'invalidDateTime');
+                        errorElement.textContent = getErrorMessage(field, 'invalidDate');
                         return false;
                     }
                 }
@@ -691,16 +677,39 @@
             return true;
         }
 
-        // Función para validar fecha (YYYY-MM-DD)
+        // Función para validar fecha (DD/MM/AAAA)
         function isValidDate(dateString) {
-            const date = new Date(dateString);
-            return date instanceof Date && !isNaN(date) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+            const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+            const match = dateString.match(dateRegex);
+            
+            if (!match) return false;
+            
+            const day = parseInt(match[1]);
+            const month = parseInt(match[2]);
+            const year = parseInt(match[3]);
+            
+            // Validar rangos
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+                return false;
+            }
+            
+            // Crear fecha y validar que sea válida
+            const date = new Date(year, month - 1, day);
+            return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year;
         }
 
-        // Función para validar fecha con hora (YYYY-MM-DDTHH:MM:SS)
-        function isValidDateTime(dateTimeString) {
-            const date = new Date(dateTimeString);
-            return date instanceof Date && !isNaN(date) && dateTimeString.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+        // Función para convertir fecha DD/MM/AAAA a AAAA-MM-DD para la API
+        function convertDateToAPI(dateString) {
+            const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+            const match = dateString.match(dateRegex);
+            
+            if (!match) return dateString;
+            
+            const day = match[1].padStart(2, '0');
+            const month = match[2].padStart(2, '0');
+            const year = match[3];
+            
+            return `${year}-${month}-${day}`;
         }
 
         // Función para validar email
@@ -726,8 +735,7 @@
             const errorMessages = {
                 es: {
                     required: "Este campo es obligatorio",
-                    invalidDate: "Formato de fecha inválido. Use AAAA-MM-DD",
-                    invalidDateTime: "Formato de fecha y hora inválido. Use AAAA-MM-DDThh:mm:ss",
+                    invalidDate: "Formato de fecha inválido. Use DD/MM/AAAA",
                     invalidEmail: "Formato de email inválido",
                     invalidPhone: "Formato de teléfono inválido",
                     invalidPostalCode: "Código postal debe tener 5 dígitos",
@@ -735,8 +743,7 @@
                 },
                 en: {
                     required: "This field is required",
-                    invalidDate: "Invalid date format. Use YYYY-MM-DD",
-                    invalidDateTime: "Invalid date and time format. Use YYYY-MM-DDThh:mm:ss",
+                    invalidDate: "Invalid date format. Use DD/MM/YYYY",
                     invalidEmail: "Invalid email format",
                     invalidPhone: "Invalid phone format",
                     invalidPostalCode: "Postal code must have 5 digits",
@@ -744,8 +751,7 @@
                 },
                 fr: {
                     required: "Ce champ est obligatoire",
-                    invalidDate: "Format de date invalide. Utilisez AAAA-MM-JJ",
-                    invalidDateTime: "Format de date et heure invalide. Utilisez AAAA-MM-JJThh:mm:ss",
+                    invalidDate: "Format de date invalide. Utilisez JJ/MM/AAAA",
                     invalidEmail: "Format d'email invalide",
                     invalidPhone: "Format de téléphone invalide",
                     invalidPostalCode: "Le code postal doit avoir 5 chiffres",
@@ -796,15 +802,22 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar fechas por defecto
+            // Configurar fechas por defecto en formato DD/MM/AAAA
             const today = new Date();
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 2);
             
-            document.getElementById('fechaContrato').value = today.toISOString().split('T')[0];
-            document.getElementById('fechaEntrada').value = today.toISOString().slice(0, 16);
-            document.getElementById('fechaSalida').value = tomorrow.toISOString().slice(0, 16);
-            document.getElementById('fechaNacimiento').value = '1987-06-11';
+            const formatDate = (date) => {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            };
+            
+            document.getElementById('fechaContrato').value = formatDate(today);
+            document.getElementById('fechaEntrada').value = formatDate(today);
+            document.getElementById('fechaSalida').value = formatDate(tomorrow);
+            document.getElementById('fechaNacimiento').value = '11/06/1987';
             
             // Selector de idioma
             document.getElementById('languageButton').addEventListener('click', function() {
@@ -894,15 +907,15 @@
                     comunicaciones: [{
                         contrato: {
                             referencia: formData.get('referencia'),
-                            fechaContrato: formData.get('fechaContrato'),
-                            fechaEntrada: formData.get('fechaEntrada'),
-                            fechaSalida: formData.get('fechaSalida'),
+                            fechaContrato: convertDateToAPI(formData.get('fechaContrato')),
+                            fechaEntrada: convertDateToAPI(formData.get('fechaEntrada')),
+                            fechaSalida: convertDateToAPI(formData.get('fechaSalida')),
                             numPersonas: 1,
                             numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
                             internet: formData.get('internet') === 'on',
                             pago: {
                                 tipoPago: formData.get('tipoPago'),
-                                fechaPago: formData.get('fechaPago') || '',
+                                fechaPago: formData.get('fechaPago') ? convertDateToAPI(formData.get('fechaPago')) : '',
                                 medioPago: formData.get('medioPago') || '',
                                 titular: formData.get('titular') || '',
                                 caducidadTarjeta: formData.get('caducidadTarjeta') || '',
