@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Viajeros - Delfín Check-in</title>
     <meta name="description" content="Formulario de registro compatible con el Ministerio del Interior de España">
+    
+    <!-- Enlaces hreflang para SEO -->
+    <link rel="alternate" href="https://form.delfincheckin.com/?lang=es" hreflang="es">
+    <link rel="alternate" href="https://form.delfincheckin.com/?lang=en" hreflang="en">
+    <link rel="alternate" href="https://form.delfincheckin.com/?lang=fr" hreflang="fr">
+    <link rel="alternate" href="https://form.delfincheckin.com/" hreflang="x-default">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -443,7 +450,9 @@
     </div>
 
     <script>
-        // Configuración de idiomas
+        // Configuración de idiomas mejorada
+        const SUPPORTED_LANGS = ["es", "en", "fr"];
+        
         const translations = {
             es: {
                 "header.subtitle": "Sistema de Registro de Viajeros",
@@ -453,14 +462,14 @@
                 "contract.title": "Contrato",
                 "contract.establishment": "Código establecimiento",
                 "contract.reference": "Referencia",
-                "contract.date": "Fecha contrato (AAAA-MM-DD)",
-                "contract.checkin": "Entrada (AAAA-MM-DDThh:mm:ss)",
-                "contract.checkout": "Salida (AAAA-MM-DDThh:mm:ss)",
+                "contract.date": "Fecha contrato (DD/MM/AAAA)",
+                "contract.checkin": "Entrada (DD/MM/AAAA)",
+                "contract.checkout": "Salida (DD/MM/AAAA)",
                 "contract.rooms": "Nº habitaciones",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Tipo de pago",
                 "contract.paymentMethod": "Medio de pago",
-                "contract.paymentDate": "Fecha de pago (AAAA-MM-DD)",
+                "contract.paymentDate": "Fecha de pago (DD/MM/AAAA)",
                 "contract.cardholder": "Titular",
                 "contract.expiry": "Caducidad (MM/AAAA)",
                 "travelers.title": "Viajeros",
@@ -468,7 +477,7 @@
                 "travelers.name": "Nombre",
                 "travelers.surname1": "Primer apellido",
                 "travelers.surname2": "Segundo apellido",
-                "travelers.birthDate": "Fecha nacimiento (AAAA-MM-DD)",
+                "travelers.birthDate": "Fecha nacimiento (DD/MM/AAAA)",
                 "travelers.docType": "Tipo documento",
                 "travelers.docNumber": "Número documento",
                 "travelers.nationality": "Nacionalidad (ISO3)",
@@ -480,8 +489,17 @@
                 "travelers.country": "País (ISO3)",
                 "travelers.municipality": "Código municipio INE (5)",
                 "submit.button": "Enviar Registro",
-                "success.message": "¡Registro enviado correctamente!",
-                "error.message": "Error al enviar el registro. Por favor, inténtelo de nuevo."
+                "submit.sending": "Enviando...",
+                "success.title": "¡Registro enviado correctamente!",
+                "success.message": "Hemos recibido tus datos correctamente. Los datos han sido enviados al sistema de administración.",
+                "error.title": "Error al enviar",
+                "error.message": "No se pudo enviar el registro. Por favor, revisa los campos o inténtalo más tarde.",
+                "required.field": "Este campo es obligatorio",
+                "invalid.date": "Formato de fecha inválido. Use DD/MM/AAAA",
+                "invalid.email": "Formato de email inválido",
+                "invalid.phone": "Formato de teléfono inválido",
+                "invalid.postal": "Código postal debe tener 5 dígitos",
+                "date.range": "La fecha de entrada debe ser anterior a la de salida"
             },
             en: {
                 "header.subtitle": "Traveler Registration System",
@@ -491,14 +509,14 @@
                 "contract.title": "Contract",
                 "contract.establishment": "Establishment code",
                 "contract.reference": "Reference",
-                "contract.date": "Contract date (YYYY-MM-DD)",
-                "contract.checkin": "Check-in (YYYY-MM-DDThh:mm:ss)",
-                "contract.checkout": "Check-out (YYYY-MM-DDThh:mm:ss)",
+                "contract.date": "Contract date (DD/MM/YYYY)",
+                "contract.checkin": "Check-in (DD/MM/YYYY)",
+                "contract.checkout": "Check-out (DD/MM/YYYY)",
                 "contract.rooms": "Number of rooms",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Payment type",
                 "contract.paymentMethod": "Payment method",
-                "contract.paymentDate": "Payment date (YYYY-MM-DD)",
+                "contract.paymentDate": "Payment date (DD/MM/YYYY)",
                 "contract.cardholder": "Cardholder",
                 "contract.expiry": "Expiry (MM/YYYY)",
                 "travelers.title": "Travelers",
@@ -506,7 +524,7 @@
                 "travelers.name": "Name",
                 "travelers.surname1": "First surname",
                 "travelers.surname2": "Second surname",
-                "travelers.birthDate": "Birth date (YYYY-MM-DD)",
+                "travelers.birthDate": "Birth date (DD/MM/YYYY)",
                 "travelers.docType": "Document type",
                 "travelers.docNumber": "Document number",
                 "travelers.nationality": "Nationality (ISO3)",
@@ -518,8 +536,17 @@
                 "travelers.country": "Country (ISO3)",
                 "travelers.municipality": "Municipality INE code (5)",
                 "submit.button": "Send Registration",
-                "success.message": "Registration sent successfully!",
-                "error.message": "Error sending registration. Please try again."
+                "submit.sending": "Sending...",
+                "success.title": "Registration sent successfully!",
+                "success.message": "We have received your data correctly. The data has been sent to the administration system.",
+                "error.title": "Error sending",
+                "error.message": "The registration could not be sent. Please check the fields or try again later.",
+                "required.field": "This field is required",
+                "invalid.date": "Invalid date format. Use DD/MM/YYYY",
+                "invalid.email": "Invalid email format",
+                "invalid.phone": "Invalid phone format",
+                "invalid.postal": "Postal code must have 5 digits",
+                "date.range": "Check-in date must be before check-out date"
             },
             fr: {
                 "header.subtitle": "Système d'enregistrement des voyageurs",
@@ -529,14 +556,14 @@
                 "contract.title": "Contrat",
                 "contract.establishment": "Code de l'établissement",
                 "contract.reference": "Référence",
-                "contract.date": "Date du contrat (AAAA-MM-JJ)",
-                "contract.checkin": "Arrivée (AAAA-MM-JJThh:mm:ss)",
-                "contract.checkout": "Départ (AAAA-MM-JJThh:mm:ss)",
+                "contract.date": "Date du contrat (JJ/MM/AAAA)",
+                "contract.checkin": "Arrivée (JJ/MM/AAAA)",
+                "contract.checkout": "Départ (JJ/MM/AAAA)",
                 "contract.rooms": "Nombre de chambres",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Type de paiement",
                 "contract.paymentMethod": "Méthode de paiement",
-                "contract.paymentDate": "Date de paiement (AAAA-MM-JJ)",
+                "contract.paymentDate": "Date de paiement (JJ/MM/AAAA)",
                 "contract.cardholder": "Titulaire",
                 "contract.expiry": "Expiration (MM/AAAA)",
                 "travelers.title": "Voyageurs",
@@ -544,7 +571,7 @@
                 "travelers.name": "Nom",
                 "travelers.surname1": "Premier nom de famille",
                 "travelers.surname2": "Deuxième nom de famille",
-                "travelers.birthDate": "Date de naissance (AAAA-MM-JJ)",
+                "travelers.birthDate": "Date de naissance (JJ/MM/AAAA)",
                 "travelers.docType": "Type de document",
                 "travelers.docNumber": "Numéro de document",
                 "travelers.nationality": "Nationalité (ISO3)",
@@ -556,16 +583,55 @@
                 "travelers.country": "Pays (ISO3)",
                 "travelers.municipality": "Code municipal INE (5)",
                 "submit.button": "Envoyer l'enregistrement",
-                "success.message": "Enregistrement envoyé avec succès !",
-                "error.message": "Erreur lors de l'envoi de l'enregistrement. Veuillez réessayer."
+                "submit.sending": "Envoi...",
+                "success.title": "Enregistrement envoyé avec succès !",
+                "success.message": "Nous avons bien reçu vos informations. Les données ont été envoyées au système d'administration.",
+                "error.title": "Erreur d'envoi",
+                "error.message": "L'envoi a échoué. Veuillez vérifier les champs ou réessayer plus tard.",
+                "required.field": "Ce champ est obligatoire",
+                "invalid.date": "Format de date invalide. Utilisez JJ/MM/AAAA",
+                "invalid.email": "Format d'email invalide",
+                "invalid.phone": "Format de téléphone invalide",
+                "invalid.postal": "Le code postal doit avoir 5 chiffres",
+                "date.range": "La date d'arrivée doit être antérieure à la date de départ"
             }
         };
 
         let currentLanguage = 'es';
 
-        // Función para cambiar idioma
-        function changeLanguage(lang) {
+        // Obtiene el idioma actual: ?lang=, luego localStorage, luego navegador
+        function getCurrentLang() {
+            const urlLang = new URLSearchParams(location.search).get("lang");
+            const saved = localStorage.getItem("lang");
+            const nav = (navigator.language || "es").slice(0,2).toLowerCase();
+            const candidate = urlLang || saved || nav || "es";
+            return SUPPORTED_LANGS.includes(candidate) ? candidate : "es";
+        }
+
+        // Aplica traducciones a los nodos con data-i18n="clave"
+        function applyTranslations(lang) {
+            const dict = translations[lang] || translations.es;
+            document.documentElement.setAttribute("lang", lang);
+            document.querySelectorAll("[data-i18n]").forEach(el => {
+                const key = el.getAttribute("data-i18n");
+                if (dict[key]) el.textContent = dict[key];
+            });
+            // Placeholders
+            document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+                const key = el.getAttribute("data-i18n-placeholder");
+                if (dict[key]) el.setAttribute("placeholder", dict[key]);
+            });
+        }
+
+        // Cambia el idioma y persiste en URL + localStorage
+        function setLang(lang) {
+            if (!SUPPORTED_LANGS.includes(lang)) return;
             currentLanguage = lang;
+            localStorage.setItem("lang", lang);
+            const url = new URL(location.href);
+            url.searchParams.set("lang", lang);
+            history.replaceState({}, "", url); // no recarga
+            
             const langTexts = {
                 'es': '🇪🇸 Español',
                 'en': '🇬🇧 English',
@@ -574,14 +640,17 @@
             
             document.getElementById('currentLanguage').textContent = langTexts[lang];
             document.getElementById('languageDropdown').classList.remove('show');
-            
-            // Actualizar todos los textos
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    element.textContent = translations[lang][key];
-                }
-            });
+            applyTranslations(lang);
+        }
+
+        // Obtiene textos de i18n imperativamente (para mensajes dinámicos)
+        function t(key, lang = currentLanguage) {
+            return (translations[lang] && translations[lang][key]) || translations.es[key] || key;
+        }
+
+        // Función para cambiar idioma (mantener compatibilidad)
+        function changeLanguage(lang) {
+            setLang(lang);
         }
 
         // Función para validar campos
@@ -734,34 +803,17 @@
 
         // Función para obtener mensajes de error en el idioma correcto
         function getErrorMessage(field, type) {
-            const errorMessages = {
-                es: {
-                    required: "Este campo es obligatorio",
-                    invalidDate: "Formato de fecha inválido. Use DD/MM/AAAA",
-                    invalidEmail: "Formato de email inválido",
-                    invalidPhone: "Formato de teléfono inválido",
-                    invalidPostalCode: "Código postal debe tener 5 dígitos",
-                    dateRange: "La fecha de entrada debe ser anterior a la de salida"
-                },
-                en: {
-                    required: "This field is required",
-                    invalidDate: "Invalid date format. Use DD/MM/YYYY",
-                    invalidEmail: "Invalid email format",
-                    invalidPhone: "Invalid phone format",
-                    invalidPostalCode: "Postal code must have 5 digits",
-                    dateRange: "Check-in date must be before check-out date"
-                },
-                fr: {
-                    required: "Ce champ est obligatoire",
-                    invalidDate: "Format de date invalide. Utilisez JJ/MM/AAAA",
-                    invalidEmail: "Format d'email invalide",
-                    invalidPhone: "Format de téléphone invalide",
-                    invalidPostalCode: "Le code postal doit avoir 5 chiffres",
-                    dateRange: "La date d'arrivée doit être antérieure à la date de départ"
-                }
+            const errorKeyMap = {
+                required: "required.field",
+                invalidDate: "invalid.date",
+                invalidEmail: "invalid.email",
+                invalidPhone: "invalid.phone",
+                invalidPostalCode: "invalid.postal",
+                dateRange: "date.range"
             };
             
-            return errorMessages[currentLanguage][type] || errorMessages[currentLanguage]['required'];
+            const key = errorKeyMap[type] || "required.field";
+            return t(key, currentLanguage);
         }
 
         // Función para limpiar errores
@@ -779,17 +831,10 @@
             const errorMessage = document.getElementById('errorMessage');
             const errorText = errorMessage.querySelector('span');
             
-            let errorSummary = '';
-            if (currentLanguage === 'es') {
-                errorSummary = 'El formulario tiene los siguientes errores:\n';
-            } else if (currentLanguage === 'en') {
-                errorSummary = 'The form has the following errors:\n';
-            } else {
-                errorSummary = 'Le formulaire a les erreurs suivantes:\n';
-            }
+            const errorTitle = t("error.title", currentLanguage);
+            const errorBody = t("error.message", currentLanguage);
             
-            errorSummary += errors.join('\n');
-            errorText.textContent = errorSummary;
+            errorText.textContent = `${errorTitle}: ${errorBody}`;
             errorMessage.style.display = 'block';
         }
 
@@ -805,6 +850,11 @@
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM CARGADO - Configurando formulario...');
+            
+            // ===== Inicialización i18n =====
+            const initialLang = getCurrentLang();
+            currentLanguage = initialLang;
+            applyTranslations(initialLang);
             
             // Configurar fechas por defecto en formato DD/MM/AAAA
             const today = new Date();
@@ -831,7 +881,7 @@
             document.querySelectorAll('.language-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
-                    changeLanguage(lang);
+                    setLang(lang);
                 });
             });
             
@@ -913,7 +963,7 @@
             submitButton.disabled = true;
             submitButton.innerHTML = `
                 <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                ${currentLanguage === 'es' ? 'Enviando...' : currentLanguage === 'en' ? 'Sending...' : 'Envoi...'}
+                ${t("submit.sending", currentLanguage)}
             `;
             
             try {
@@ -1003,13 +1053,10 @@
                 }
                 
                 // Mostrar mensaje de éxito según el idioma
-                const successText = currentLanguage === 'es' ? 
-                    '✅ ¡Registro enviado correctamente! Los datos han sido recibidos en el sistema.' :
-                    currentLanguage === 'en' ? 
-                    '✅ Registration sent successfully! The data has been received in the system.' :
-                    '✅ Enregistrement envoyé avec succès ! Les données ont été reçues dans le système.';
+                const successTitle = t("success.title", currentLanguage);
+                const successBody = t("success.message", currentLanguage);
                 
-                successMessage.querySelector('span').textContent = successText;
+                successMessage.querySelector('span').textContent = `${successTitle} ${successBody}`;
                 successMessage.style.display = 'block';
                 
                 // Limpiar el formulario después del éxito
@@ -1041,20 +1088,15 @@
                 console.error('Error:', error);
                 
                 // Mostrar mensaje de error específico
-                const errorText = currentLanguage === 'es' ? 
-                    `Error: ${error.message}` : 
-                    currentLanguage === 'en' ? 
-                    `Error: ${error.message}` : 
-                    `Erreur: ${error.message}`;
+                const errorTitle = t("error.title", currentLanguage);
+                const errorBody = t("error.message", currentLanguage);
                 
-                errorMessage.querySelector('span').textContent = errorText;
+                errorMessage.querySelector('span').textContent = `${errorTitle}: ${errorBody}`;
                 errorMessage.style.display = 'block';
             } finally {
                 // Restaurar botón
                 submitButton.disabled = false;
-                const buttonText = currentLanguage === 'es' ? 'Enviar Registro' : 
-                                 currentLanguage === 'en' ? 'Send Registration' : 
-                                 'Envoyer l\'enregistrement';
+                const buttonText = t("submit.button", currentLanguage);
                 submitButton.innerHTML = `
                     <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
