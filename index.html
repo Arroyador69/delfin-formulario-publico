@@ -985,9 +985,10 @@
                 console.log('📤 Datos a enviar a la API:', data);
                 console.log('🌐 Enviando a:', 'https://admin.delfincheckin.com/api/public/guest-registration');
                 
-                // Enviar datos a la API pública del dashboard
+                // Enviar datos a la API pública del dashboard con CORS correcto
                 const response = await fetch('https://admin.delfincheckin.com/api/public/guest-registration', {
                     method: 'POST',
+                    mode: 'cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
