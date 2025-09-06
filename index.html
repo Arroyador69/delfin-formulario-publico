@@ -895,7 +895,7 @@
             console.log('✅ DOMContentLoaded completado - Formulario configurado');
         });
 
-        // Manejo del formulario
+        // Manejo del formulario - VERSIÓN ROBUSTA
         console.log('🔧 Configurando event listener del formulario...');
         
         const form = document.getElementById('guestRegistrationForm');
@@ -923,9 +923,9 @@
             
             // Validar campos obligatorios
             const requiredFields = [
-                'codigoEstablecimiento', 'referencia', 'fechaContrato', 'fechaEntrada', 
-                'fechaSalida', 'tipoPago', 'nombre', 'apellido1', 'fechaNacimiento', 
-                'direccion', 'codigoPostal', 'pais', 'codigoMunicipio'
+                'fechaContrato', 'fechaEntrada', 'fechaSalida', 'tipoPago', 
+                'nombre', 'apellido1', 'fechaNacimiento', 'direccion', 
+                'codigoPostal', 'pais', 'codigoMunicipio'
             ];
             
             let isValid = true;
@@ -942,7 +942,7 @@
             });
             
             // Validar campos opcionales que tienen formato específico
-            const optionalFields = ['correo', 'telefono', 'codigoPostal', 'fechaPago'];
+            const optionalFields = ['correo', 'telefono', 'fechaPago'];
             optionalFields.forEach(field => {
                 const value = document.getElementById(field).value;
                 if (value && !validateField(field, value, false)) {
@@ -974,8 +974,6 @@
                 
                 // Log de datos recopilados
                 console.log('📋 Datos del formulario:', {
-                    codigoEstablecimiento: formData.get('codigoEstablecimiento'),
-                    referencia: formData.get('referencia'),
                     fechaContrato: formData.get('fechaContrato'),
                     fechaEntrada: formData.get('fechaEntrada'),
                     fechaSalida: formData.get('fechaSalida'),
@@ -984,11 +982,12 @@
                     fechaNacimiento: formData.get('fechaNacimiento')
                 });
                 
+                // Crear payload robusto
                 const data = {
-                    codigoEstablecimiento: formData.get('codigoEstablecimiento'),
+                    codigoEstablecimiento: "0000256653", // Valor fijo interno
                     comunicaciones: [{
                         contrato: {
-                            referencia: formData.get('referencia'),
+                            referencia: "0000146967", // Valor fijo interno
                             fechaContrato: convertDateToAPI(formData.get('fechaContrato')),
                             fechaEntrada: convertDateToAPI(formData.get('fechaEntrada')),
                             fechaSalida: convertDateToAPI(formData.get('fechaSalida')),
@@ -1052,6 +1051,9 @@
                     throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
                 }
                 
+                const responseData = await response.json();
+                console.log('✅ Respuesta exitosa:', responseData);
+                
                 // Mostrar mensaje de éxito según el idioma
                 const successTitle = t("success.title", currentLanguage);
                 const successBody = t("success.message", currentLanguage);
@@ -1085,7 +1087,7 @@
                 }, 5000);
                 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error en el envío:', error);
                 
                 // Mostrar mensaje de error específico
                 const errorTitle = t("error.title", currentLanguage);
