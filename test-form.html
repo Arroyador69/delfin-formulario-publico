@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Formulario - Delfín Check-in</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">🧪 Test Formulario de Registro</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <form id="testForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+                    <input type="text" id="nombre" name="nombre" value="Juan" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Apellido *</label>
+                    <input type="text" id="apellido1" name="apellido1" value="Ejemplo" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Entrada (DD/MM/AAAA) *</label>
+                    <input type="text" id="fechaEntrada" name="fechaEntrada" value="06/01/2025" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Salida (DD/MM/AAAA) *</label>
+                    <input type="text" id="fechaSalida" name="fechaSalida" value="08/01/2025" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Dirección *</label>
+                    <input type="text" id="direccion" name="direccion" value="Calle Test 123" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Código Postal *</label>
+                    <input type="text" id="codigoPostal" name="codigoPostal" value="29645" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">País *</label>
+                    <select id="pais" name="pais" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="ESP">España</option>
+                        <option value="FRA">Francia</option>
+                        <option value="GBR">Reino Unido</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Código Municipio *</label>
+                    <input type="text" id="codigoMunicipio" name="codigoMunicipio" value="29045" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 font-medium">
+                    🚀 Enviar Test
+                </button>
+            </form>
+            
+            <div id="result" class="mt-6 p-4 rounded-lg hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // Función para convertir fecha DD/MM/AAAA a AAAA-MM-DD
+        function convertDateToAPI(dateString) {
+            const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+            const match = dateString.match(dateRegex);
+            
+            if (!match) return dateString;
+            
+            const day = match[1].padStart(2, '0');
+            const month = match[2].padStart(2, '0');
+            const year = match[3];
+            
+            return `${year}-${month}-${day}`;
+        }
+
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const result = document.getElementById('result');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Enviando...';
+            result.classList.add('hidden');
+            
+            try {
+                const formData = new FormData(e.target);
+                
+                const data = {
+                    codigoEstablecimiento: "0000256653",
+                    comunicaciones: [{
+                        contrato: {
+                            referencia: "0000146967",
+                            fechaContrato: convertDateToAPI(formData.get('fechaEntrada')),
+                            fechaEntrada: convertDateToAPI(formData.get('fechaEntrada')),
+                            fechaSalida: convertDateToAPI(formData.get('fechaSalida')),
+                            numPersonas: 1,
+                            numHabitaciones: 1,
+                            internet: false,
+                            pago: {
+                                tipoPago: "TARJT",
+                                fechaPago: convertDateToAPI(formData.get('fechaEntrada')),
+                                medioPago: "VISA ****1234",
+                                titular: "Test User",
+                                caducidadTarjeta: "12/2025",
+                            },
+                        },
+                        personas: [{
+                            rol: "VI",
+                            nombre: formData.get('nombre'),
+                            apellido1: formData.get('apellido1'),
+                            apellido2: '',
+                            tipoDocumento: "DNI",
+                            numeroDocumento: "12345678A",
+                            soporteDocumento: '',
+                            fechaNacimiento: "1987-06-11",
+                            nacionalidad: "ESP",
+                            sexo: "Hombre",
+                            contacto: { 
+                                telefono: "+34612345678", 
+                                telefono2: '', 
+                                correo: "test@ejemplo.com" 
+                            },
+                            direccion: {
+                                direccion: formData.get('direccion'),
+                                direccionComplementaria: '',
+                                codigoPostal: formData.get('codigoPostal'),
+                                pais: formData.get('pais'),
+                                codigoMunicipio: formData.get('codigoMunicipio'),
+                                nombreMunicipio: '',
+                            },
+                        }],
+                    }],
+                };
+                
+                console.log('📤 Enviando datos:', data);
+                
+                const response = await fetch('https://admin.delfincheckin.com/api/public/guest-registration', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                
+                console.log('📥 Respuesta:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const responseData = await response.json();
+                console.log('✅ Éxito:', responseData);
+                
+                result.className = 'mt-6 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700';
+                result.innerHTML = `
+                    <h3 class="font-bold">✅ ¡Registro enviado correctamente!</h3>
+                    <p>Respuesta: ${JSON.stringify(responseData, null, 2)}</p>
+                    <p class="mt-2 text-sm">Ahora puedes verificar en el dashboard: <a href="https://admin.delfincheckin.com/guest-registrations-dashboard" target="_blank" class="text-blue-600 underline">Ver Dashboard</a></p>
+                `;
+                result.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                
+                result.className = 'mt-6 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+                result.innerHTML = `
+                    <h3 class="font-bold">❌ Error al enviar</h3>
+                    <p>${error.message}</p>
+                `;
+                result.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Enviar Test';
+            }
+        });
+    </script>
+</body>
+</html>
