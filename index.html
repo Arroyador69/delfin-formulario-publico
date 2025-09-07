@@ -431,7 +431,11 @@
                                     class="form-input"
                                 >
                                     <option value="ESP" selected data-i18n="travelers.countries.spain">España</option>
-                                    <option value="OTHER" data-i18n="travelers.countries.other">Otro país</option>
+                                    <option value="FRA" data-i18n="travelers.countries.france">Francia</option>
+                                    <option value="GBR" data-i18n="travelers.countries.uk">Reino Unido</option>
+                                    <option value="DEU" data-i18n="travelers.countries.germany">Alemania</option>
+                                    <option value="ITA" data-i18n="travelers.countries.italy">Italia</option>
+                                    <option value="PRT" data-i18n="travelers.countries.portugal">Portugal</option>
                                 </select>
                             </div>
                             
@@ -561,7 +565,11 @@
                 "travelers.postalCode": "Código postal *",
                 "travelers.country": "País (ISO3) *",
                 "travelers.countries.spain": "España",
-                "travelers.countries.other": "Otro país",
+                "travelers.countries.france": "Francia",
+                "travelers.countries.uk": "Reino Unido",
+                "travelers.countries.germany": "Alemania",
+                "travelers.countries.italy": "Italia",
+                "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Código municipio INE (5) *",
                 "travelers.municipalityHelp": "Ejemplo: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
                 "messages.success.title": "¡Registro enviado correctamente!",
@@ -622,7 +630,11 @@
                 "travelers.postalCode": "Postal code *",
                 "travelers.country": "Country (ISO3) *",
                 "travelers.countries.spain": "Spain",
-                "travelers.countries.other": "Other country",
+                "travelers.countries.france": "France",
+                "travelers.countries.uk": "United Kingdom",
+                "travelers.countries.germany": "Germany",
+                "travelers.countries.italy": "Italy",
+                "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Municipality INE code (5) *",
                 "travelers.municipalityHelp": "Example: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
                 "messages.success.title": "Registration sent successfully!",
@@ -683,7 +695,11 @@
                 "travelers.postalCode": "Code postal *",
                 "travelers.country": "Pays (ISO3) *",
                 "travelers.countries.spain": "Espagne",
-                "travelers.countries.other": "Autre pays",
+                "travelers.countries.france": "France",
+                "travelers.countries.uk": "Royaume-Uni",
+                "travelers.countries.germany": "Allemagne",
+                "travelers.countries.italy": "Italie",
+                "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Code municipal INE (5) *",
                 "travelers.municipalityHelp": "Exemple: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
                 "messages.success.title": "Enregistrement envoyé avec succès !",
@@ -728,6 +744,35 @@
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', initializeLanguage);
 
+        // Helpers: limpiar payload y validaciones mínimas
+        function cleanEmpty(value) {
+            if (Array.isArray(value)) {
+                const arr = value.map(cleanEmpty).filter(v => {
+                    if (v == null) return false;
+                    if (typeof v === 'string' && v.trim() === '') return false;
+                    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+                    return true;
+                });
+                return arr;
+            }
+            if (value && typeof value === 'object') {
+                const out = {};
+                for (const [k, v] of Object.entries(value)) {
+                    const c = cleanEmpty(v);
+                    if (c == null) continue;
+                    if (typeof c === 'string' && c.trim() === '') continue;
+                    if (typeof c === 'object' && !Array.isArray(c) && Object.keys(c).length === 0) continue;
+                    out[k] = c;
+                }
+                return out;
+            }
+            return value;
+        }
+
+        function isFiveDigits(str) {
+            return /^\d{5}$/.test(String(str || ''));
+        }
+
         document.getElementById('guestRegistrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -749,53 +794,75 @@
             `;
             
             try {
-                // Recopilar datos del formulario
+                // Validaciones mínimas requeridas por el MIR
                 const formData = new FormData(e.target);
+                const codigoPostal = formData.get('codigoPostal');
+                const codigoMunicipio = formData.get('codigoMunicipio');
+                if (!isFiveDigits(codigoPostal)) {
+                    const errorDetails = document.getElementById('errorDetails');
+                    if (errorDetails) errorDetails.textContent = 'Código postal debe tener 5 dígitos';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                if (!isFiveDigits(codigoMunicipio)) {
+                    const errorDetails = document.getElementById('errorDetails');
+                    if (errorDetails) errorDetails.textContent = 'Código INE del municipio debe tener 5 dígitos';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+
+                // Construcción del payload cumpliendo esquema y sin strings vacíos
+                const pago = {
+                    tipoPago: formData.get('tipoPago')
+                };
+                if (formData.get('fechaPago')) pago.fechaPago = formData.get('fechaPago');
+                if (formData.get('medioPago')) pago.medioPago = formData.get('medioPago');
+                if (formData.get('titular')) pago.titular = formData.get('titular');
+                if (formData.get('caducidadTarjeta')) pago.caducidadTarjeta = formData.get('caducidadTarjeta');
+
+                const persona = {
+                    rol: 'VI',
+                    nombre: formData.get('nombre'),
+                    apellido1: formData.get('apellido1'),
+                    apellido2: formData.get('apellido2') || undefined,
+                    tipoDocumento: formData.get('tipoDocumento') || undefined,
+                    numeroDocumento: formData.get('numeroDocumento') || undefined,
+                    // soporteDocumento SOLO si aplica (no enviar si vacío)
+                    fechaNacimiento: formData.get('fechaNacimiento'),
+                    nacionalidad: formData.get('nacionalidad') || undefined,
+                    sexo: formData.get('sexo') || undefined,
+                    contacto: {
+                        telefono: formData.get('telefono') || undefined,
+                        telefono2: undefined,
+                        correo: formData.get('correo') || undefined
+                    },
+                    direccion: {
+                        direccion: formData.get('direccion'),
+                        direccionComplementaria: undefined,
+                        codigoPostal: formData.get('codigoPostal'),
+                        pais: formData.get('pais'),
+                        codigoMunicipio: formData.get('codigoMunicipio') || undefined,
+                        nombreMunicipio: undefined
+                    }
+                };
+
                 const data = {
                     codigoEstablecimiento: formData.get('codigoEstablecimiento'),
-                    comunicaciones: [{
-                        contrato: {
-                            referencia: formData.get('referencia'),
-                            fechaContrato: formData.get('fechaContrato'),
-                            fechaEntrada: formData.get('fechaEntrada'),
-                            fechaSalida: formData.get('fechaSalida'),
-                            numPersonas: 1,
-                            numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
-                            internet: formData.get('internet') === 'on',
-                            pago: {
-                                tipoPago: formData.get('tipoPago'),
-                                fechaPago: formData.get('fechaPago') || '',
-                                medioPago: formData.get('medioPago') || '',
-                                titular: formData.get('titular') || '',
-                                caducidadTarjeta: formData.get('caducidadTarjeta') || '',
+                    comunicaciones: [
+                        {
+                            contrato: {
+                                referencia: formData.get('referencia'),
+                                fechaContrato: formData.get('fechaContrato'),
+                                fechaEntrada: formData.get('fechaEntrada'),
+                                fechaSalida: formData.get('fechaSalida'),
+                                numPersonas: 1,
+                                numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
+                                internet: formData.get('internet') === 'on',
+                                pago
                             },
-                        },
-                        personas: [{
-                            rol: "VI",
-                            nombre: formData.get('nombre'),
-                            apellido1: formData.get('apellido1'),
-                            apellido2: formData.get('apellido2') || '',
-                            tipoDocumento: formData.get('tipoDocumento'),
-                            numeroDocumento: formData.get('numeroDocumento') || '',
-                            soporteDocumento: '',
-                            fechaNacimiento: formData.get('fechaNacimiento'),
-                            nacionalidad: formData.get('nacionalidad'),
-                            sexo: formData.get('sexo'),
-                            contacto: { 
-                                telefono: formData.get('telefono') || '', 
-                                telefono2: '', 
-                                correo: formData.get('correo') || '' 
-                            },
-                            direccion: {
-                                direccion: formData.get('direccion'),
-                                direccionComplementaria: '',
-                                codigoPostal: formData.get('codigoPostal'),
-                                pais: formData.get('pais'),
-                                codigoMunicipio: formData.get('codigoMunicipio') || '',
-                                nombreMunicipio: '',
-                            },
-                        }],
-                    }],
+                            personas: [persona]
+                        }
+                    ]
                 };
                 
                 // Enviar datos a la API de Vercel
@@ -805,12 +872,17 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(data),
+                    body: JSON.stringify(cleanEmpty(data)),
                 });
                 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    const errorMessage = errorData.error || errorData.message || `Error ${response.status}: ${response.statusText}`;
+                    let errorMessage = `Error ${response.status}: ${response.statusText}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData && (errorData.error || errorData.message || errorData.details)) {
+                            errorMessage = errorData.error || errorData.message || JSON.stringify(errorData.details);
+                        }
+                    } catch (_) {}
                     throw new Error(errorMessage);
                 }
                 
@@ -826,7 +898,12 @@
                 console.error('Error:', error);
                 const errorDetails = document.getElementById('errorDetails');
                 if (errorDetails) {
-                    errorDetails.textContent = error.message || 'Error desconocido';
+                    let msg = error && error.message ? String(error.message) : 'Error desconocido';
+                    // Normaliza algunos mensajes comunes del backend
+                    if (/invalid|inválid/i.test(msg)) {
+                        msg = 'Datos del formulario inválidos. Revisa fechas (formato MIR), códigos de 5 dígitos y documento.';
+                    }
+                    errorDetails.textContent = msg;
                 }
                 errorMessage.style.display = 'block';
             } finally {
