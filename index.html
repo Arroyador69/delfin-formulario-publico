@@ -773,6 +773,26 @@
             return /^\d{5}$/.test(String(str || ''));
         }
 
+        function ensureSeconds(dateStr) {
+            if (!dateStr) return '';
+            // Si ya tiene segundos, devolverlo
+            if (/:\d{2}$/.test(dateStr)) return dateStr;
+            // Si tiene formato YYYY-MM-DDThh:mm, añadir :00
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
+                return dateStr + ':00';
+            }
+            return dateStr;
+        }
+
+        function pad5(str) {
+            const digits = String(str || '').replace(/\D/g, '');
+            return digits.padStart(5, '0').slice(0, 5);
+        }
+
+        function upper3(str) {
+            return String(str || '').toUpperCase().slice(0, 3);
+        }
+
         document.getElementById('guestRegistrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -796,8 +816,22 @@
             try {
                 // Validaciones mínimas requeridas por el MIR
                 const formData = new FormData(e.target);
-                const codigoPostal = formData.get('codigoPostal');
-                const codigoMunicipio = formData.get('codigoMunicipio');
+                
+                // Normalizar y validar fechas
+                const fechaEntrada = ensureSeconds(formData.get('fechaEntrada'));
+                const fechaSalida = ensureSeconds(formData.get('fechaSalida'));
+                
+                if (!fechaEntrada || !fechaSalida) {
+                    const errorDetails = document.getElementById('errorDetails');
+                    if (errorDetails) errorDetails.textContent = 'Fechas de entrada y salida son obligatorias';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                
+                // Normalizar códigos postales y municipio
+                const codigoPostal = pad5(formData.get('codigoPostal'));
+                const codigoMunicipio = pad5(formData.get('codigoMunicipio'));
+                
                 if (!isFiveDigits(codigoPostal)) {
                     const errorDetails = document.getElementById('errorDetails');
                     if (errorDetails) errorDetails.textContent = 'Código postal debe tener 5 dígitos';
@@ -807,6 +841,16 @@
                 if (!isFiveDigits(codigoMunicipio)) {
                     const errorDetails = document.getElementById('errorDetails');
                     if (errorDetails) errorDetails.textContent = 'Código INE del municipio debe tener 5 dígitos';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                
+                // Validación de documento
+                const tipoDocumento = formData.get('tipoDocumento');
+                const numeroDocumento = formData.get('numeroDocumento');
+                if (tipoDocumento && !numeroDocumento) {
+                    const errorDetails = document.getElementById('errorDetails');
+                    if (errorDetails) errorDetails.textContent = 'Si selecciona tipo de documento, debe proporcionar el número';
                     document.getElementById('errorMessage').style.display = 'block';
                     return;
                 }
@@ -825,11 +869,11 @@
                     nombre: formData.get('nombre'),
                     apellido1: formData.get('apellido1'),
                     apellido2: formData.get('apellido2') || undefined,
-                    tipoDocumento: formData.get('tipoDocumento') || undefined,
-                    numeroDocumento: formData.get('numeroDocumento') || undefined,
+                    tipoDocumento: tipoDocumento || undefined,
+                    numeroDocumento: numeroDocumento || undefined,
                     // soporteDocumento SOLO si aplica (no enviar si vacío)
                     fechaNacimiento: formData.get('fechaNacimiento'),
-                    nacionalidad: formData.get('nacionalidad') || undefined,
+                    nacionalidad: upper3(formData.get('nacionalidad')) || undefined,
                     sexo: formData.get('sexo') || undefined,
                     contacto: {
                         telefono: formData.get('telefono') || undefined,
@@ -839,9 +883,9 @@
                     direccion: {
                         direccion: formData.get('direccion'),
                         direccionComplementaria: undefined,
-                        codigoPostal: formData.get('codigoPostal'),
-                        pais: formData.get('pais'),
-                        codigoMunicipio: formData.get('codigoMunicipio') || undefined,
+                        codigoPostal: codigoPostal,
+                        pais: upper3(formData.get('pais')),
+                        codigoMunicipio: codigoMunicipio || undefined,
                         nombreMunicipio: undefined
                     }
                 };
@@ -853,8 +897,8 @@
                             contrato: {
                                 referencia: formData.get('referencia'),
                                 fechaContrato: formData.get('fechaContrato'),
-                                fechaEntrada: formData.get('fechaEntrada'),
-                                fechaSalida: formData.get('fechaSalida'),
+                                fechaEntrada: fechaEntrada,
+                                fechaSalida: fechaSalida,
                                 numPersonas: 1,
                                 numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
                                 internet: formData.get('internet') === 'on',
@@ -865,6 +909,10 @@
                     ]
                 };
                 
+                // Limpiar payload y mostrar para debug
+                const cleanData = cleanEmpty(data);
+                console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
+                
                 // Enviar datos a la API de Vercel
                 const response = await fetch('https://admin.delfincheckin.com/api/public/guest-registration', {
                     method: 'POST',
@@ -872,7 +920,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(cleanEmpty(data)),
+                    body: JSON.stringify(cleanData),
                 });
                 
                 if (!response.ok) {
