@@ -154,6 +154,7 @@
                                 name="fechaEntrada"
                                 required
                                 class="form-input"
+                                step="1"
                             />
                         </div>
                         
@@ -166,6 +167,7 @@
                                 name="fechaSalida"
                                 required
                                 class="form-input"
+                                step="1"
                             />
                         </div>
                         
@@ -776,12 +778,15 @@
 
         function ensureSeconds(dateStr) {
             if (!dateStr) return '';
-            // Si ya tiene segundos, devolverlo
-            if (/:\d{2}$/.test(dateStr)) return dateStr;
-            // Si tiene formato YYYY-MM-DDThh:mm, añadir :00
+            // Si ya está en YYYY-MM-DDThh:mm:ss lo dejamos tal cual
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            // Si viene en YYYY-MM-DDThh:mm (sin segundos), añadimos :00
             if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
                 return dateStr + ':00';
             }
+            // Cualquier otro caso, lo devolvemos como venga
             return dateStr;
         }
 
