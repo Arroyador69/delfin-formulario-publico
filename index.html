@@ -452,7 +452,8 @@
                                     placeholder="29045"
                                 />
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
-                                    Ejemplo: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)
+                                    Ejemplo: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                    <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
                                 </p>
                             </div>
                         </div>
@@ -493,23 +494,6 @@
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <!-- Panel de depuración (solo visible tras error) -->
-                <div id="debugPanel" class="mt-4 hidden">
-                  <details open class="bg-gray-100 border border-gray-300 rounded p-3">
-                    <summary class="cursor-pointer font-medium text-gray-800">Detalles técnicos</summary>
-                    <div class="mt-2 text-xs text-gray-700 space-y-2">
-                      <div>
-                        <div class="font-semibold">Respuesta del servidor</div>
-                        <pre id="serverErrorJson" class="whitespace-pre-wrap break-all bg-white border p-2 rounded"></pre>
-                      </div>
-                      <div>
-                        <div class="font-semibold">Payload enviado</div>
-                        <pre id="sentPayloadJson" class="whitespace-pre-wrap break-all bg-white border p-2 rounded"></pre>
-                      </div>
-                    </div>
-                  </details>
                 </div>
 
                 <!-- Botón de envío -->
@@ -588,7 +572,7 @@
                 "travelers.countries.italy": "Italia",
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Código municipio INE (5) *",
-                "travelers.municipalityHelp": "Ejemplo: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
+                "travelers.municipalityHelp": "Ejemplo: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)",
                 "messages.success.title": "¡Registro enviado correctamente!",
                 "messages.success.body": "Los datos han sido enviados al dashboard del administrador.",
                 "messages.success.redirect": "Será redirigido al dashboard en unos segundos...",
@@ -653,7 +637,7 @@
                 "travelers.countries.italy": "Italy",
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Municipality INE code (5) *",
-                "travelers.municipalityHelp": "Example: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
+                "travelers.municipalityHelp": "Example: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANT:</strong> This is NOT the postal code, but the INE municipality code (5 digits: 2 for province + 3 for municipality)",
                 "messages.success.title": "Registration sent successfully!",
                 "messages.success.body": "Data has been sent to the admin dashboard.",
                 "messages.success.redirect": "You will be redirected to the dashboard in a few seconds...",
@@ -718,7 +702,7 @@
                 "travelers.countries.italy": "Italie",
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Code municipal INE (5) *",
-                "travelers.municipalityHelp": "Exemple: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)",
+                "travelers.municipalityHelp": "Exemple: 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANT:</strong> Ceci n'est PAS le code postal, mais le code INE de la municipalité (5 chiffres: 2 pour la province + 3 pour la municipalité)",
                 "messages.success.title": "Enregistrement envoyé avec succès !",
                 "messages.success.body": "Les données ont été envoyées au tableau de bord administrateur.",
                 "messages.success.redirect": "Vous serez redirigé vers le tableau de bord dans quelques secondes...",
@@ -801,6 +785,19 @@
             return dateStr;
         }
 
+        function formatDateForMIR(dateStr) {
+            if (!dateStr) return '';
+            // Asegurar formato AAAA-MM-DD para fechas simples
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            // Para fechas con hora, asegurar formato AAAA-MM-DDThh:mm:ss
+            if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateStr)) {
+                return ensureSeconds(dateStr);
+            }
+            return dateStr;
+        }
+
         function pad5(str) {
             const digits = String(str || '').replace(/\D/g, '');
             return digits.padStart(5, '0').slice(0, 5);
@@ -830,14 +827,15 @@
                 ${sendingText}
             `;
             
-            let __lastPayload = '';
             try {
                 // Validaciones mínimas requeridas por el MIR
                 const formData = new FormData(e.target);
                 
                 // Normalizar y validar fechas
-                const fechaEntrada = ensureSeconds(formData.get('fechaEntrada'));
-                const fechaSalida = ensureSeconds(formData.get('fechaSalida'));
+                const fechaContrato = formatDateForMIR(formData.get('fechaContrato'));
+                const fechaEntrada = formatDateForMIR(formData.get('fechaEntrada'));
+                const fechaSalida = formatDateForMIR(formData.get('fechaSalida'));
+                const fechaPago = formatDateForMIR(formData.get('fechaPago'));
                 
                 if (!fechaEntrada || !fechaSalida) {
                     const errorDetails = document.getElementById('errorDetails');
@@ -858,7 +856,15 @@
                 }
                 if (!isFiveDigits(codigoMunicipio)) {
                     const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'Código INE del municipio debe tener 5 dígitos';
+                    if (errorDetails) errorDetails.textContent = 'Código INE del municipio debe tener 5 dígitos (no es el código postal)';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    return;
+                }
+                
+                // Validación adicional: el código INE no debe ser igual al código postal
+                if (codigoMunicipio === codigoPostal) {
+                    const errorDetails = document.getElementById('errorDetails');
+                    if (errorDetails) errorDetails.textContent = 'El código INE del municipio debe ser diferente al código postal. Busque el código INE específico del municipio.';
                     document.getElementById('errorMessage').style.display = 'block';
                     return;
                 }
@@ -877,7 +883,7 @@
                 const pago = {
                     tipoPago: formData.get('tipoPago')
                 };
-                if (formData.get('fechaPago')) pago.fechaPago = formData.get('fechaPago');
+                if (fechaPago) pago.fechaPago = fechaPago;
                 if (formData.get('medioPago')) pago.medioPago = formData.get('medioPago');
                 if (formData.get('titular')) pago.titular = formData.get('titular');
                 if (formData.get('caducidadTarjeta')) pago.caducidadTarjeta = formData.get('caducidadTarjeta');
@@ -914,7 +920,7 @@
                         {
                             contrato: {
                                 referencia: formData.get('referencia'),
-                                fechaContrato: formData.get('fechaContrato'),
+                                fechaContrato: fechaContrato,
                                 fechaEntrada: fechaEntrada,
                                 fechaSalida: fechaSalida,
                                 numPersonas: 1,
@@ -930,8 +936,6 @@
                 // Limpiar payload y mostrar para debug
                 const cleanData = cleanEmpty(data);
                 console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
-                // Guardar para panel de depuración si hay error
-                __lastPayload = JSON.stringify(cleanData, null, 2);
                 
                 // Enviar datos a la API de Vercel
                 const response = await fetch('https://admin.delfincheckin.com/api/public/guest-registration', {
@@ -945,27 +949,12 @@
                 
                 if (!response.ok) {
                     let errorMessage = `Error ${response.status}: ${response.statusText}`;
-                    // Panel de depuración: obtener respuesta y payload
-                    let serverJsonStr = '';
                     try {
                         const errorData = await response.json();
                         if (errorData && (errorData.error || errorData.message || errorData.details)) {
                             errorMessage = errorData.error || errorData.message || JSON.stringify(errorData.details);
                         }
-                        serverJsonStr = JSON.stringify(errorData, null, 2);
-                    } catch (_) {
-                        // fallback a texto plano
-                        try { serverJsonStr = await response.text(); } catch(__) {}
-                    }
-                    // Poblar panel de depuración
-                    const debugPanel = document.getElementById('debugPanel');
-                    if (debugPanel) {
-                        debugPanel.classList.remove('hidden');
-                        const serverErr = document.getElementById('serverErrorJson');
-                        const sentPayload = document.getElementById('sentPayloadJson');
-                        if (serverErr) serverErr.textContent = serverJsonStr || '(sin cuerpo)';
-                        if (sentPayload) sentPayload.textContent = __lastPayload || '(sin payload)';
-                    }
+                    } catch (_) {}
                     throw new Error(errorMessage);
                 }
                 
@@ -984,15 +973,12 @@
                     let msg = error && error.message ? String(error.message) : 'Error desconocido';
                     // Normaliza algunos mensajes comunes del backend
                     if (/invalid|inválid/i.test(msg)) {
-                        msg = msg + ' — Pista: revisa formato de fechas (MIR), que CP y municipio sean 5 dígitos y que el documento sea coherente con el tipo.';
+                        msg = 'Datos del formulario inválidos - Pista: revisa formato de fechas (MIR), que CP y municipio sean 5 dígitos y que el documento sea coherente con el tipo.';
                     }
                     errorDetails.textContent = msg;
                 }
                 errorMessage.style.display = 'block';
             } finally {
-                // Panel de depuración: ocultar si éxito/próximo intento
-                const debugPanel = document.getElementById('debugPanel');
-                if (debugPanel) debugPanel.classList.add('hidden');
                 // Restaurar botón
                 submitButton.disabled = false;
                 const currentLang = document.documentElement.lang || 'es';
