@@ -114,6 +114,30 @@
             <p class="text-sm text-gray-500 mt-2" data-i18n="main.required">
                 Complete todos los campos obligatorios marcados con *
             </p>
+            
+            <!-- Aviso sobre file:// -->
+            <div id="fileProtocolWarning" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4 max-w-2xl mx-auto">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">
+                            ⚠️ Aviso importante sobre el envío del formulario
+                        </h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p><strong>Si abriste esta página como archivo (file://...), el formulario NO funcionará</strong> debido a restricciones de seguridad del navegador (CORS).</p>
+                            <p class="mt-1">Para que funcione correctamente, debes acceder a través de:</p>
+                            <ul class="mt-1 list-disc list-inside">
+                                <li>Una URL HTTPS (https://...)</li>
+                                <li>Un servidor local (http://localhost:...)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Formulario funcional -->
@@ -745,7 +769,17 @@
         }
 
         // Inicializar idioma al cargar la página
-        document.addEventListener('DOMContentLoaded', initializeLanguage);
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLanguage();
+            
+            // Detectar si se está usando file:// y mostrar aviso
+            if (window.location.protocol === 'file:') {
+                const warning = document.getElementById('fileProtocolWarning');
+                if (warning) {
+                    warning.classList.remove('hidden');
+                }
+            }
+        });
 
         // Helpers: limpiar payload y validaciones mínimas
         function cleanEmpty(value) {
@@ -812,6 +846,84 @@
             return String(str || '').toUpperCase().slice(0, 3);
         }
 
+        // ---- Validaciones extra robustas MIR ----
+        function showError(msg) {
+            const errorDetails = document.getElementById('errorDetails');
+            if (errorDetails) errorDetails.textContent = msg;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+
+        // Aviso si se abre como archivo local (file://) — esto rompe CORS y produce "Failed to fetch"
+        (function() {
+            try {
+                if (window.location.protocol === 'file:') {
+                    showError('Estás abriendo el formulario como archivo local (file://). Para poder enviar el registro, sirve esta página desde https o localhost y añade CORS en el backend (OPTIONS con Access-Control-Allow-*)');
+                    console.warn('[Delfín Check-in] Abierto con file:// — El navegador bloqueará el preflight CORS.');
+                }
+            } catch (_) {}
+        })();
+
+        function parseDateOnly(d) {
+            // d in YYYY-MM-DD
+            if (!d) return null;
+            const [y,m,dd] = d.split('-').map(Number);
+            if (!y || !m || !dd) return null;
+            return new Date(y, m - 1, dd, 0, 0, 0, 0);
+        }
+        function parseDateTime(dt) {
+            // dt in YYYY-MM-DDThh:mm[:ss]
+            if (!dt) return null;
+            const withSec = ensureSeconds(dt);
+            const [date, time] = withSec.split('T');
+            const [y,m,dd] = date.split('-').map(Number);
+            const [hh,mm,ss] = time.split(':').map(Number);
+            return new Date(y, m - 1, dd, hh, mm, ss || 0, 0);
+        }
+        function validateDateOrder({fechaContrato, fechaEntrada, fechaSalida, fechaNacimiento, fechaPago}) {
+            const dContrato = parseDateOnly(fechaContrato);
+            const dEntrada = parseDateTime(fechaEntrada);
+            const dSalida  = parseDateTime(fechaSalida);
+            const dNacimiento = parseDateOnly(fechaNacimiento);
+            const dPago = fechaPago ? parseDateOnly(fechaPago) : null;
+
+            if (!dEntrada || !dSalida) return 'Fechas de entrada y salida son obligatorias';
+            if (dContrato && dEntrada && dContrato > dEntrada) return 'La fecha de contrato no puede ser posterior a la entrada';
+            if (dEntrada && dSalida && dEntrada > dSalida) return 'La fecha de entrada no puede ser posterior a la salida';
+            if (dNacimiento && dEntrada && dNacimiento > dEntrada) return 'La fecha de nacimiento no puede ser posterior a la fecha de entrada';
+            if (dPago && dSalida && dPago > dSalida) return 'La fecha de pago no puede ser posterior a la salida';
+            return null;
+        }
+        function validateDoc(tipo, numero) {
+            if (!tipo && !numero) return null; // ambos vacíos, permitido
+            if (tipo && !numero) return 'Si selecciona tipo de documento, debe proporcionar el número';
+            const n = String(numero).trim();
+            if (!n) return 'El número de documento no puede estar vacío';
+            // Reglas mínimas por tipo
+            if (tipo === 'NIF') {
+                if (!/^\d{7,8}[A-Za-z]$/.test(n)) return 'Formato de NIF inválido (7-8 dígitos + letra)';
+            } else if (tipo === 'NIE') {
+                if (!/^[XYZxyz]\d{7}[A-Za-z]$/.test(n)) return 'Formato de NIE inválido (X/Y/Z + 7 dígitos + letra)';
+            } else if (tipo === 'PAS') {
+                if (!/^[A-Za-z0-9]{3,15}$/.test(n)) return 'Pasaporte inválido (3-15 caracteres alfanuméricos)';
+            }
+            return null;
+        }
+        function sameProvince(cp, ine) {
+            return String(cp || '').slice(0,2) === String(ine || '').slice(0,2);
+        }
+        function validateMunicipioVsCP(cp, ine) {
+            if (!isFiveDigits(cp)) return 'Código postal debe tener 5 dígitos';
+            if (!isFiveDigits(ine)) return 'Código INE del municipio debe tener 5 dígitos (no es el código postal)';
+            if (cp === ine) return 'El código INE del municipio debe ser diferente al código postal';
+            if (!sameProvince(cp, ine)) return 'Los dos primeros dígitos del INE deben coincidir con la provincia del código postal';
+            return null;
+        }
+        function validateCardExpiry(exp) {
+            if (!exp) return null;
+            if (!/^(0[1-9]|1[0-2])\/\d{4}$/.test(exp)) return 'Caducidad de tarjeta debe ser MM/AAAA';
+            return null;
+        }
+
         document.getElementById('guestRegistrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -841,48 +953,28 @@
                 const fechaEntrada = formatDateForMIR(formData.get('fechaEntrada'));
                 const fechaSalida = formatDateForMIR(formData.get('fechaSalida'));
                 const fechaPago = formatDateForMIR(formData.get('fechaPago'));
-                
-                if (!fechaEntrada || !fechaSalida) {
-                    const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'Fechas de entrada y salida son obligatorias';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    return;
-                }
-                
-                // Normalizar códigos postales y municipio
-                const codigoPostal = pad5(formData.get('codigoPostal'));
-                const codigoMunicipio = pad5(formData.get('codigoMunicipio'));
-                
-                if (!isFiveDigits(codigoPostal)) {
-                    const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'Código postal debe tener 5 dígitos';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    return;
-                }
-                if (!isFiveDigits(codigoMunicipio)) {
-                    const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'Código INE del municipio debe tener 5 dígitos (no es el código postal)';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    return;
-                }
-                
-                // Validación adicional: el código INE no debe ser igual al código postal
-                if (codigoMunicipio === codigoPostal) {
-                    const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'El código INE del municipio debe ser diferente al código postal. Busque el código INE específico del municipio.';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    return;
-                }
-                
-                // Validación de documento
-                const tipoDocumento = formData.get('tipoDocumento');
-                const numeroDocumento = formData.get('numeroDocumento');
-                if (tipoDocumento && !numeroDocumento) {
-                    const errorDetails = document.getElementById('errorDetails');
-                    if (errorDetails) errorDetails.textContent = 'Si selecciona tipo de documento, debe proporcionar el número';
-                    document.getElementById('errorMessage').style.display = 'block';
-                    return;
-                }
+
+                // --- Validaciones robustas previas ---
+                const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
+                if (docErr) { showError(docErr); return; }
+
+                const muniErr = validateMunicipioVsCP(
+                    pad5(formData.get('codigoPostal')),
+                    pad5(formData.get('codigoMunicipio'))
+                );
+                if (muniErr) { showError(muniErr); return; }
+
+                const orderErr = validateDateOrder({
+                    fechaContrato,
+                    fechaEntrada,
+                    fechaSalida,
+                    fechaNacimiento: formData.get('fechaNacimiento'),
+                    fechaPago
+                });
+                if (orderErr) { showError(orderErr); return; }
+
+                const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
+                if (cardErr) { showError(cardErr); return; }
 
                 // Construcción del payload cumpliendo esquema y sin strings vacíos
                 const pago = {
@@ -898,8 +990,8 @@
                     nombre: formData.get('nombre'),
                     apellido1: formData.get('apellido1'),
                     apellido2: formData.get('apellido2') || undefined,
-                    tipoDocumento: tipoDocumento || undefined,
-                    numeroDocumento: numeroDocumento || undefined,
+                    tipoDocumento: formData.get('tipoDocumento') || undefined,
+                    numeroDocumento: formData.get('numeroDocumento') || undefined,
                     // soporteDocumento SOLO si aplica (no enviar si vacío)
                     fechaNacimiento: formData.get('fechaNacimiento'),
                     nacionalidad: upper3(formData.get('nacionalidad')) || undefined,
@@ -912,9 +1004,9 @@
                     direccion: {
                         direccion: formData.get('direccion'),
                         direccionComplementaria: undefined,
-                        codigoPostal: codigoPostal,
-                        pais: upper3(formData.get('pais')),
-                        codigoMunicipio: codigoMunicipio || undefined,
+                        codigoPostal: pad5(formData.get('codigoPostal')),
+                        pais: upper3(formData.get('pais') || 'ESP'),
+                        codigoMunicipio: pad5(formData.get('codigoMunicipio')) || undefined,
                         nombreMunicipio: undefined
                     }
                 };
@@ -930,7 +1022,8 @@
                                 fechaSalida: fechaSalida,
                                 numPersonas: 1,
                                 numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
-                                internet: formData.get('internet') === 'on',
+                                // solo enviamos si está marcado
+                                ...(formData.get('internet') === 'on' ? { internet: true } : {}),
                                 pago
                             },
                             personas: [persona]
@@ -940,6 +1033,8 @@
                 
                 // Limpiar payload y mostrar para debug
                 const cleanData = cleanEmpty(data);
+                // (Optional debug a solo cliente)
+                console.log('🧾 FormData bruta:', Object.fromEntries(formData.entries()));
                 console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
                 
                 // Enviar datos a la API de Vercel
@@ -948,6 +1043,7 @@
                     mode: 'cors',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(cleanData),
                 });
@@ -955,9 +1051,25 @@
                 if (!response.ok) {
                     let errorMessage = `Error ${response.status}: ${response.statusText}`;
                     try {
-                        const errorData = await response.json();
-                        if (errorData && (errorData.error || errorData.message || errorData.details)) {
-                            errorMessage = errorData.error || errorData.message || JSON.stringify(errorData.details);
+                        const ct = response.headers.get('content-type') || '';
+                        if (ct.includes('application/json')) {
+                            const errorData = await response.json();
+                            if (errorData) {
+                                if (errorData.details && Array.isArray(errorData.details) && errorData.details.length) {
+                                    errorMessage = errorData.details[0].message || JSON.stringify(errorData.details[0]);
+                                } else if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length) {
+                                    errorMessage = errorData.errors[0].message || JSON.stringify(errorData.errors[0]);
+                                } else if (errorData.message) {
+                                    errorMessage = errorData.message;
+                                } else if (errorData.error) {
+                                    errorMessage = errorData.error;
+                                } else {
+                                    errorMessage = JSON.stringify(errorData);
+                                }
+                            }
+                        } else {
+                            const txt = await response.text();
+                            if (txt) errorMessage = txt;
                         }
                     } catch (_) {}
                     throw new Error(errorMessage);
@@ -973,16 +1085,14 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                const errorDetails = document.getElementById('errorDetails');
-                if (errorDetails) {
-                    let msg = error && error.message ? String(error.message) : 'Error desconocido';
-                    // Normaliza algunos mensajes comunes del backend
-                    if (/invalid|inválid/i.test(msg)) {
-                        msg = 'Datos del formulario inválidos - Pista: revisa formato de fechas (MIR), que CP y municipio sean 5 dígitos y que el documento sea coherente con el tipo.';
-                    }
-                    errorDetails.textContent = msg;
+                let msg = error && error.message ? String(error.message) : 'Error desconocido';
+                if (/fecha|date|datetime/i.test(msg)) {
+                    msg += ' · Revisa formatos: contrato YYYY-MM-DD, entrada/salida YYYY-MM-DDThh:mm:ss.';
                 }
-                errorMessage.style.display = 'block';
+                if (/municipio|postal|\bINE\b/i.test(msg)) {
+                    msg += ' · Recuerda: INE (5 dígitos) debe ser distinto al CP y compartir provincia (dos primeros dígitos).';
+                }
+                showError(msg);
             } finally {
                 // Restaurar botón
                 submitButton.disabled = false;
