@@ -499,8 +499,8 @@
                                 <strong data-i18n="messages.success.title">¡Registro enviado correctamente!</strong> 
                                 <span data-i18n="messages.success.body">Los datos han sido enviados al dashboard del administrador.</span>
                             </p>
-                            <p class="text-sm mt-1" data-i18n="messages.success.redirect">
-                                Será redirigido al dashboard en unos segundos...
+                            <p class="text-sm mt-1" data-i18n="messages.success.thanks">
+                                ¡Gracias por completar el registro!
                             </p>
                         </div>
                     </div>
@@ -601,7 +601,7 @@
                 "travelers.municipalityHelp": "Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)",
                 "messages.success.title": "¡Registro enviado correctamente!",
                 "messages.success.body": "Los datos han sido enviados al dashboard del administrador.",
-                "messages.success.redirect": "Será redirigido al dashboard en unos segundos...",
+                "messages.success.thanks": "¡Gracias por completar el registro!",
                 "messages.error.title": "Error al enviar el registro.",
                 "messages.error.body": "Por favor, inténtelo de nuevo.",
                 "submit.button": "Enviar Registro",
@@ -666,7 +666,7 @@
                 "travelers.municipalityHelp": "Example: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANT:</strong> This is NOT the postal code, but the INE municipality code (5 digits: 2 for province + 3 for municipality)",
                 "messages.success.title": "Registration sent successfully!",
                 "messages.success.body": "Data has been sent to the admin dashboard.",
-                "messages.success.redirect": "You will be redirected to the dashboard in a few seconds...",
+                "messages.success.thanks": "Thank you for completing the registration!",
                 "messages.error.title": "Error sending registration.",
                 "messages.error.body": "Please try again.",
                 "submit.button": "Send Registration",
@@ -731,7 +731,7 @@
                 "travelers.municipalityHelp": "Exemple: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong>IMPORTANT:</strong> Ceci n'est PAS le code postal, mais le code INE de la municipalité (5 chiffres: 2 pour la province + 3 pour la municipalité)",
                 "messages.success.title": "Enregistrement envoyé avec succès !",
                 "messages.success.body": "Les données ont été envoyées au tableau de bord administrateur.",
-                "messages.success.redirect": "Vous serez redirigé vers le tableau de bord dans quelques secondes...",
+                "messages.success.thanks": "Merci d'avoir complété l'enregistrement !",
                 "messages.error.title": "Erreur lors de l'envoi de l'enregistrement.",
                 "messages.error.body": "Veuillez réessayer.",
                 "submit.button": "Envoyer l'Enregistrement",
@@ -750,12 +750,17 @@
             // Cambiar atributo lang del HTML
             document.documentElement.lang = lang;
             
-            // Aplicar traducciones
+            // Aplicar traducciones (soporta HTML)
             document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
+              const key = element.getAttribute('data-i18n');
+              if (translations[lang] && translations[lang][key]) {
+                const val = translations[lang][key];
+                if (typeof val === 'string' && /<\/?[a-z][\s\S]*>/i.test(val)) {
+                  element.innerHTML = val;
+                } else {
+                  element.textContent = val;
                 }
+              }
             });
             
             // Guardar preferencia en localStorage
@@ -766,6 +771,49 @@
         function initializeLanguage() {
             const savedLang = localStorage.getItem('preferredLanguage') || 'es';
             changeLanguage(savedLang);
+        }
+
+        // ===== API endpoint helper (override via ?api= or localStorage) =====
+        const DEFAULT_API = 'https://admin.delfincheckin.com/api/registro-flex';
+        function getApiUrl() {
+          try {
+            const u = new URL(window.location.href);
+            const fromQuery = u.searchParams.get('api');
+            if (fromQuery) { localStorage.setItem('apiUrl', fromQuery); return fromQuery; }
+            return localStorage.getItem('apiUrl') || DEFAULT_API;
+          } catch { return DEFAULT_API; }
+        }
+
+        async function testConnectivity() {
+          const url = getApiUrl();
+          const start = Date.now();
+          try {
+            const res = await fetch(url, {
+              method: 'POST',
+              mode: 'cors',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Dry-Run': '1' },
+              body: JSON.stringify({ _health: true, source: 'public-form', ts: new Date().toISOString() })
+            });
+            const ms = Date.now() - start;
+            const ct = res.headers.get('content-type') || '';
+            const okTxt = res.ok ? 'OK' : `HTTP ${res.status}`;
+            let bodyTxt = '';
+            try {
+              if (ct.includes('application/json')) { bodyTxt = JSON.stringify(await res.json()); }
+              else { bodyTxt = await res.text(); }
+            } catch (_) {}
+            const out = `[${okTxt}] ${url} · ${ms}ms\n${bodyTxt || '(sin cuerpo)'}`;
+            const dr = document.getElementById('debugResponse'); if (dr) dr.textContent = out;
+            return res.ok;
+          } catch (err) {
+            const dr = document.getElementById('debugResponse'); if (dr) dr.textContent = 'Conexión fallida: ' + (err && err.message ? err.message : String(err));
+            return false;
+          }
+        }
+
+        // Función para detectar modo debug
+        function isDebug() {
+          try { const u = new URL(window.location.href); return u.searchParams.get('debug') === '1'; } catch { return false; }
         }
 
         // Inicializar idioma al cargar la página
@@ -779,9 +827,122 @@
                     warning.classList.remove('hidden');
                 }
             }
+            // Mostrar panel debug si ?debug=1
+            if (isDebug()) { const dp = document.getElementById('debugPanel'); if (dp) dp.classList.remove('hidden'); }
+            // Si debug activo, probar conectividad automáticamente
+            if (isDebug()) { setTimeout(() => { testConnectivity(); }, 200); }
         });
 
-        // Helpers: limpiar payload y validaciones mínimas
+        // ===== BUILDER DE PAYLOAD DEFENSIVO =====
+        const toISODate = (d) => {
+            if (!d) return null;
+            // admite "10/09/2025", "10-09-2025", "2025-09-10"
+            const [dd, mm, yyyy] = d.includes('/') ? d.split('/') : d.includes('-') ? d.split('-') : [null,null,null];
+            if (yyyy && mm && dd) return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+            // fallback: Date.parse
+            const dt = new Date(d);
+            if (!isNaN(dt)) return dt.toISOString().slice(0,10);
+            return null;
+        };
+
+        const toISODateTime = (s) => {
+            if (!s) return null;
+            // admite "11/09/2025, 21:13:02" y "2025-09-11T21:13:02"
+            if (s.includes('T')) return s.replace(' ', 'T').slice(0,19);
+            const parts = s.split(',');
+            const date = parts[0]?.trim();
+            const time = (parts[1]||'').trim();
+            const isoDate = toISODate(date);
+            const hhmmss = time || '00:00:00';
+            return isoDate ? `${isoDate}T${hhmmss.padStart(8,'0')}` : null;
+        };
+
+        const mapSexo = (x) => {
+            const val = String(x).trim();
+            if (val === 'Hombre' || val === 'H') return 'M';
+            if (val === 'Mujer' || val === 'F') return 'F';
+            return 'X';
+        };
+
+        const mapDocType = (x) => {
+            const k = String(x).toLowerCase();
+            if (k.includes('dni') || k.includes('nif')) return 'NIF';
+            if (k.includes('nie')) return 'NIE';
+            if (k.includes('pas')) return 'PASSPORT';
+            return 'OTHER';
+        };
+
+        const mapPago = (x) => {
+            const k = String(x).toLowerCase();
+            if (k.includes('efect')) return { code:'EFECTIVO', label:'Efectivo' };
+            if (k.includes('tarj')) return { code:'TARJETA', label:'Tarjeta' };
+            if (k.includes('trans') || k.includes('bank')) return { code:'TRANSFERENCIA', label:'Transferencia' };
+            return { code:'OTRO', label:String(x) };
+        };
+
+        const iso3to2 = (x) => {
+            const map = { ESP:'ES', FRA:'FR', GBR:'GB', ITA:'IT', DEU:'DE' };
+            return map[String(x).toUpperCase()] || String(x).toUpperCase();
+        };
+
+        function buildPayloadDefensive(formData) {
+            const pagoTipo = mapPago(formData.get('tipoPago'));
+            const medioPago = String(formData.get('medioPago')||'').trim();
+
+            const payload = {
+                contrato: {
+                    fechaContrato: toISODate(formData.get('fechaContrato')),
+                    entrada: toISODateTime(formData.get('fechaEntrada')),
+                    salida: toISODateTime(formData.get('fechaSalida')),
+                    nHabitaciones: Number(formData.get('numHabitaciones')||1),
+                    internet: !!formData.get('internet'),
+                    fechaPago: formData.get('fechaPago') ? toISODate(formData.get('fechaPago')) : null,
+                    tipoPagoCode: pagoTipo.code,
+                    tipoPagoLabel: pagoTipo.label,
+                    medioPago: medioPago || null,
+                },
+                titular: {
+                    nombreCompleto: String(formData.get('titular')||'').trim(),
+                    tarjetaCaducidad: (String(formData.get('caducidadTarjeta')||'').match(/^\d{2}\/\d{4}$/) ? String(formData.get('caducidadTarjeta')) : null),
+                },
+                viajeros: [{
+                    nombre: String(formData.get('nombre')||'').trim(),
+                    primerApellido: String(formData.get('apellido1')||'').trim(),
+                    segundoApellido: String(formData.get('apellido2')||'').trim() || null,
+                    fechaNacimiento: toISODate(formData.get('fechaNacimiento')),
+                    tipoDocumento: mapDocType(formData.get('tipoDocumento')),
+                    numeroDocumento: String((formData.get('numeroDocumento')||'').toUpperCase().replace(/\s+/g,'')),
+                    sexo: mapSexo(formData.get('sexo')),
+                    nacionalidadISO2: iso3to2(formData.get('nacionalidad') || 'ES'),
+                    telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
+                    email: String(formData.get('correo')||'').trim().toLowerCase(),
+                    direccion: String(formData.get('direccion')||'').trim(),
+                    cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
+                    ine: String(formData.get('codigoMunicipio')||'').padStart(5,'0'),
+                    paisResidencia: iso3to2(formData.get('pais')||'ES'),
+                }]
+            };
+
+            // Limpia null/'' recursivamente
+            const clean = (obj) => {
+                if (obj === null || obj === undefined) return null;
+                if (typeof obj !== 'object') return obj;
+                if (Array.isArray(obj)) return obj.map(clean).filter(v => v !== null && v !== '');
+                
+                const cleaned = {};
+                for (const [k, v] of Object.entries(obj)) {
+                    const cleanedValue = clean(v);
+                    if (cleanedValue !== null && cleanedValue !== '') {
+                        cleaned[k] = cleanedValue;
+                    }
+                }
+                return cleaned;
+            };
+
+            return clean(payload);
+        }
+
+        // Helpers: limpiar payload y validaciones mínimas (mantener para compatibilidad)
         function cleanEmpty(value) {
             if (Array.isArray(value)) {
                 const arr = value.map(cleanEmpty).filter(v => {
@@ -976,69 +1137,20 @@
                 const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
                 if (cardErr) { showError(cardErr); return; }
 
-                // Construcción del payload cumpliendo esquema y sin strings vacíos
-                const pago = {
-                    tipoPago: formData.get('tipoPago')
-                };
-                if (fechaPago) pago.fechaPago = fechaPago;
-                if (formData.get('medioPago')) pago.medioPago = formData.get('medioPago');
-                if (formData.get('titular')) pago.titular = formData.get('titular');
-                if (formData.get('caducidadTarjeta')) pago.caducidadTarjeta = formData.get('caducidadTarjeta');
-
-                const persona = {
-                    rol: 'VI',
-                    nombre: formData.get('nombre'),
-                    apellido1: formData.get('apellido1'),
-                    apellido2: formData.get('apellido2') || undefined,
-                    tipoDocumento: formData.get('tipoDocumento') || undefined,
-                    numeroDocumento: formData.get('numeroDocumento') || undefined,
-                    // soporteDocumento SOLO si aplica (no enviar si vacío)
-                    fechaNacimiento: formData.get('fechaNacimiento'),
-                    nacionalidad: upper3(formData.get('nacionalidad')) || undefined,
-                    sexo: formData.get('sexo') || undefined,
-                    contacto: {
-                        telefono: formData.get('telefono') || undefined,
-                        telefono2: undefined,
-                        correo: formData.get('correo') || undefined
-                    },
-                    direccion: {
-                        direccion: formData.get('direccion'),
-                        direccionComplementaria: undefined,
-                        codigoPostal: pad5(formData.get('codigoPostal')),
-                        pais: upper3(formData.get('pais') || 'ESP'),
-                        codigoMunicipio: pad5(formData.get('codigoMunicipio')) || undefined,
-                        nombreMunicipio: undefined
-                    }
-                };
-
-                const data = {
-                    codigoEstablecimiento: formData.get('codigoEstablecimiento'),
-                    comunicaciones: [
-                        {
-                            contrato: {
-                                referencia: formData.get('referencia'),
-                                fechaContrato: fechaContrato,
-                                fechaEntrada: fechaEntrada,
-                                fechaSalida: fechaSalida,
-                                numPersonas: 1,
-                                numHabitaciones: parseInt(formData.get('numHabitaciones')) || 1,
-                                // solo enviamos si está marcado
-                                ...(formData.get('internet') === 'on' ? { internet: true } : {}),
-                                pago
-                            },
-                            personas: [persona]
-                        }
-                    ]
-                };
-                
-                // Limpiar payload y mostrar para debug
-                const cleanData = cleanEmpty(data);
+                // ===== USAR BUILDER DEFENSIVO =====
+                const cleanData = buildPayloadDefensive(formData);
                 // (Optional debug a solo cliente)
                 console.log('🧾 FormData bruta:', Object.fromEntries(formData.entries()));
                 console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
+
+                // Volcar payload en panel debug
+                if (isDebug()) {
+                  const dq = document.getElementById('debugRequest');
+                  if (dq) dq.textContent = 'Request payload:\n' + JSON.stringify(cleanData, null, 2);
+                }
                 
-                // Enviar datos a la API de Vercel
-                const response = await fetch('https://admin.delfincheckin.com/api/public/guest-registration', {
+                // Enviar datos a la API de Vercel (nuevo endpoint flexible)
+                const response = await fetch(getApiUrl(), {
                     method: 'POST',
                     mode: 'cors',
                     headers: {
@@ -1049,48 +1161,67 @@
                 });
                 
                 if (!response.ok) {
-                    let errorMessage = `Error ${response.status}: ${response.statusText}`;
-                    try {
-                        const ct = response.headers.get('content-type') || '';
-                        if (ct.includes('application/json')) {
-                            const errorData = await response.json();
-                            if (errorData) {
-                                if (errorData.details && Array.isArray(errorData.details) && errorData.details.length) {
-                                    errorMessage = errorData.details[0].message || JSON.stringify(errorData.details[0]);
-                                } else if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length) {
-                                    errorMessage = errorData.errors[0].message || JSON.stringify(errorData.errors[0]);
-                                } else if (errorData.message) {
-                                    errorMessage = errorData.message;
-                                } else if (errorData.error) {
-                                    errorMessage = errorData.error;
-                                } else {
-                                    errorMessage = JSON.stringify(errorData);
-                                }
-                            }
-                        } else {
-                            const txt = await response.text();
-                            if (txt) errorMessage = txt;
-                        }
-                    } catch (_) {}
-                    throw new Error(errorMessage);
+                  let errorMessage = `Error ${response.status}: ${response.statusText}`;
+                  let rawText = '';
+                  try {
+                    const ct = response.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                      const errorData = await response.json();
+                      if (isDebug()) {
+                        const dr = document.getElementById('debugResponse');
+                        if (dr) dr.textContent = 'Response JSON (error):\n' + JSON.stringify(errorData, null, 2);
+                      }
+                      const candidates = [];
+                      if (errorData) {
+                        if (Array.isArray(errorData.details)) candidates.push(...errorData.details);
+                        if (Array.isArray(errorData.errors)) candidates.push(...errorData.errors);
+                        if (Array.isArray(errorData.issues)) candidates.push(...errorData.issues);
+                        if (errorData.validation && Array.isArray(errorData.validation)) candidates.push(...errorData.validation);
+                      }
+                      const first = candidates.find(x => x && (x.message || x.msg || x.detail));
+                      if (first) {
+                        errorMessage = first.message || first.msg || first.detail;
+                      } else if (errorData && (errorData.message || errorData.error || errorData.detail || errorData.description)) {
+                        errorMessage = errorData.message || errorData.error || errorData.detail || errorData.description;
+                      } else {
+                        errorMessage = JSON.stringify(errorData);
+                      }
+                    } else {
+                      rawText = await response.text();
+                      if (isDebug()) {
+                        const dr = document.getElementById('debugResponse');
+                        if (dr) dr.textContent = 'Response TEXT (error):\n' + rawText;
+                      }
+                      if (rawText) errorMessage = rawText;
+                    }
+                  } catch (err) {
+                    if (isDebug()) {
+                      const dr = document.getElementById('debugResponse');
+                      if (dr) dr.textContent = 'Response parse error: ' + (err && err.message ? err.message : String(err));
+                    }
+                  }
+                  throw new Error(errorMessage);
                 }
                 
                 // Mostrar mensaje de éxito
                 successMessage.style.display = 'block';
                 
-                // Redirigir al dashboard después de 3 segundos
-                setTimeout(() => {
-                    window.open('https://admin.delfincheckin.com/guest-registrations-dashboard', '_blank');
-                }, 3000);
+                // Limpiar formulario pero mantener idioma seleccionado
+                const currentLang = document.documentElement.getAttribute('lang');
+                document.getElementById('guestRegistrationForm').reset();
+                document.documentElement.setAttribute('lang', currentLang);
                 
             } catch (error) {
                 console.error('Error:', error);
                 let msg = error && error.message ? String(error.message) : 'Error desconocido';
                 if (/fecha|date|datetime/i.test(msg)) {
-                    msg += ' · Revisa formatos: contrato YYYY-MM-DD, entrada/salida YYYY-MM-DDThh:mm:ss.';
+                  msg += ' · Revisa formatos: contrato YYYY-MM-DD, entrada/salida YYYY-MM-DDThh:mm:ss.';
                 }
                 if (/municipio|postal|\bINE\b/i.test(msg)) {
-                    msg += ' · Recuerda: INE (5 dígitos) debe ser distinto al CP y compartir provincia (dos primeros dígitos).';
+                  msg += ' · Recuerda: INE (5 dígitos) debe ser distinto al CP y compartir provincia (dos primeros dígitos).';
+                }
+                if (/invalido|inválid|invalid/i.test(msg)) {
+                  msg += ' · Si el mensaje no especifica el campo, añade ?debug=1 a la URL para ver la respuesta exacta del servidor.';
                 }
                 showError(msg);
             } finally {
@@ -1107,5 +1238,40 @@
             }
         });
     </script>
+</div>
+
+    <!-- Panel de depuración (solo si ?debug=1) -->
+    <details id="debugPanel" class="mt-6 hidden">
+      <summary class="cursor-pointer text-sm text-gray-600">Debug</summary>
+      <div class="mt-2 p-3 bg-gray-50 rounded border">
+        <label class="text-xs text-gray-600">API URL</label>
+        <div class="flex gap-2 mt-1">
+          <input id="apiUrlInput" class="form-input flex-1" type="text" placeholder="https://admin.delfincheckin.com/api/registro-flex" />
+          <button id="saveApiUrlBtn" type="button" class="language-btn">Guardar</button>
+          <button id="testApiBtn" type="button" class="language-btn">Probar</button>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">También puedes pasar ?api=URL en la barra de direcciones.</p>
+      </div>
+      <pre id="debugRequest" class="text-xs bg-gray-100 p-3 rounded mt-2 overflow-auto"></pre>
+      <pre id="debugResponse" class="text-xs bg-gray-100 p-3 rounded mt-2 overflow-auto"></pre>
+    </details>
+</body>
+<script>
+// Wire debug controls
+(function(){
+  const input = document.getElementById('apiUrlInput');
+  const saveBtn = document.getElementById('saveApiUrlBtn');
+  const testBtn = document.getElementById('testApiBtn');
+  if (input) { input.value = localStorage.getItem('apiUrl') || getApiUrl(); }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const val = (input && input.value || '').trim();
+      if (val) { localStorage.setItem('apiUrl', val); alert('API URL guardada'); }
+    });
+  }
+  if (testBtn) { testBtn.addEventListener('click', () => testConnectivity()); }
+})();
+</script>
+</html>
 </body>
 </html>
