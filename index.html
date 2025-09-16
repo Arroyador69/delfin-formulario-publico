@@ -171,7 +171,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="contract.checkIn">
-                                Entrada (AAAA-MM-DDThh:mm:ss) *
+                                Entrada Check-in (AAAA-MM-DDThh:mm:ss) *
                             </label>
                             <input
                                 type="datetime-local"
@@ -184,7 +184,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="contract.checkOut">
-                                Salida (AAAA-MM-DDThh:mm:ss) *
+                                Salida Check-out (AAAA-MM-DDThh:mm:ss) *
                             </label>
                             <input
                                 type="datetime-local"
@@ -197,7 +197,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="contract.rooms">
-                                Nº habitaciones
+                                Número de habitación
                             </label>
                             <input
                                 type="number"
@@ -231,7 +231,7 @@
                             >
                                 <option value="EFECT" data-i18n="contract.payment.cash">Efectivo</option>
                                 <option value="TARJT" data-i18n="contract.payment.card">Tarjeta</option>
-                                <option value="PLATF" data-i18n="contract.payment.platform">Plataforma</option>
+                                <option value="PLATF" selected data-i18n="contract.payment.platform">Plataforma</option>
                                 <option value="TRANS" data-i18n="contract.payment.transfer">Transferencia</option>
                                 <option value="MOVIL" data-i18n="contract.payment.mobile">Móvil</option>
                                 <option value="TREG" data-i18n="contract.payment.check">Cheque</option>
@@ -283,6 +283,9 @@
                                 placeholder="MM/AAAA"
                                 class="form-input"
                             />
+                            <p class="text-xs text-gray-500 mt-1" data-i18n="contract.expiryHelp">
+                                En caso de pago con tarjeta, indique la fecha de caducidad de la tarjeta utilizada
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -377,15 +380,18 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.nationality">
-                                    Nacionalidad (ISO3)
+                                    Nacionalidad
                                 </label>
                                 <input
                                     type="text"
                                     name="nacionalidad"
-                                    value="ESP"
-                                    class="form-input"
-                                    maxlength="3"
+                                    value="España"
+                                    class="form-input nationality-input"
+                                    placeholder="Ej: España, Francia, Italia..."
                                 />
+                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.nationalityHelp">
+                                    Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
+                                </p>
                             </div>
                             
                             <div>
@@ -450,19 +456,19 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.country">
-                                    País (ISO3) *
+                                    País *
                                 </label>
-                                <select
+                                <input
+                                    type="text"
                                     name="pais"
-                                    class="form-input"
-                                >
-                                    <option value="ESP" selected data-i18n="travelers.countries.spain">España</option>
-                                    <option value="FRA" data-i18n="travelers.countries.france">Francia</option>
-                                    <option value="GBR" data-i18n="travelers.countries.uk">Reino Unido</option>
-                                    <option value="DEU" data-i18n="travelers.countries.germany">Alemania</option>
-                                    <option value="ITA" data-i18n="travelers.countries.italy">Italia</option>
-                                    <option value="PRT" data-i18n="travelers.countries.portugal">Portugal</option>
-                                </select>
+                                    value="España"
+                                    required
+                                    class="form-input country-input"
+                                    placeholder="Ej: España, Francia, Italia..."
+                                />
+                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.countryHelp">
+                                    Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
+                                </p>
                             </div>
                             
                             <div>
@@ -483,6 +489,207 @@
                                 </p>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Segundo Viajero (Opcional) -->
+                    <div id="traveler2Section" class="border rounded-lg p-6 mb-4 bg-gray-50 hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-medium text-gray-900" data-i18n="travelers.traveler2">
+                                Viajero 2 (Opcional)
+                            </h4>
+                            <button type="button" id="removeTraveler2" class="text-red-600 hover:text-red-800 text-sm">
+                                <span data-i18n="travelers.remove">Eliminar</span>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.firstName">
+                                    Nombre
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nombre2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.firstSurname">
+                                    Primer apellido
+                                </label>
+                                <input
+                                    type="text"
+                                    name="apellido1_2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.secondSurname">
+                                    Segundo apellido
+                                </label>
+                                <input
+                                    type="text"
+                                    name="apellido2_2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.birthDate">
+                                    Fecha nacimiento (AAAA-MM-DD)
+                                </label>
+                                <input
+                                    type="date"
+                                    name="fechaNacimiento2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentType">
+                                    Tipo documento
+                                </label>
+                                <select
+                                    name="tipoDocumento2"
+                                    class="form-input"
+                                >
+                                    <option value="NIF" data-i18n="travelers.documents.dni">DNI</option>
+                                    <option value="NIE" data-i18n="travelers.documents.nie">NIE</option>
+                                    <option value="PAS" selected data-i18n="travelers.documents.passport">Pasaporte</option>
+                                    <option value="OTRO" data-i18n="travelers.documents.other">Otro</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentNumber">
+                                    Número documento
+                                </label>
+                                <input
+                                    type="text"
+                                    name="numeroDocumento2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.nationality">
+                                    Nacionalidad
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nacionalidad2"
+                                    value="España"
+                                    class="form-input nationality-input"
+                                    placeholder="Ej: España, Francia, Italia..."
+                                />
+                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.nationalityHelp">
+                                    Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.gender">
+                                    Sexo
+                                </label>
+                                <select
+                                    name="sexo2"
+                                    class="form-input"
+                                >
+                                    <option value="H" selected data-i18n="travelers.gender.male">Hombre</option>
+                                    <option value="M" data-i18n="travelers.gender.female">Mujer</option>
+                                    <option value="O" data-i18n="travelers.gender.other">Otro</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.phone">
+                                    Teléfono
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="telefono2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.email">
+                                    Correo electrónico
+                                </label>
+                                <input
+                                    type="email"
+                                    name="correo2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.address">
+                                    Dirección
+                                </label>
+                                <input
+                                    type="text"
+                                    name="direccion2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.postalCode">
+                                    Código postal
+                                </label>
+                                <input
+                                    type="text"
+                                    name="codigoPostal2"
+                                    class="form-input"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.country">
+                                    País
+                                </label>
+                                <input
+                                    type="text"
+                                    name="pais2"
+                                    value="España"
+                                    class="form-input country-input"
+                                    placeholder="Ej: España, Francia, Italia..."
+                                />
+                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.countryHelp">
+                                    Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.municipalityCode">
+                                    Código municipio INE (5)
+                                </label>
+                                <input
+                                    type="text"
+                                    name="codigoMunicipio2"
+                                    class="form-input"
+                                    maxlength="5"
+                                    placeholder="29042"
+                                />
+                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
+                                    Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                    <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón para añadir segundo viajero -->
+                    <div class="text-center mb-4">
+                        <button type="button" id="addTraveler2" class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <span data-i18n="travelers.addSecond">Añadir segundo viajero</span>
+                        </button>
                     </div>
                 </div>
 
@@ -552,9 +759,10 @@
                 "contract.establishmentCode": "Código establecimiento *",
                 "contract.reference": "Referencia *",
                 "contract.contractDate": "Fecha contrato (AAAA-MM-DD) *",
-                "contract.checkIn": "Entrada (AAAA-MM-DDThh:mm:ss) *",
-                "contract.checkOut": "Salida (AAAA-MM-DDThh:mm:ss) *",
-                "contract.rooms": "Nº habitaciones",
+                "contract.checkIn": "Entrada Check-in (AAAA-MM-DDThh:mm:ss) *",
+                "contract.checkOut": "Salida Check-out (AAAA-MM-DDThh:mm:ss) *",
+                "contract.rooms": "Número de habitación",
+                "contract.expiryHelp": "En caso de pago con tarjeta, indique la fecha de caducidad de la tarjeta utilizada",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Tipo de pago *",
                 "contract.payment.cash": "Efectivo",
@@ -571,6 +779,11 @@
                 "contract.expiry": "Caducidad (MM/AAAA)",
                 "travelers.title": "Viajeros",
                 "travelers.traveler1": "Viajero 1",
+                "travelers.traveler2": "Viajero 2 (Opcional)",
+                "travelers.addSecond": "Añadir segundo viajero",
+                "travelers.remove": "Eliminar",
+                "travelers.nationalityHelp": "Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.",
+                "travelers.countryHelp": "Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.",
                 "travelers.firstName": "Nombre *",
                 "travelers.firstSurname": "Primer apellido *",
                 "travelers.secondSurname": "Segundo apellido",
@@ -581,7 +794,7 @@
                 "travelers.documents.passport": "Pasaporte",
                 "travelers.documents.other": "Otro",
                 "travelers.documentNumber": "Número documento",
-                "travelers.nationality": "Nacionalidad (ISO3)",
+                "travelers.nationality": "Nacionalidad",
                 "travelers.gender": "Sexo",
                 "travelers.gender.male": "Hombre",
                 "travelers.gender.female": "Mujer",
@@ -590,7 +803,7 @@
                 "travelers.email": "Correo electrónico",
                 "travelers.address": "Dirección *",
                 "travelers.postalCode": "Código postal *",
-                "travelers.country": "País (ISO3) *",
+                "travelers.country": "País *",
                 "travelers.countries.spain": "España",
                 "travelers.countries.france": "Francia",
                 "travelers.countries.uk": "Reino Unido",
@@ -617,9 +830,10 @@
                 "contract.establishmentCode": "Establishment code *",
                 "contract.reference": "Reference *",
                 "contract.contractDate": "Contract date (YYYY-MM-DD) *",
-                "contract.checkIn": "Check-in (YYYY-MM-DDThh:mm:ss) *",
-                "contract.checkOut": "Check-out (YYYY-MM-DDThh:mm:ss) *",
-                "contract.rooms": "Number of rooms",
+                "contract.checkIn": "Check-in Entry (YYYY-MM-DDThh:mm:ss) *",
+                "contract.checkOut": "Check-out Departure (YYYY-MM-DDThh:mm:ss) *",
+                "contract.rooms": "Room number",
+                "contract.expiryHelp": "In case of card payment, indicate the expiry date of the card used",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Payment type *",
                 "contract.payment.cash": "Cash",
@@ -636,6 +850,11 @@
                 "contract.expiry": "Expiry (MM/YYYY)",
                 "travelers.title": "Travelers",
                 "travelers.traveler1": "Traveler 1",
+                "travelers.traveler2": "Traveler 2 (Optional)",
+                "travelers.addSecond": "Add second traveler",
+                "travelers.remove": "Remove",
+                "travelers.nationalityHelp": "Enter the country in its natural language (e.g: Spain, France). It will be automatically converted to ISO3 code.",
+                "travelers.countryHelp": "Enter the country in its natural language (e.g: Spain, France). It will be automatically converted to ISO3 code.",
                 "travelers.firstName": "First name *",
                 "travelers.firstSurname": "First surname *",
                 "travelers.secondSurname": "Second surname",
@@ -646,7 +865,7 @@
                 "travelers.documents.passport": "Passport",
                 "travelers.documents.other": "Other",
                 "travelers.documentNumber": "Document number",
-                "travelers.nationality": "Nationality (ISO3)",
+                "travelers.nationality": "Nationality",
                 "travelers.gender": "Gender",
                 "travelers.gender.male": "Male",
                 "travelers.gender.female": "Female",
@@ -655,7 +874,7 @@
                 "travelers.email": "Email",
                 "travelers.address": "Address *",
                 "travelers.postalCode": "Postal code *",
-                "travelers.country": "Country (ISO3) *",
+                "travelers.country": "Country *",
                 "travelers.countries.spain": "Spain",
                 "travelers.countries.france": "France",
                 "travelers.countries.uk": "United Kingdom",
@@ -682,9 +901,10 @@
                 "contract.establishmentCode": "Code établissement *",
                 "contract.reference": "Référence *",
                 "contract.contractDate": "Date contrat (AAAA-MM-JJ) *",
-                "contract.checkIn": "Arrivée (AAAA-MM-JJThh:mm:ss) *",
-                "contract.checkOut": "Départ (AAAA-MM-JJThh:mm:ss) *",
-                "contract.rooms": "Nombre de chambres",
+                "contract.checkIn": "Arrivée Check-in (AAAA-MM-JJThh:mm:ss) *",
+                "contract.checkOut": "Départ Check-out (AAAA-MM-JJThh:mm:ss) *",
+                "contract.rooms": "Numéro de chambre",
+                "contract.expiryHelp": "En cas de paiement par carte, indiquez la date d'expiration de la carte utilisée",
                 "contract.internet": "Internet",
                 "contract.paymentType": "Type de paiement *",
                 "contract.payment.cash": "Espèces",
@@ -701,6 +921,11 @@
                 "contract.expiry": "Expiration (MM/AAAA)",
                 "travelers.title": "Voyageurs",
                 "travelers.traveler1": "Voyageur 1",
+                "travelers.traveler2": "Voyageur 2 (Optionnel)",
+                "travelers.addSecond": "Ajouter un deuxième voyageur",
+                "travelers.remove": "Supprimer",
+                "travelers.nationalityHelp": "Saisissez le pays dans sa langue naturelle (ex: Espagne, France). Il sera automatiquement converti en code ISO3.",
+                "travelers.countryHelp": "Saisissez le pays dans sa langue naturelle (ex: Espagne, France). Il sera automatiquement converti en code ISO3.",
                 "travelers.firstName": "Prénom *",
                 "travelers.firstSurname": "Premier nom de famille *",
                 "travelers.secondSurname": "Deuxième nom de famille",
@@ -711,7 +936,7 @@
                 "travelers.documents.passport": "Passeport",
                 "travelers.documents.other": "Autre",
                 "travelers.documentNumber": "Numéro de document",
-                "travelers.nationality": "Nationalité (ISO3)",
+                "travelers.nationality": "Nationalité",
                 "travelers.gender": "Sexe",
                 "travelers.gender.male": "Homme",
                 "travelers.gender.female": "Femme",
@@ -720,7 +945,7 @@
                 "travelers.email": "Email",
                 "travelers.address": "Adresse *",
                 "travelers.postalCode": "Code postal *",
-                "travelers.country": "Pays (ISO3) *",
+                "travelers.country": "Pays *",
                 "travelers.countries.spain": "Espagne",
                 "travelers.countries.france": "France",
                 "travelers.countries.uk": "Royaume-Uni",
@@ -816,6 +1041,85 @@
           try { const u = new URL(window.location.href); return u.searchParams.get('debug') === '1'; } catch { return false; }
         }
 
+        // Diccionario de conversión de países a códigos ISO3
+        const countryToISO3 = {
+            'españa': 'ESP', 'spain': 'ESP', 'espagne': 'ESP',
+            'francia': 'FRA', 'france': 'FRA', 
+            'italia': 'ITA', 'italy': 'ITA', 'italie': 'ITA',
+            'alemania': 'DEU', 'germany': 'DEU', 'allemagne': 'DEU',
+            'portugal': 'PRT',
+            'reino unido': 'GBR', 'united kingdom': 'GBR', 'uk': 'GBR', 'royaume-uni': 'GBR',
+            'estados unidos': 'USA', 'united states': 'USA', 'usa': 'USA', 'etats-unis': 'USA',
+            'marruecos': 'MAR', 'morocco': 'MAR', 'maroc': 'MAR',
+            'argelia': 'DZA', 'algeria': 'DZA', 'algérie': 'DZA',
+            'túnez': 'TUN', 'tunisia': 'TUN', 'tunisie': 'TUN',
+            'rumania': 'ROU', 'romania': 'ROU', 'roumanie': 'ROU',
+            'bulgaria': 'BGR', 'bulgarie': 'BGR',
+            'polonia': 'POL', 'poland': 'POL', 'pologne': 'POL',
+            'rusia': 'RUS', 'russia': 'RUS', 'russie': 'RUS',
+            'ucrania': 'UKR', 'ukraine': 'UKR',
+            'países bajos': 'NLD', 'netherlands': 'NLD', 'pays-bas': 'NLD', 'holanda': 'NLD',
+            'bélgica': 'BEL', 'belgium': 'BEL', 'belgique': 'BEL',
+            'suiza': 'CHE', 'switzerland': 'CHE', 'suisse': 'CHE',
+            'austria': 'AUT', 'autriche': 'AUT',
+            'suecia': 'SWE', 'sweden': 'SWE', 'suède': 'SWE',
+            'noruega': 'NOR', 'norway': 'NOR', 'norvège': 'NOR',
+            'dinamarca': 'DNK', 'denmark': 'DNK', 'danemark': 'DNK',
+            'finlandia': 'FIN', 'finland': 'FIN', 'finlande': 'FIN',
+            'grecia': 'GRC', 'greece': 'GRC', 'grèce': 'GRC',
+            'turquía': 'TUR', 'turkey': 'TUR', 'turquie': 'TUR',
+            'brasil': 'BRA', 'brazil': 'BRA', 'brésil': 'BRA',
+            'argentina': 'ARG', 'argentine': 'ARG',
+            'chile': 'CHL', 'chili': 'CHL',
+            'colombia': 'COL', 'colombie': 'COL',
+            'perú': 'PER', 'peru': 'PER', 'pérou': 'PER',
+            'ecuador': 'ECU', 'equateur': 'ECU',
+            'venezuela': 'VEN', 'vénézuela': 'VEN',
+            'méxico': 'MEX', 'mexico': 'MEX', 'mexique': 'MEX',
+            'canadá': 'CAN', 'canada': 'CAN',
+            'china': 'CHN', 'chine': 'CHN',
+            'japón': 'JPN', 'japan': 'JPN', 'japon': 'JPN',
+            'corea del sur': 'KOR', 'south korea': 'KOR', 'corée du sud': 'KOR',
+            'india': 'IND', 'inde': 'IND',
+            'australia': 'AUS', 'australie': 'AUS',
+            'sudáfrica': 'ZAF', 'south africa': 'ZAF', 'afrique du sud': 'ZAF'
+        };
+
+        // Función para convertir nombre de país a código ISO3
+        function convertToISO3(countryName) {
+            if (!countryName) return '';
+            const normalized = countryName.toLowerCase().trim();
+            return countryToISO3[normalized] || countryName.toUpperCase().slice(0, 3);
+        }
+
+        // Funciones para manejar el segundo viajero
+        function showTraveler2() {
+            document.getElementById('traveler2Section').classList.remove('hidden');
+            document.getElementById('addTraveler2').style.display = 'none';
+        }
+
+        function hideTraveler2() {
+            document.getElementById('traveler2Section').classList.add('hidden');
+            document.getElementById('addTraveler2').style.display = 'block';
+            // Limpiar campos del segundo viajero
+            const form = document.getElementById('guestRegistrationForm');
+            const traveler2Fields = form.querySelectorAll('[name*="2"]');
+            traveler2Fields.forEach(field => {
+                if (field.type === 'checkbox') {
+                    field.checked = false;
+                } else if (field.tagName === 'SELECT') {
+                    field.selectedIndex = 0;
+                } else {
+                    field.value = '';
+                }
+            });
+            // Restaurar valores predeterminados
+            const nacionalidad2 = form.querySelector('[name="nacionalidad2"]');
+            const pais2 = form.querySelector('[name="pais2"]');
+            if (nacionalidad2) nacionalidad2.value = 'España';
+            if (pais2) pais2.value = 'España';
+        }
+
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             initializeLanguage();
@@ -831,6 +1135,43 @@
             if (isDebug()) { const dp = document.getElementById('debugPanel'); if (dp) dp.classList.remove('hidden'); }
             // Si debug activo, probar conectividad automáticamente
             if (isDebug()) { setTimeout(() => { testConnectivity(); }, 200); }
+            
+            // Event listeners para el segundo viajero
+            document.getElementById('addTraveler2').addEventListener('click', showTraveler2);
+            document.getElementById('removeTraveler2').addEventListener('click', hideTraveler2);
+            
+            // Event listeners para conversión automática de países/nacionalidades
+            const countryInputs = document.querySelectorAll('.country-input');
+            const nationalityInputs = document.querySelectorAll('.nationality-input');
+            
+            [...countryInputs, ...nationalityInputs].forEach(input => {
+                input.addEventListener('blur', function() {
+                    const originalValue = this.value;
+                    const iso3Code = convertToISO3(originalValue);
+                    
+                    // Si se pudo convertir y es diferente del valor original, mostrar el resultado
+                    if (iso3Code && iso3Code !== originalValue.toUpperCase().slice(0, 3)) {
+                        // Mantener el valor legible para el usuario pero almacenar el código ISO3
+                        this.dataset.iso3 = iso3Code;
+                        
+                        // Mostrar feedback visual temporal
+                        const feedback = document.createElement('span');
+                        feedback.className = 'text-xs text-green-600 ml-2';
+                        feedback.textContent = `(${iso3Code})`;
+                        
+                        // Limpiar feedback anterior
+                        const existingFeedback = this.parentNode.querySelector('.text-green-600');
+                        if (existingFeedback) existingFeedback.remove();
+                        
+                        this.parentNode.appendChild(feedback);
+                        
+                        // Remover feedback después de 3 segundos
+                        setTimeout(() => {
+                            if (feedback.parentNode) feedback.remove();
+                        }, 3000);
+                    }
+                });
+            });
         });
 
         // ===== BUILDER DE PAYLOAD DEFENSIVO =====
@@ -889,6 +1230,59 @@
             const pagoTipo = mapPago(formData.get('tipoPago'));
             const medioPago = String(formData.get('medioPago')||'').trim();
 
+            // Función para obtener código ISO3 desde el input (dataset.iso3) o convertir el valor
+            function getISO3FromInput(inputName) {
+                const input = document.querySelector(`[name="${inputName}"]`);
+                if (input && input.dataset.iso3) {
+                    return input.dataset.iso3;
+                }
+                const value = formData.get(inputName);
+                return convertToISO3(value) || 'ESP';
+            }
+
+            const viajeros = [];
+            
+            // Viajero 1 (obligatorio)
+            const viajero1 = {
+                nombre: String(formData.get('nombre')||'').trim(),
+                primerApellido: String(formData.get('apellido1')||'').trim(),
+                segundoApellido: String(formData.get('apellido2')||'').trim() || null,
+                fechaNacimiento: toISODate(formData.get('fechaNacimiento')),
+                tipoDocumento: mapDocType(formData.get('tipoDocumento')),
+                numeroDocumento: String((formData.get('numeroDocumento')||'').toUpperCase().replace(/\s+/g,'')),
+                sexo: mapSexo(formData.get('sexo')),
+                nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad')),
+                telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
+                email: String(formData.get('correo')||'').trim().toLowerCase(),
+                direccion: String(formData.get('direccion')||'').trim(),
+                cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
+                ine: String(formData.get('codigoMunicipio')||'').padStart(5,'0'),
+                paisResidencia: iso3to2(getISO3FromInput('pais')),
+            };
+            viajeros.push(viajero1);
+
+            // Viajero 2 (opcional)
+            const nombre2 = String(formData.get('nombre2')||'').trim();
+            if (nombre2) {
+                const viajero2 = {
+                    nombre: nombre2,
+                    primerApellido: String(formData.get('apellido1_2')||'').trim(),
+                    segundoApellido: String(formData.get('apellido2_2')||'').trim() || null,
+                    fechaNacimiento: toISODate(formData.get('fechaNacimiento2')),
+                    tipoDocumento: mapDocType(formData.get('tipoDocumento2')),
+                    numeroDocumento: String((formData.get('numeroDocumento2')||'').toUpperCase().replace(/\s+/g,'')),
+                    sexo: mapSexo(formData.get('sexo2')),
+                    nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad2')),
+                    telefono: String(formData.get('telefono2')||'').replace(/\s+/g,''),
+                    email: String(formData.get('correo2')||'').trim().toLowerCase(),
+                    direccion: String(formData.get('direccion2')||'').trim(),
+                    cp: String(formData.get('codigoPostal2')||'').padStart(5,'0'),
+                    ine: String(formData.get('codigoMunicipio2')||'').padStart(5,'0'),
+                    paisResidencia: iso3to2(getISO3FromInput('pais2')),
+                };
+                viajeros.push(viajero2);
+            }
+
             const payload = {
                 contrato: {
                     fechaContrato: toISODate(formData.get('fechaContrato')),
@@ -905,22 +1299,7 @@
                     nombreCompleto: String(formData.get('titular')||'').trim(),
                     tarjetaCaducidad: (String(formData.get('caducidadTarjeta')||'').match(/^\d{2}\/\d{4}$/) ? String(formData.get('caducidadTarjeta')) : null),
                 },
-                viajeros: [{
-                    nombre: String(formData.get('nombre')||'').trim(),
-                    primerApellido: String(formData.get('apellido1')||'').trim(),
-                    segundoApellido: String(formData.get('apellido2')||'').trim() || null,
-                    fechaNacimiento: toISODate(formData.get('fechaNacimiento')),
-                    tipoDocumento: mapDocType(formData.get('tipoDocumento')),
-                    numeroDocumento: String((formData.get('numeroDocumento')||'').toUpperCase().replace(/\s+/g,'')),
-                    sexo: mapSexo(formData.get('sexo')),
-                    nacionalidadISO2: iso3to2(formData.get('nacionalidad') || 'ES'),
-                    telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
-                    email: String(formData.get('correo')||'').trim().toLowerCase(),
-                    direccion: String(formData.get('direccion')||'').trim(),
-                    cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
-                    ine: String(formData.get('codigoMunicipio')||'').padStart(5,'0'),
-                    paisResidencia: iso3to2(formData.get('pais')||'ES'),
-                }]
+                viajeros: viajeros
             };
 
             // Limpia null/'' recursivamente
