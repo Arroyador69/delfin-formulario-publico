@@ -1178,10 +1178,20 @@
             function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
                 if (!paisInput || !ineInput || !municipioInput) return;
                 
-                const paisValue = paisInput.value.toLowerCase();
-                const esEspanol = paisValue.includes('españa') || paisValue.includes('spain') || paisValue === 'es' || paisValue === 'esp';
+                const paisValue = paisInput.value.toLowerCase().trim();
                 
-                if (esEspanol) {
+                // Lista de formas de escribir España
+                const esEspana = paisValue === 'españa' || 
+                               paisValue === 'spain' || 
+                               paisValue === 'es' || 
+                               paisValue === 'esp' ||
+                               paisValue === 'espana' ||
+                               paisValue.startsWith('españa') ||
+                               paisValue.startsWith('spain');
+                
+                console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
+                
+                if (esEspana) {
                     // Es español - INE obligatorio, municipio opcional
                     ineInput.required = true;
                     ineRequired.classList.remove('hidden');
@@ -1189,7 +1199,8 @@
                     municipioRequired.classList.add('hidden');
                     ineInput.style.borderColor = '';
                     municipioInput.style.borderColor = '#d1d5db';
-                } else {
+                    console.log('Modo ESPAÑOL activado - INE obligatorio');
+                } else if (paisValue.length > 0) {
                     // Es extranjero - INE opcional, municipio obligatorio
                     ineInput.required = false;
                     ineRequired.classList.add('hidden');
@@ -1197,6 +1208,13 @@
                     municipioRequired.classList.remove('hidden');
                     ineInput.style.borderColor = '#d1d5db';
                     municipioInput.style.borderColor = '';
+                    console.log('Modo EXTRANJERO activado - Municipio obligatorio');
+                } else {
+                    // Campo vacío - mantener INE como obligatorio por defecto
+                    ineInput.required = true;
+                    ineRequired.classList.remove('hidden');
+                    municipioInput.required = false;
+                    municipioRequired.classList.add('hidden');
                 }
             }
 
@@ -1595,11 +1613,17 @@
                 const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
                 if (docErr) { showError(docErr); return; }
 
-                const muniErr = validateMunicipioVsCP(
-                    pad5(formData.get('codigoPostal')),
-                    pad5(formData.get('codigoMunicipio'))
-                );
-                if (muniErr) { showError(muniErr); return; }
+                // Solo validar INE vs CP para españoles
+                const paisValue = String(formData.get('pais') || '').toLowerCase().trim();
+                const esEspanol = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana';
+                
+                if (esEspanol) {
+                    const muniErr = validateMunicipioVsCP(
+                        pad5(formData.get('codigoPostal')),
+                        pad5(formData.get('codigoMunicipio'))
+                    );
+                    if (muniErr) { showError(muniErr); return; }
+                }
 
                 const orderErr = validateDateOrder({
                     fechaContrato,
