@@ -871,7 +871,9 @@
                 "messages.error.title": "Error al enviar el registro.",
                 "messages.error.body": "Por favor, inténtelo de nuevo.",
                 "submit.button": "Enviar Registro",
-                "submit.sending": "Enviando..."
+                "submit.sending": "Enviando...",
+                "validation.documentRequired": "Si selecciona tipo de documento, debe proporcionar el número",
+                "validation.documentEmpty": "El número de documento no puede estar vacío"
             },
             en: {
                 "header.title": "Delfín Check-in",
@@ -961,7 +963,9 @@
                 "messages.error.title": "Error sending registration.",
                 "messages.error.body": "Please try again.",
                 "submit.button": "Send Registration",
-                "submit.sending": "Sending..."
+                "submit.sending": "Sending...",
+                "validation.documentRequired": "If you select document type, you must provide the number",
+                "validation.documentEmpty": "Document number cannot be empty"
             },
             fr: {
                 "header.title": "Delfín Check-in",
@@ -1051,7 +1055,9 @@
                 "messages.error.title": "Erreur lors de l'envoi de l'enregistrement.",
                 "messages.error.body": "Veuillez réessayer.",
                 "submit.button": "Envoyer l'Enregistrement",
-                "submit.sending": "Envoi en cours..."
+                "submit.sending": "Envoi en cours...",
+                "validation.documentRequired": "Si vous sélectionnez un type de document, vous devez fournir le numéro",
+                "validation.documentEmpty": "Le numéro de document ne peut pas être vide"
             },
             ru: {
                 "header.title": "Delfín Check-in",
@@ -1141,9 +1147,17 @@
                 "messages.error.title": "Ошибка при отправке",
                 "messages.error.body": "Пожалуйста, попробуйте еще раз.",
                 "submit.button": "Отправить Регистрацию",
-                "submit.sending": "Отправка..."
+                "submit.sending": "Отправка...",
+                "validation.documentRequired": "Если выбран тип документа, необходимо указать номер",
+                "validation.documentEmpty": "Номер документа не может быть пустым"
             }
         };
+
+        // Función para obtener traducción actual
+        function getTranslation(key) {
+            const currentLang = document.documentElement.lang || 'es';
+            return translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
+        }
 
         // Función para cambiar idioma
         function changeLanguage(lang) {
@@ -1651,7 +1665,18 @@
         function showError(msg) {
             const errorDetails = document.getElementById('errorDetails');
             if (errorDetails) errorDetails.textContent = msg;
-            document.getElementById('errorMessage').style.display = 'block';
+            
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            
+            // Aplicar traducciones al mensaje de error
+            const currentLang = document.documentElement.getAttribute('lang') || 'es';
+            document.querySelectorAll('#errorMessage [data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[currentLang] && translations[currentLang][key]) {
+                    element.textContent = translations[currentLang][key];
+                }
+            });
         }
 
         // Aviso si se abre como archivo local (file://) — esto rompe CORS y produce "Failed to fetch"
@@ -1696,9 +1721,9 @@
         }
         function validateDoc(tipo, numero) {
             if (!tipo && !numero) return null; // ambos vacíos, permitido
-            if (tipo && !numero) return 'Si selecciona tipo de documento, debe proporcionar el número';
+            if (tipo && !numero) return getTranslation('validation.documentRequired');
             const n = String(numero).trim();
-            if (!n) return 'El número de documento no puede estar vacío';
+            if (!n) return getTranslation('validation.documentEmpty');
             // Reglas mínimas por tipo
             if (tipo === 'NIF') {
                 if (!/^\d{7,8}[A-Za-z]$/.test(n)) return 'Formato de NIF inválido (7-8 dígitos + letra)';
@@ -1852,8 +1877,16 @@
                 // Mostrar mensaje de éxito
                 successMessage.style.display = 'block';
                 
+                // Aplicar traducciones al mensaje de éxito
+                const currentLang = document.documentElement.getAttribute('lang') || 'es';
+                document.querySelectorAll('#successMessage [data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (translations[currentLang] && translations[currentLang][key]) {
+                        element.textContent = translations[currentLang][key];
+                    }
+                });
+                
                 // Limpiar formulario pero mantener idioma seleccionado
-                const currentLang = document.documentElement.getAttribute('lang');
                 document.getElementById('guestRegistrationForm').reset();
                 document.documentElement.setAttribute('lang', currentLang);
                 
