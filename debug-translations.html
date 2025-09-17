@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Traducciones - Delfín Check-in</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .language { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .missing { color: red; font-weight: bold; }
+        .ok { color: green; }
+        .key { font-family: monospace; background: #f5f5f5; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug de Traducciones - Delfín Check-in</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Copiar las traducciones del formulario principal
+        const translations = {
+            es: {
+                "header.title": "Delfín Check-in",
+                "header.subtitle": "Sistema de Registro de Viajeros",
+                "main.title": "Registro de parte de viajero",
+                "contract.title": "Contrato",
+                "contract.establishmentCode": "Código establecimiento *",
+                "contract.reference": "Referencia *", 
+                "contract.contractDate": "Fecha contrato (AAAA-MM-DD) *",
+                "contract.checkIn": "Entrada Check-in (AAAA-MM-DDThh:mm:ss) *",
+                "contract.checkOut": "Salida Check-out (AAAA-MM-DDThh:mm:ss) *",
+                "contract.rooms": "Número de habitación",
+                "contract.paymentType": "Tipo de pago *",
+                "travelers.title": "Viajeros",
+                "travelers.firstName": "Nombre *",
+                "travelers.firstSurname": "Primer apellido *",
+                "travelers.secondSurname": "Segundo apellido",
+                "travelers.birthDate": "Fecha de nacimiento (DD/MM/AAAA) *",
+                "travelers.documentType": "Tipo de documento *",
+                "travelers.documentNumber": "Número de documento *",
+                "travelers.nationality": "Nacionalidad *",
+                "travelers.gender": "Sexo *",
+                "travelers.phone": "Teléfono *",
+                "travelers.email": "Correo electrónico *",
+                "travelers.address": "Dirección *",
+                "travelers.postalCode": "Código postal *",
+                "travelers.country": "País de residencia *",
+                "travelers.municipalityCode": "Código municipio INE (5)",
+                "travelers.municipalityName": "Nombre del municipio",
+                "travelers.addSecond": "Añadir segundo viajero",
+                "travelers.documents.dni": "DNI",
+                "travelers.documents.nie": "NIE",
+                "travelers.documents.passport": "Pasaporte",
+                "travelers.documents.other": "Otro",
+                "travelers.gender.male": "Hombre",
+                "travelers.gender.female": "Mujer",
+                "travelers.gender.other": "Otro",
+                "submit.button": "Enviar Registro",
+                "submit.sending": "Enviando..."
+            },
+            en: {
+                "header.title": "Delfín Check-in",
+                "header.subtitle": "Traveler Registration System",
+                "main.title": "Traveler Registration Form",
+                "contract.title": "Contract",
+                "contract.establishmentCode": "Establishment Code *",
+                "contract.reference": "Reference *",
+                "contract.contractDate": "Contract Date (YYYY-MM-DD) *",
+                "contract.checkIn": "Check-in Entry (YYYY-MM-DDThh:mm:ss) *",
+                "contract.checkOut": "Check-out Exit (YYYY-MM-DDThh:mm:ss) *",
+                "contract.rooms": "Room Number",
+                "contract.paymentType": "Payment Type *",
+                "travelers.title": "Travelers",
+                "travelers.firstName": "First Name *",
+                "travelers.firstSurname": "First Surname *",
+                "travelers.secondSurname": "Second Surname",
+                "travelers.birthDate": "Birth Date (DD/MM/YYYY) *",
+                "travelers.documentType": "Document Type *",
+                "travelers.documentNumber": "Document Number *",
+                "travelers.nationality": "Nationality *",
+                "travelers.gender": "Gender *",
+                "travelers.phone": "Phone *",
+                "travelers.email": "Email *",
+                "travelers.address": "Address *",
+                "travelers.postalCode": "Postal Code *",
+                "travelers.country": "Country of Residence *",
+                "travelers.municipalityCode": "INE Municipality Code (5)",
+                "travelers.municipalityName": "Municipality Name",
+                "travelers.addSecond": "Add Second Traveler",
+                "travelers.documents.dni": "DNI",
+                "travelers.documents.nie": "NIE",
+                "travelers.documents.passport": "Passport",
+                "travelers.documents.other": "Other",
+                "travelers.gender.male": "Male",
+                "travelers.gender.female": "Female",
+                "travelers.gender.other": "Other",
+                "submit.button": "Send Registration",
+                "submit.sending": "Sending..."
+            },
+            fr: {
+                "header.title": "Delfín Check-in",
+                "header.subtitle": "Système d'Enregistrement des Voyageurs",
+                "main.title": "Formulaire d'Enregistrement des Voyageurs",
+                "contract.title": "Contrat",
+                "contract.establishmentCode": "Code établissement *",
+                "contract.reference": "Référence *",
+                "contract.contractDate": "Date contrat (AAAA-MM-JJ) *",
+                "contract.checkIn": "Arrivée Check-in (AAAA-MM-JJThh:mm:ss) *",
+                "contract.checkOut": "Départ Check-out (AAAA-MM-JJThh:mm:ss) *",
+                "contract.rooms": "Numéro de chambre",
+                "contract.paymentType": "Type de paiement *",
+                "travelers.title": "Voyageurs",
+                "travelers.firstName": "Prénom *",
+                "travelers.firstSurname": "Premier nom de famille *",
+                "travelers.secondSurname": "Deuxième nom de famille",
+                "travelers.birthDate": "Date de naissance (JJ/MM/AAAA) *",
+                "travelers.documentType": "Type de document *",
+                "travelers.documentNumber": "Numéro de document *",
+                "travelers.nationality": "Nationalité *",
+                "travelers.gender": "Sexe *",
+                "travelers.phone": "Téléphone *",
+                "travelers.email": "Email *",
+                "travelers.address": "Adresse *",
+                "travelers.postalCode": "Code postal *",
+                "travelers.country": "Pays de résidence *",
+                "travelers.municipalityCode": "Code municipalité INE (5)",
+                "travelers.municipalityName": "Nom de la municipalité",
+                "travelers.addSecond": "Ajouter deuxième voyageur",
+                "travelers.documents.dni": "DNI",
+                "travelers.documents.nie": "NIE",
+                "travelers.documents.passport": "Passeport",
+                "travelers.documents.other": "Autre",
+                "travelers.gender.male": "Homme",
+                "travelers.gender.female": "Femme",
+                "travelers.gender.other": "Autre",
+                "submit.button": "Envoyer l'Enregistrement",
+                "submit.sending": "Envoi en cours..."
+            },
+            ru: {
+                "header.title": "Delfín Check-in",
+                "header.subtitle": "Система Регистрации Путешественников",
+                "main.title": "Регистрация путешественника",
+                "contract.title": "Контракт",
+                "contract.establishmentCode": "Код учреждения *",
+                "contract.reference": "Номер ссылки *",
+                "contract.contractDate": "Дата контракта (ГГГГ-ММ-ДД) *",
+                "contract.checkIn": "Заезд Check-in (ГГГГ-ММ-ДДTчч:мм:сс) *",
+                "contract.checkOut": "Выезд Check-out (ГГГГ-ММ-ДДTчч:мм:сс) *",
+                "contract.rooms": "Номер комнаты",
+                "contract.paymentType": "Тип оплаты *",
+                "travelers.title": "Путешественники",
+                "travelers.firstName": "Имя *",
+                "travelers.firstSurname": "Первая фамилия *",
+                "travelers.secondSurname": "Вторая фамилия",
+                "travelers.birthDate": "Дата рождения (ДД/ММ/ГГГГ) *",
+                "travelers.documentType": "Тип документа *",
+                "travelers.documentNumber": "Номер документа *",
+                "travelers.nationality": "Национальность *",
+                "travelers.gender": "Пол *",
+                "travelers.phone": "Телефон *",
+                "travelers.email": "Электронная почта *",
+                "travelers.address": "Адрес *",
+                "travelers.postalCode": "Почтовый индекс *",
+                "travelers.country": "Страна проживания *",
+                "travelers.municipalityCode": "Код муниципалитета INE (5)",
+                "travelers.municipalityName": "Название муниципалитета",
+                "travelers.addSecond": "Добавить второго путешественника",
+                "travelers.documents.dni": "DNI",
+                "travelers.documents.nie": "NIE",
+                "travelers.documents.passport": "Паспорт",
+                "travelers.documents.other": "Другое",
+                "travelers.gender.male": "Мужской",
+                "travelers.gender.female": "Женский",
+                "travelers.gender.other": "Другой",
+                "submit.button": "Отправить Регистрацию",
+                "submit.sending": "Отправка..."
+            }
+        };
+
+        // Función para verificar traducciones
+        function checkTranslations() {
+            const results = document.getElementById('results');
+            let html = '';
+            
+            // Obtener todas las claves usadas en el HTML (simuladas)
+            const usedKeys = [
+                'header.title', 'header.subtitle', 'main.title', 'contract.title',
+                'contract.establishmentCode', 'contract.reference', 'contract.contractDate',
+                'contract.checkIn', 'contract.checkOut', 'contract.rooms', 'contract.paymentType',
+                'travelers.title', 'travelers.firstName', 'travelers.firstSurname', 
+                'travelers.secondSurname', 'travelers.birthDate', 'travelers.documentType',
+                'travelers.documentNumber', 'travelers.nationality', 'travelers.gender',
+                'travelers.phone', 'travelers.email', 'travelers.address', 'travelers.postalCode',
+                'travelers.country', 'travelers.municipalityCode', 'travelers.municipalityName',
+                'travelers.addSecond', 'travelers.documents.dni', 'travelers.documents.nie',
+                'travelers.documents.passport', 'travelers.documents.other',
+                'travelers.gender.male', 'travelers.gender.female', 'travelers.gender.other',
+                'submit.button', 'submit.sending'
+            ];
+            
+            Object.keys(translations).forEach(lang => {
+                html += `<div class="language">`;
+                html += `<h2>🌍 ${lang.toUpperCase()} - ${lang === 'es' ? 'Español' : lang === 'en' ? 'English' : lang === 'fr' ? 'Français' : 'Русский'}</h2>`;
+                
+                const missing = [];
+                const present = [];
+                
+                usedKeys.forEach(key => {
+                    if (translations[lang] && translations[lang][key]) {
+                        present.push(`<span class="ok">✅ ${key}: "${translations[lang][key]}"</span>`);
+                    } else {
+                        missing.push(`<span class="missing">❌ ${key}: FALTA</span>`);
+                    }
+                });
+                
+                if (missing.length > 0) {
+                    html += `<h3>❌ Traducciones faltantes (${missing.length}):</h3>`;
+                    html += missing.join('<br>');
+                    html += '<br><br>';
+                }
+                
+                html += `<h3>✅ Traducciones presentes (${present.length}):</h3>`;
+                html += present.join('<br>');
+                
+                html += `</div>`;
+            });
+            
+            results.innerHTML = html;
+        }
+        
+        // Ejecutar al cargar
+        window.onload = checkTranslations;
+    </script>
+</body>
+</html>
