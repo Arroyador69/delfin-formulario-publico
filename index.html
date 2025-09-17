@@ -1133,9 +1133,9 @@
                 "travelers.municipalityHelp": "<strong>ТОЛЬКО для испанцев:</strong> Код INE муниципалитета (5 цифр: 2 провинции + 3 муниципалитета)<br>Пример: 29042 (Фуэнхирола), 29045 (Малага), 28001 (Мадрид), 08001 (Барселона)<br><strong class=\"text-green-600\">Для иностранцев:</strong> Оставить пустым и заполнить только \"Название муниципалитета\" ниже",
                 "travelers.municipalityName": "Название муниципалитета",
                 "travelers.municipalityNameHelp": "<strong class=\"text-green-600\">Только для иностранцев:</strong> Название города/муниципалитета, где проживаете",
-                "gender.male": "Мужской",
-                "gender.female": "Женский",
-                "gender.other": "Другой",
+                "travelers.gender.male": "Мужской",
+                "travelers.gender.female": "Женский", 
+                "travelers.gender.other": "Другой",
                 "messages.success.title": "Регистрация отправлена!",
                 "messages.success.body": "Ваша регистрация была успешно отправлена в Министерство внутренних дел Испании.",
                 "messages.error.title": "Ошибка при отправке",
@@ -1161,11 +1161,14 @@
               const key = element.getAttribute('data-i18n');
               if (translations[lang] && translations[lang][key]) {
                 const val = translations[lang][key];
+                console.log(`Traduciendo: ${key} = "${val}" (idioma: ${lang})`);
                 if (typeof val === 'string' && /<\/?[a-z][\s\S]*>/i.test(val)) {
                   element.innerHTML = val;
                 } else {
                   element.textContent = val;
                 }
+              } else {
+                console.warn(`Traducción faltante: ${key} para idioma ${lang}`);
               }
             });
             
