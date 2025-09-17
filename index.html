@@ -473,19 +473,38 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.municipalityCode">
-                                    Código municipio INE (5) *
+                                    Código municipio INE (5) <span id="ineRequired1" class="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="codigoMunicipio"
-                                    required
+                                    id="codigoMunicipio1"
                                     class="form-input"
                                     maxlength="5"
                                     placeholder="29042"
                                 />
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
-                                    Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
-                                    <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
+                                    <span id="ineHelp1">
+                                        <strong>SOLO para españoles:</strong> Código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)<br>
+                                        Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                        <strong class="text-green-600">Para extranjeros:</strong> Dejar vacío y rellenar solo "Nombre del municipio" abajo
+                                    </span>
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre del municipio <span id="municipioRequired1" class="text-red-500 hidden">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nombreMunicipio"
+                                    id="nombreMunicipio1"
+                                    class="form-input"
+                                    placeholder="Helsinki, Paris, London..."
+                                />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <strong class="text-green-600">Solo para extranjeros:</strong> Nombre de la ciudad/municipio donde resides
                                 </p>
                             </div>
                         </div>
@@ -665,18 +684,38 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.municipalityCode">
-                                    Código municipio INE (5)
+                                    Código municipio INE (5) <span id="ineRequired2" class="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="codigoMunicipio2"
+                                    id="codigoMunicipio2"
                                     class="form-input"
                                     maxlength="5"
                                     placeholder="29042"
                                 />
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
-                                    Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
-                                    <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
+                                    <span id="ineHelp2">
+                                        <strong>SOLO para españoles:</strong> Código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)<br>
+                                        Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                        <strong class="text-green-600">Para extranjeros:</strong> Dejar vacío y rellenar solo "Nombre del municipio" abajo
+                                    </span>
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre del municipio <span id="municipioRequired2" class="text-red-500 hidden">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nombreMunicipio2"
+                                    id="nombreMunicipio2"
+                                    class="form-input"
+                                    placeholder="Helsinki, Paris, London..."
+                                />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <strong class="text-green-600">Solo para extranjeros:</strong> Nombre de la ciudad/municipio donde resides
                                 </p>
                             </div>
                         </div>
@@ -1120,6 +1159,59 @@
             if (pais2) pais2.value = 'España';
         }
 
+        // Función para manejar campos INE según nacionalidad
+        function handleINEFields() {
+            // Viajero 1
+            const pais1 = document.querySelector('input[name="pais"]');
+            const ineInput1 = document.getElementById('codigoMunicipio1');
+            const ineRequired1 = document.getElementById('ineRequired1');
+            const municipioInput1 = document.getElementById('nombreMunicipio1');
+            const municipioRequired1 = document.getElementById('municipioRequired1');
+            
+            // Viajero 2
+            const pais2 = document.querySelector('input[name="pais2"]');
+            const ineInput2 = document.getElementById('codigoMunicipio2');
+            const ineRequired2 = document.getElementById('ineRequired2');
+            const municipioInput2 = document.getElementById('nombreMunicipio2');
+            const municipioRequired2 = document.getElementById('municipioRequired2');
+
+            function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
+                if (!paisInput || !ineInput || !municipioInput) return;
+                
+                const paisValue = paisInput.value.toLowerCase();
+                const esEspanol = paisValue.includes('españa') || paisValue.includes('spain') || paisValue === 'es' || paisValue === 'esp';
+                
+                if (esEspanol) {
+                    // Es español - INE obligatorio, municipio opcional
+                    ineInput.required = true;
+                    ineRequired.classList.remove('hidden');
+                    municipioInput.required = false;
+                    municipioRequired.classList.add('hidden');
+                    ineInput.style.borderColor = '';
+                    municipioInput.style.borderColor = '#d1d5db';
+                } else {
+                    // Es extranjero - INE opcional, municipio obligatorio
+                    ineInput.required = false;
+                    ineRequired.classList.add('hidden');
+                    municipioInput.required = true;
+                    municipioRequired.classList.remove('hidden');
+                    ineInput.style.borderColor = '#d1d5db';
+                    municipioInput.style.borderColor = '';
+                }
+            }
+
+            // Event listeners
+            if (pais1) {
+                pais1.addEventListener('input', () => updateFields(pais1, ineInput1, ineRequired1, municipioInput1, municipioRequired1));
+                pais1.addEventListener('blur', () => updateFields(pais1, ineInput1, ineRequired1, municipioInput1, municipioRequired1));
+            }
+            
+            if (pais2) {
+                pais2.addEventListener('input', () => updateFields(pais2, ineInput2, ineRequired2, municipioInput2, municipioRequired2));
+                pais2.addEventListener('blur', () => updateFields(pais2, ineInput2, ineRequired2, municipioInput2, municipioRequired2));
+            }
+        }
+
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             initializeLanguage();
@@ -1135,6 +1227,9 @@
             if (isDebug()) { const dp = document.getElementById('debugPanel'); if (dp) dp.classList.remove('hidden'); }
             // Si debug activo, probar conectividad automáticamente
             if (isDebug()) { setTimeout(() => { testConnectivity(); }, 200); }
+            
+            // Inicializar campos INE dinámicos
+            handleINEFields();
             
             // Event listeners para el segundo viajero
             document.getElementById('addTraveler2').addEventListener('click', showTraveler2);
@@ -1257,6 +1352,7 @@
                 direccion: String(formData.get('direccion')||'').trim(),
                 cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
                 ine: String(formData.get('codigoMunicipio')||'').padStart(5,'0'),
+                nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
                 paisResidencia: iso3to2(getISO3FromInput('pais')),
             };
             viajeros.push(viajero1);
@@ -1278,6 +1374,7 @@
                     direccion: String(formData.get('direccion2')||'').trim(),
                     cp: String(formData.get('codigoPostal2')||'').padStart(5,'0'),
                     ine: String(formData.get('codigoMunicipio2')||'').padStart(5,'0'),
+                    nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
                     paisResidencia: iso3to2(getISO3FromInput('pais2')),
                 };
                 viajeros.push(viajero2);
