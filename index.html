@@ -1337,44 +1337,19 @@
 
             function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
                 if (!paisInput || !ineInput || !municipioInput) return;
-                
-                const paisValue = paisInput.value.toLowerCase().trim();
-                
-                // Lista de formas de escribir España
-                const esEspana = paisValue === 'españa' || 
-                               paisValue === 'spain' || 
-                               paisValue === 'es' || 
-                               paisValue === 'esp' ||
-                               paisValue === 'espana' ||
-                               paisValue.startsWith('españa') ||
-                               paisValue.startsWith('spain');
-                
+                const paisValue = (paisInput.value || '').toLowerCase().trim();
+                const esEspana = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana' || paisValue.startsWith('españa') || paisValue.startsWith('spain');
                 console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
-                
                 if (esEspana) {
-                    // Es español - INE obligatorio, municipio opcional
                     ineInput.required = true;
-                    ineRequired.classList.remove('hidden');
+                    if (ineRequired) { ineRequired.classList && ineRequired.classList.remove('hidden'); ineRequired.style && (ineRequired.style.display = 'inline'); }
                     municipioInput.required = false;
-                    municipioRequired.classList.add('hidden');
-                    ineInput.style.borderColor = '';
-                    municipioInput.style.borderColor = '#d1d5db';
-                    console.log('Modo ESPAÑOL activado - INE obligatorio');
-                } else if (paisValue.length > 0) {
-                    // Es extranjero - INE opcional, municipio obligatorio
-                    ineInput.required = false;
-                    ineRequired.classList.add('hidden');
-                    municipioInput.required = true;
-                    municipioRequired.classList.remove('hidden');
-                    ineInput.style.borderColor = '#d1d5db';
-                    municipioInput.style.borderColor = '';
-                    console.log('Modo EXTRANJERO activado - Municipio obligatorio');
+                    if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.add('hidden'); municipioRequired.style && (municipioRequired.style.display = 'none'); }
                 } else {
-                    // Campo vacío - mantener INE como obligatorio por defecto
-                    ineInput.required = true;
-                    ineRequired.classList.remove('hidden');
-                    municipioInput.required = false;
-                    municipioRequired.classList.add('hidden');
+                    ineInput.required = false;
+                    if (ineRequired) { ineRequired.classList && ineRequired.classList.add('hidden'); ineRequired.style && (ineRequired.style.display = 'none'); }
+                    municipioInput.required = true;
+                    if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.remove('hidden'); municipioRequired.style && (municipioRequired.style.display = 'inline'); }
                 }
             }
 
