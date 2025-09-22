@@ -1197,7 +1197,7 @@
         }
 
         // ===== API endpoint helper (override via ?api= or localStorage) =====
-        const DEFAULT_API = 'https://admin.delfincheckin.com/api/registro-flex';
+        const DEFAULT_API = 'https://admin.delfincheckin.com/api/partes';
         function getApiUrl() {
           try {
             const u = new URL(window.location.href);
@@ -2033,7 +2033,7 @@
   }
 
   async function sendParte(parte){
-    const url = 'https://admin.delfincheckin.com/api/partes';
+    const url = getApiUrl();
     const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(parte), credentials:'include' });
     return res;
   }

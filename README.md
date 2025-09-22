@@ -18,13 +18,13 @@ Formulario de registro de viajeros completamente independiente y público, compa
 
 * **Formulario Público**: `https://form.delfincheckin.com`
 * **Dashboard Protegido**: `https://admin.delfincheckin.com`
-* **API de Envío**: `https://admin.delfincheckin.com/api/ministerio/comunicaciones`
+* **API de Envío**: `https://admin.delfincheckin.com/api/partes`
 
 ## 🔗 Conexión con Dashboard
 
 El formulario está configurado para enviar datos a:
 
-* **API**: `https://admin.delfincheckin.com/api/ministerio/comunicaciones`
+* **API**: `https://admin.delfincheckin.com/api/partes`
 * **Dashboard**: `https://admin.delfincheckin.com/guest-registrations-dashboard`
 
 ## 📱 Uso
