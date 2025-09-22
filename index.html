@@ -1917,7 +1917,6 @@
             }
         });
     </script>
-</div>
 
     <!-- Panel de depuración (solo si ?debug=1) -->
     <details id="debugPanel" class="mt-6 hidden">
@@ -1951,6 +1950,158 @@
   if (testBtn) { testBtn.addEventListener('click', () => testConnectivity()); }
 })();
 </script>
-</html>
-</body>
+
+<script>
+(function(){
+  const ISO3 = {
+    'españa':'ESP','spain':'ESP','francia':'FRA','france':'FRA','italia':'ITA','italy':'ITA',
+    'alemania':'DEU','germany':'DEU','reino unido':'GBR','united kingdom':'GBR','portugal':'PRT','portuguese':'PRT'
+  };
+  function toISO3(name){
+    if(!name) return '';
+    const k = String(name).trim().toLowerCase();
+    return ISO3[k] || (k.length===2 ? k.toUpperCase() : (k.length===3 ? k.toUpperCase() : ''));
+  }
+  function mapDocType(v){
+    if(v==='NIF') return 'DNI';
+    if(v==='NIE') return 'NIE';
+    if(v==='PAS') return 'PASAPORTE';
+    return 'PASAPORTE';
+  }
+  function mapSexo(v){
+    if(v==='H') return 'M';
+    if(v==='M') return 'F';
+    return 'X';
+  }
+  function formToParte(form){
+    const fd = new FormData(form);
+    const internet = fd.get('internet') ? true : false;
+    const parte = {
+      establecimiento: {
+        denominacion: 'Delfín Check-in',
+        direccionCompleta: 'Fuengirola, Málaga',
+        codigoEstablecimiento: fd.get('codigoEstablecimiento') || undefined,
+      },
+      viajeros: [
+        {
+          nombre: fd.get('nombre') || '',
+          primerApellido: fd.get('apellido1') || '',
+          segundoApellido: fd.get('apellido2') || undefined,
+          sexo: mapSexo(fd.get('sexo')),
+          documento: {
+            tipo: mapDocType(fd.get('tipoDocumento')),
+            numero: String(fd.get('numeroDocumento')||'').toUpperCase()
+          },
+          nacionalidad: toISO3(fd.get('nacionalidad')||fd.get('pais')) || 'ESP',
+          fechaNacimiento: fd.get('fechaNacimiento') || '' ,
+          residencia: {
+            direccion: fd.get('direccion') || '',
+            localidad: fd.get('nombreMunicipio') || '',
+            pais: toISO3(fd.get('pais')) || 'ESP'
+          }
+        }
+      ],
+      ejecucionContrato: {
+        fechaHoraEntrada: fd.get('fechaEntrada') ? new Date(fd.get('fechaEntrada')).toISOString() : '',
+        fechaHoraSalida: fd.get('fechaSalida') ? new Date(fd.get('fechaSalida')).toISOString() : ''
+      },
+      pago: {
+        tipo: (function(){
+          const m = fd.get('tipoPago');
+          if(m==='EFECT') return 'EFECTIVO';
+          if(m==='TARJT') return 'TARJETA';
+          if(m==='PLATF') return 'PLATAFORMA';
+          if(m==='TRANS') return 'TRANSFERENCIA';
+          return 'PLATAFORMA';
+        })(),
+        identificacion: fd.get('medioPago') || undefined
+      }
+    };
+    return parte;
+  }
+
+  function validateBasic(parte){
+    const errors = [];
+    if(!parte.viajeros[0].nombre) errors.push('Nombre requerido');
+    if(!parte.viajeros[0].primerApellido) errors.push('Primer apellido requerido');
+    if(!parte.viajeros[0].documento.numero) errors.push('Número de documento requerido');
+    if(!parte.viajeros[0].nacionalidad) errors.push('Nacionalidad requerida');
+    if(!parte.ejecucionContrato.fechaHoraEntrada) errors.push('Entrada requerida');
+    if(!parte.ejecucionContrato.fechaHoraSalida) errors.push('Salida requerida');
+    if(new Date(parte.ejecucionContrato.fechaHoraEntrada) > new Date(parte.ejecucionContrato.fechaHoraSalida)) errors.push('Entrada no puede ser posterior a salida');
+    return errors;
+  }
+
+  async function sendParte(parte){
+    const url = 'https://admin.delfincheckin.com/api/partes';
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(parte), credentials:'include' });
+    return res;
+  }
+
+  function enqueueLocal(parte){
+    try{
+      const key = 'dci_form_outbox';
+      const list = JSON.parse(localStorage.getItem(key)||'[]');
+      list.push({id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), body: parte, ts: Date.now()});
+      localStorage.setItem(key, JSON.stringify(list));
+    }catch{}
+  }
+  async function flushLocal(){
+    const key = 'dci_form_outbox';
+    try{
+      const list = JSON.parse(localStorage.getItem(key)||'[]');
+      const remaining = [];
+      for(const item of list){
+        try{
+          const res = await sendParte(item.body);
+          if(!res.ok) remaining.push(item); // queda pendiente
+        }catch{ remaining.push(item); }
+      }
+      localStorage.setItem(key, JSON.stringify(remaining));
+    }catch{}
+  }
+
+  window.addEventListener('online', flushLocal);
+  document.addEventListener('DOMContentLoaded', function(){
+    const form = document.getElementById('guestRegistrationForm');
+    if(!form) return;
+    form.addEventListener('submit', async function(ev){
+      ev.preventDefault();
+      const parte = formToParte(form);
+      const errs = validateBasic(parte);
+      const msg = document.getElementById('submitMessage') || (function(){
+        const p = document.createElement('div');
+        p.id = 'submitMessage'; p.className = 'mt-4 text-sm';
+        form.appendChild(p); return p; })();
+      if(errs.length){
+        msg.className = 'mt-4 text-sm text-red-600';
+        msg.textContent = 'Corrige: ' + errs.join(' · ');
+        return;
+      }
+      try{
+        const res = await sendParte(parte);
+        if(res.status===201 || res.status===200){
+          msg.className = 'mt-4 text-sm text-green-600';
+          msg.textContent = '✅ Parte enviado correctamente';
+          form.reset();
+        }else if(res.status===400){
+          const j = await res.json().catch(()=>({}));
+          msg.className = 'mt-4 text-sm text-red-600';
+          msg.textContent = 'Validación servidor: ' + (j.error || res.statusText);
+        }else{
+          enqueueLocal(parte);
+          msg.className = 'mt-4 text-sm text-yellow-700';
+          msg.textContent = 'Sin conexión o error temporal. Guardado para reintento automático.';
+        }
+      }catch(e){
+        enqueueLocal(parte);
+        msg.className = 'mt-4 text-sm text-yellow-700';
+        msg.textContent = 'Sin conexión. Guardado para reintento.';
+      }
+    });
+    // Intento de flush al abrir
+    flushLocal();
+  });
+})();
+</script>
 </html>
