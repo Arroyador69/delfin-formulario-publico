@@ -2034,7 +2034,7 @@
 
   async function sendParte(parte){
     const url = getApiUrl();
-    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(parte), credentials:'include' });
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(parte), mode: 'cors' });
     return res;
   }
 
