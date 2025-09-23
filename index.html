@@ -1643,6 +1643,12 @@
             
             const errorMessage = document.getElementById('errorMessage');
             errorMessage.style.display = 'block';
+
+            // Asegurar que el mensaje de éxito no quede visible a la vez
+            try {
+              const successMessage = document.getElementById('successMessage');
+              if (successMessage) successMessage.style.display = 'none';
+            } catch {}
             
             // Aplicar traducciones al mensaje de error
             const currentLang = document.documentElement.getAttribute('lang') || 'es';
@@ -1849,8 +1855,9 @@
                   throw new Error(errorMessage);
                 }
                 
-                // Mostrar mensaje de éxito
+                // Mostrar mensaje de éxito y ocultar cualquier error previo
                 successMessage.style.display = 'block';
+                if (errorMessage) errorMessage.style.display = 'none';
                 
                 // Aplicar traducciones al mensaje de éxito
                 const currentLang = document.documentElement.getAttribute('lang') || 'es';
