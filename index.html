@@ -1425,11 +1425,17 @@
         // ===== BUILDER DE PAYLOAD DEFENSIVO =====
         const toISODate = (d) => {
             if (!d) return null;
-            // admite "10/09/2025", "10-09-2025", "2025-09-10"
-            const [dd, mm, yyyy] = d.includes('/') ? d.split('/') : d.includes('-') ? d.split('-') : [null,null,null];
-            if (yyyy && mm && dd) return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+            const s = String(d).trim();
+            // Caso estándar de input type=date
+            if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+            // admite "10/09/2025", "10-09-2025"
+            if (/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/.test(s)) {
+                const sep = s.includes('/') ? '/' : '-';
+                const [dd, mm, yyyy] = s.split(sep);
+                return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+            }
             // fallback: Date.parse
-            const dt = new Date(d);
+            const dt = new Date(s);
             if (!isNaN(dt)) return dt.toISOString().slice(0,10);
             return null;
         };
@@ -1765,6 +1771,10 @@
                 const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
                 if (docErr) { showError(docErr); return; }
 
+                // Validar fecha de nacimiento obligatoria (formato ISO)
+                const birthISO = toISODate(formData.get('fechaNacimiento'));
+                if (!birthISO) { showError('Fecha de nacimiento requerida (AAAA-MM-DD)'); return; }
+
                 // Solo validar INE vs CP para españoles
                 const paisValue = String(formData.get('pais') || '').toLowerCase().trim();
                 const esEspanol = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana';
@@ -1791,6 +1801,12 @@
 
                 // ===== USAR BUILDER DEFENSIVO =====
                 const cleanData = buildPayloadDefensive(formData);
+                // Forzar persistencia de fechaNacimiento si existe
+                try {
+                  if (cleanData && Array.isArray(cleanData.viajeros) && cleanData.viajeros[0]) {
+                    cleanData.viajeros[0].fechaNacimiento = birthISO;
+                  }
+                } catch {}
                 // (Optional debug a solo cliente)
                 console.log('🧾 FormData bruta:', Object.fromEntries(formData.entries()));
                 console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
