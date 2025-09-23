@@ -1514,6 +1514,23 @@
                 nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
                 paisResidencia: iso3to2(getISO3FromInput('pais')),
             };
+            // Normalización ESP/no-ESP: INE vs nombreMunicipio
+            (function normalizeMunicipio(v) {
+                const paisISO2 = v.paisResidencia;
+                const esES = paisISO2 === 'ES';
+                if (esES) {
+                    // Para España exigimos INE y podemos limpiar nombreMunicipio si no se usó
+                    if (!/^\d{5}$/.test(v.ine)) v.ine = '';
+                } else {
+                    // Para extranjero: quitar INE y requerir nombreMunicipio si vacío
+                    v.ine = '';
+                    if (!v.nombreMunicipio) {
+                        // intentar rescatar del input libre de municipio o ciudad
+                        const alt = String(formData.get('nombreMunicipio')||'').trim();
+                        if (alt) v.nombreMunicipio = alt;
+                    }
+                }
+            })(viajero1);
             viajeros.push(viajero1);
 
             // Viajero 2 (opcional)
@@ -1536,6 +1553,18 @@
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
                     paisResidencia: iso3to2(getISO3FromInput('pais2')),
                 };
+                (function normalizeMunicipio(v) {
+                    const esES = v.paisResidencia === 'ES';
+                    if (esES) {
+                        if (!/^\d{5}$/.test(v.ine)) v.ine = '';
+                    } else {
+                        v.ine = '';
+                        if (!v.nombreMunicipio) {
+                            const alt = String(formData.get('nombreMunicipio2')||'').trim();
+                            if (alt) v.nombreMunicipio = alt;
+                        }
+                    }
+                })(viajero2);
                 viajeros.push(viajero2);
             }
 
