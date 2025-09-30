@@ -1510,7 +1510,10 @@
                 email: String(formData.get('correo')||'').trim().toLowerCase(),
                 direccion: String(formData.get('direccion')||'').trim(),
                 cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
-                ine: String(formData.get('codigoMunicipio')||'').padStart(5,'0'),
+                ine: (() => {
+                    const codigoMunicipio = String(formData.get('codigoMunicipio')||'').trim();
+                    return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
+                })(),
                 nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
                 paisResidencia: iso3to2(getISO3FromInput('pais')),
             };
@@ -1549,7 +1552,10 @@
                     email: String(formData.get('correo2')||'').trim().toLowerCase(),
                     direccion: String(formData.get('direccion2')||'').trim(),
                     cp: String(formData.get('codigoPostal2')||'').padStart(5,'0'),
-                    ine: String(formData.get('codigoMunicipio2')||'').padStart(5,'0'),
+                    ine: (() => {
+                        const codigoMunicipio = String(formData.get('codigoMunicipio2')||'').trim();
+                        return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
+                    })(),
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
                     paisResidencia: iso3to2(getISO3FromInput('pais2')),
                 };
