@@ -1846,6 +1846,24 @@
                   if (dq) dq.textContent = 'Request payload:\n' + JSON.stringify(cleanData, null, 2);
                 }
                 
+                // 🔬 DEBUG: Enviar también a endpoint de debug
+                try {
+                  console.log('🔬 Enviando datos a debug endpoint...');
+                  const debugResponse = await fetch('https://admin.delfincheckin.com/api/debug-form-data', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(cleanData),
+                  });
+                  const debugResult = await debugResponse.json();
+                  console.log('🔬 Resultado del debug:', debugResult);
+                } catch (debugError) {
+                  console.log('🔬 Error en debug (no crítico):', debugError);
+                }
+                
                 // Enviar datos a la API de Vercel (nuevo endpoint flexible)
                 const response = await fetch(getApiUrl(), {
                     method: 'POST',
