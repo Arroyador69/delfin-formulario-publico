@@ -464,10 +464,10 @@
                                 <input
                                     type="text"
                                     name="pais"
-                                    value="España"
+                                    value=""
                                     required
                                     class="form-input country-input"
-                                    placeholder="Ej: España, Francia, Italia..."
+                                    placeholder="Ej: España, Francia, Italia, Holanda..."
                                 />
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.countryHelp">
                                     Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
@@ -676,9 +676,9 @@
                                 <input
                                     type="text"
                                     name="pais2"
-                                    value="España"
+                                    value=""
                                     class="form-input country-input"
-                                    placeholder="Ej: España, Francia, Italia..."
+                                    placeholder="Ej: España, Francia, Italia, Holanda..."
                                 />
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.countryHelp">
                                     Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.
@@ -1340,16 +1340,29 @@
                 const paisValue = (paisInput.value || '').toLowerCase().trim();
                 const esEspana = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana' || paisValue.startsWith('españa') || paisValue.startsWith('spain');
                 console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
+                
+                // También mostrar/ocultar visualmente los campos
+                const ineContainer = ineInput.closest('div');
+                const municipioContainer = municipioInput.closest('div');
+                
                 if (esEspana) {
                     ineInput.required = true;
                     if (ineRequired) { ineRequired.classList && ineRequired.classList.remove('hidden'); ineRequired.style && (ineRequired.style.display = 'inline'); }
                     municipioInput.required = false;
                     if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.add('hidden'); municipioRequired.style && (municipioRequired.style.display = 'none'); }
+                    
+                    // Mostrar campo INE, ocultar nombre municipio
+                    if (ineContainer) { ineContainer.style.display = 'block'; }
+                    if (municipioContainer) { municipioContainer.style.display = 'none'; }
                 } else {
                     ineInput.required = false;
                     if (ineRequired) { ineRequired.classList && ineRequired.classList.add('hidden'); ineRequired.style && (ineRequired.style.display = 'none'); }
                     municipioInput.required = true;
                     if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.remove('hidden'); municipioRequired.style && (municipioRequired.style.display = 'inline'); }
+                    
+                    // Ocultar campo INE, mostrar nombre municipio
+                    if (ineContainer) { ineContainer.style.display = 'none'; }
+                    if (municipioContainer) { municipioContainer.style.display = 'block'; }
                 }
             }
 
@@ -1383,6 +1396,18 @@
             
             // Inicializar campos INE dinámicos
             handleINEFields();
+            
+            // Inicializar campos según el país por defecto
+            setTimeout(() => {
+                const pais1 = document.querySelector('input[name="pais"]');
+                const pais2 = document.querySelector('input[name="pais2"]');
+                if (pais1) {
+                    updateFields(pais1, document.getElementById('codigoMunicipio1'), document.getElementById('ineRequired1'), document.getElementById('nombreMunicipio1'), document.getElementById('municipioRequired1'));
+                }
+                if (pais2) {
+                    updateFields(pais2, document.getElementById('codigoMunicipio2'), document.getElementById('ineRequired2'), document.getElementById('nombreMunicipio2'), document.getElementById('municipioRequired2'));
+                }
+            }, 100);
             
             // Event listeners para el segundo viajero
             document.getElementById('addTraveler2').addEventListener('click', showTraveler2);
@@ -1820,6 +1845,13 @@
                         pad5(formData.get('codigoMunicipio'))
                     );
                     if (muniErr) { showError(muniErr); return; }
+                } else {
+                    // Para extranjeros, asegurar que el nombre del municipio esté presente
+                    const nombreMunicipio = String(formData.get('nombreMunicipio') || '').trim();
+                    if (!nombreMunicipio) {
+                        showError('Para extranjeros es obligatorio el nombre del municipio');
+                        return;
+                    }
                 }
 
                 const orderErr = validateDateOrder({
@@ -1990,7 +2022,8 @@
 (function(){
   const ISO3 = {
     'españa':'ESP','spain':'ESP','francia':'FRA','france':'FRA','italia':'ITA','italy':'ITA',
-    'alemania':'DEU','germany':'DEU','reino unido':'GBR','united kingdom':'GBR','portugal':'PRT','portuguese':'PRT'
+    'alemania':'DEU','germany':'DEU','reino unido':'GBR','united kingdom':'GBR','portugal':'PRT','portuguese':'PRT',
+    'holanda':'NLD','netherlands':'NLD','países bajos':'NLD','paises bajos':'NLD','nederland':'NLD'
   };
   function toISO3(name){
     if(!name) return '';
