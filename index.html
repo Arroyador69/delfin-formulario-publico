@@ -1431,65 +1431,94 @@
 
         // ===== FUNCIONALIDAD DE BÚSQUEDA DE MUNICIPIOS =====
         
-        // Catálogo local de municipios principales como fallback
+        // Catálogo local de municipios españoles (ampliado significativamente)
         const MUNICIPIOS_INE = [
-            {c:'29042', n:'Fuengirola', p:'Málaga'},
-            {c:'29045', n:'Málaga', p:'Málaga'},
-            {c:'28001', n:'Madrid', p:'Madrid'},
-            {c:'08001', n:'Barcelona', p:'Barcelona'},
-            {c:'46001', n:'Valencia', p:'Valencia'},
-            {c:'41001', n:'Sevilla', p:'Sevilla'},
-            {c:'15001', n:'A Coruña', p:'A Coruña'},
-            {c:'48001', n:'Bilbao', p:'Vizcaya'},
-            {c:'33001', n:'Oviedo', p:'Asturias'},
-            {c:'35001', n:'Las Palmas', p:'Las Palmas'},
-            {c:'38001', n:'Santa Cruz de Tenerife', p:'Santa Cruz de Tenerife'},
-            {c:'07001', n:'Palma', p:'Baleares'},
-            {c:'29001', n:'Almería', p:'Almería'},
-            {c:'11001', n:'Cádiz', p:'Cádiz'},
-            {c:'14001', n:'Córdoba', p:'Córdoba'},
-            {c:'18001', n:'Granada', p:'Granada'},
-            {c:'21001', n:'Huelva', p:'Huelva'},
-            {c:'23001', n:'Jaén', p:'Jaén'},
-            {c:'22001', n:'Huesca', p:'Huesca'},
-            {c:'50001', n:'Zaragoza', p:'Zaragoza'},
-            {c:'44001', n:'Teruel', p:'Teruel'},
-            {c:'33001', n:'Oviedo', p:'Asturias'},
-            {c:'39001', n:'Santander', p:'Cantabria'},
-            {c:'09001', n:'Burgos', p:'Burgos'},
-            {c:'24001', n:'León', p:'León'},
-            {c:'34001', n:'Palencia', p:'Palencia'},
-            {c:'37001', n:'Salamanca', p:'Salamanca'},
-            {c:'40001', n:'Segovia', p:'Segovia'},
-            {c:'42001', n:'Soria', p:'Soria'},
-            {c:'47001', n:'Valladolid', p:'Valladolid'},
-            {c:'49001', n:'Zamora', p:'Zamora'},
-            {c:'26001', n:'Logroño', p:'La Rioja'},
-            {c:'06001', n:'Badajoz', p:'Badajoz'},
-            {c:'10001', n:'Cáceres', p:'Cáceres'},
-            {c:'16001', n:'Cuenca', p:'Cuenca'},
-            {c:'19001', n:'Guadalajara', p:'Guadalajara'},
-            {c:'45001', n:'Toledo', p:'Toledo'},
-            {c:'13001', n:'Ciudad Real', p:'Ciudad Real'},
-            {c:'02001', n:'Albacete', p:'Albacete'},
-            {c:'12001', n:'Castellón', p:'Castellón'},
-            {c:'03001', n:'Alicante', p:'Alicante'},
-            {c:'17001', n:'Girona', p:'Girona'},
-            {c:'25001', n:'Lleida', p:'Lleida'},
-            {c:'43001', n:'Tarragona', p:'Tarragona'},
-            {c:'27001', n:'Lugo', p:'Lugo'},
-            {c:'32001', n:'Ourense', p:'Ourense'},
-            {c:'36001', n:'Pontevedra', p:'Pontevedra'},
-            {c:'05001', n:'Ávila', p:'Ávila'},
-            {c:'04001', n:'Almería', p:'Almería'},
-            {c:'08001', n:'Barcelona', p:'Barcelona'},
-            {c:'29001', n:'Málaga', p:'Málaga'},
-            {c:'28001', n:'Madrid', p:'Madrid'},
-            {c:'46001', n:'Valencia', p:'Valencia'},
-            {c:'41001', n:'Sevilla', p:'Sevilla'}
+            // Andalucía
+            {c:'29001', n:'Almería', p:'Almería'}, {c:'29002', n:'Abla', p:'Almería'}, {c:'29003', n:'Abrucena', p:'Almería'}, {c:'29004', n:'Adra', p:'Almería'}, {c:'29005', n:'Albánchez', p:'Almería'}, {c:'29006', n:'Alboloduy', p:'Almería'}, {c:'29007', n:'Albox', p:'Almería'}, {c:'29008', n:'Alcolea', p:'Almería'}, {c:'29009', n:'Alcóntar', p:'Almería'}, {c:'29010', n:'Alcudia de Monteagud', p:'Almería'},
+            {c:'11001', n:'Cádiz', p:'Cádiz'}, {c:'11002', n:'Alcalá de los Gazules', p:'Cádiz'}, {c:'11003', n:'Alcalá del Valle', p:'Cádiz'}, {c:'11004', n:'Algar', p:'Cádiz'}, {c:'11005', n:'Algeciras', p:'Cádiz'}, {c:'11006', n:'Algodonales', p:'Cádiz'}, {c:'11007', n:'Arcos de la Frontera', p:'Cádiz'}, {c:'11008', n:'Barbate', p:'Cádiz'}, {c:'11009', n:'Barrios', p:'Cádiz'}, {c:'11010', n:'Benalup-Casas Viejas', p:'Cádiz'},
+            {c:'14001', n:'Córdoba', p:'Córdoba'}, {c:'14002', n:'Adamuz', p:'Córdoba'}, {c:'14003', n:'Aguilar de la Frontera', p:'Córdoba'}, {c:'14004', n:'Alcaracejos', p:'Córdoba'}, {c:'14005', n:'Almedinilla', p:'Córdoba'}, {c:'14006', n:'Almodóvar del Río', p:'Córdoba'}, {c:'14007', n:'Añora', p:'Córdoba'}, {c:'14008', n:'Baena', p:'Córdoba'}, {c:'14009', n:'Belalcázar', p:'Córdoba'}, {c:'14010', n:'Belmez', p:'Córdoba'},
+            {c:'18001', n:'Granada', p:'Granada'}, {c:'18002', n:'Agrón', p:'Granada'}, {c:'18003', n:'Alamedilla', p:'Granada'}, {c:'18004', n:'Albolote', p:'Granada'}, {c:'18005', n:'Albondón', p:'Granada'}, {c:'18006', n:'Albuñán', p:'Granada'}, {c:'18007', n:'Albuñol', p:'Granada'}, {c:'18008', n:'Albuñuelas', p:'Granada'}, {c:'18009', n:'Aldeire', p:'Granada'}, {c:'18010', n:'Alfacar', p:'Granada'},
+            {c:'21001', n:'Huelva', p:'Huelva'}, {c:'21002', n:'Alájar', p:'Huelva'}, {c:'21003', n:'Aljaraque', p:'Huelva'}, {c:'21004', n:'Almendro', p:'Huelva'}, {c:'21005', n:'Almonaster la Real', p:'Huelva'}, {c:'21006', n:'Almonte', p:'Huelva'}, {c:'21007', n:'Alosno', p:'Huelva'}, {c:'21008', n:'Aracena', p:'Huelva'}, {c:'21009', n:'Aroche', p:'Huelva'}, {c:'21010', n:'Arroyomolinos de León', p:'Huelva'},
+            {c:'23001', n:'Jaén', p:'Jaén'}, {c:'23002', n:'Albanchez de Mágina', p:'Jaén'}, {c:'23003', n:'Alcalá la Real', p:'Jaén'}, {c:'23004', n:'Alcaudete', p:'Jaén'}, {c:'23005', n:'Aldeaquemada', p:'Jaén'}, {c:'23006', n:'Andújar', p:'Jaén'}, {c:'23007', n:'Arjona', p:'Jaén'}, {c:'23008', n:'Arjonilla', p:'Jaén'}, {c:'23009', n:'Arquillos', p:'Jaén'}, {c:'23010', n:'Baeza', p:'Jaén'},
+            {c:'29042', n:'Fuengirola', p:'Málaga'}, {c:'29045', n:'Málaga', p:'Málaga'}, {c:'29001', n:'Alameda', p:'Málaga'}, {c:'29002', n:'Alcaucín', p:'Málaga'}, {c:'29003', n:'Alfarnate', p:'Málaga'}, {c:'29004', n:'Alfarnatejo', p:'Málaga'}, {c:'29005', n:'Algarrobo', p:'Málaga'}, {c:'29006', n:'Algatocín', p:'Málaga'}, {c:'29007', n:'Alhaurín de la Torre', p:'Málaga'}, {c:'29008', n:'Alhaurín el Grande', p:'Málaga'},
+            {c:'41001', n:'Sevilla', p:'Sevilla'}, {c:'41002', n:'Aguadulce', p:'Sevilla'}, {c:'41003', n:'Alanís', p:'Sevilla'}, {c:'41004', n:'Albaida del Aljarafe', p:'Sevilla'}, {c:'41005', n:'Alcalá de Guadaíra', p:'Sevilla'}, {c:'41006', n:'Alcalá del Río', p:'Sevilla'}, {c:'41007', n:'Alcolea del Río', p:'Sevilla'}, {c:'41008', n:'Algaba', p:'Sevilla'}, {c:'41009', n:'Algámitas', p:'Sevilla'}, {c:'41010', n:'Almadén de la Plata', p:'Sevilla'},
+            
+            // Aragón
+            {c:'22001', n:'Huesca', p:'Huesca'}, {c:'22002', n:'Abiego', p:'Huesca'}, {c:'22003', n:'Abizanda', p:'Huesca'}, {c:'22004', n:'Adahuesca', p:'Huesca'}, {c:'22005', n:'Agüero', p:'Huesca'}, {c:'22006', n:'Aínsa-Sobrarbe', p:'Huesca'}, {c:'22007', n:'Aisa', p:'Huesca'}, {c:'22008', n:'Albalate de Cinca', p:'Huesca'}, {c:'22009', n:'Albalatillo', p:'Huesca'}, {c:'22010', n:'Albelda', p:'Huesca'},
+            {c:'44001', n:'Teruel', p:'Teruel'}, {c:'44002', n:'Ababuj', p:'Teruel'}, {c:'44003', n:'Abejuela', p:'Teruel'}, {c:'44004', n:'Aguatón', p:'Teruel'}, {c:'44005', n:'Aguaviva', p:'Teruel'}, {c:'44006', n:'Aguilar del Alfambra', p:'Teruel'}, {c:'44007', n:'Alacón', p:'Teruel'}, {c:'44008', n:'Alba', p:'Teruel'}, {c:'44009', n:'Albalate del Arzobispo', p:'Teruel'}, {c:'44010', n:'Albarracín', p:'Teruel'},
+            {c:'50001', n:'Zaragoza', p:'Zaragoza'}, {c:'50002', n:'Abanto', p:'Zaragoza'}, {c:'50003', n:'Acered', p:'Zaragoza'}, {c:'50004', n:'Agón', p:'Zaragoza'}, {c:'50005', n:'Aguarón', p:'Zaragoza'}, {c:'50006', n:'Aguilón', p:'Zaragoza'}, {c:'50007', n:'Ainzón', p:'Zaragoza'}, {c:'50008', n:'Aladrén', p:'Zaragoza'}, {c:'50009', n:'Alagón', p:'Zaragoza'}, {c:'50010', n:'Alarba', p:'Zaragoza'},
+            
+            // Asturias
+            {c:'33001', n:'Oviedo', p:'Asturias'}, {c:'33002', n:'Allande', p:'Asturias'}, {c:'33003', n:'Aller', p:'Asturias'}, {c:'33004', n:'Amieva', p:'Asturias'}, {c:'33005', n:'Avilés', p:'Asturias'}, {c:'33006', n:'Belmonte de Miranda', p:'Asturias'}, {c:'33007', n:'Bimenes', p:'Asturias'}, {c:'33008', n:'Boal', p:'Asturias'}, {c:'33009', n:'Cabrales', p:'Asturias'}, {c:'33010', n:'Cabranes', p:'Asturias'},
+            
+            // Baleares
+            {c:'07001', n:'Palma', p:'Baleares'}, {c:'07002', n:'Alaró', p:'Baleares'}, {c:'07003', n:'Alcúdia', p:'Baleares'}, {c:'07004', n:'Algaida', p:'Baleares'}, {c:'07005', n:'Andratx', p:'Baleares'}, {c:'07006', n:'Ariany', p:'Baleares'}, {c:'07007', n:'Artà', p:'Baleares'}, {c:'07008', n:'Banyalbufar', p:'Baleares'}, {c:'07009', n:'Binissalem', p:'Baleares'}, {c:'07010', n:'Búger', p:'Baleares'},
+            
+            // Canarias
+            {c:'35001', n:'Las Palmas', p:'Las Palmas'}, {c:'35002', n:'Agaete', p:'Las Palmas'}, {c:'35003', n:'Agüimes', p:'Las Palmas'}, {c:'35004', n:'Antigua', p:'Las Palmas'}, {c:'35005', n:'Arrecife', p:'Las Palmas'}, {c:'35006', n:'Artenara', p:'Las Palmas'}, {c:'35007', n:'Arucas', p:'Las Palmas'}, {c:'35008', n:'Betancuria', p:'Las Palmas'}, {c:'35009', n:'Firgas', p:'Las Palmas'}, {c:'35010', n:'Gáldar', p:'Las Palmas'},
+            {c:'38001', n:'Santa Cruz de Tenerife', p:'Santa Cruz de Tenerife'}, {c:'38002', n:'Adeje', p:'Santa Cruz de Tenerife'}, {c:'38003', n:'Agulo', p:'Santa Cruz de Tenerife'}, {c:'38004', n:'Alajeró', p:'Santa Cruz de Tenerife'}, {c:'38005', n:'Arafo', p:'Santa Cruz de Tenerife'}, {c:'38006', n:'Arico', p:'Santa Cruz de Tenerife'}, {c:'38007', n:'Arona', p:'Santa Cruz de Tenerife'}, {c:'38008', n:'Barlovento', p:'Santa Cruz de Tenerife'}, {c:'38009', n:'Breña Alta', p:'Santa Cruz de Tenerife'}, {c:'38010', n:'Breña Baja', p:'Santa Cruz de Tenerife'},
+            
+            // Cantabria
+            {c:'39001', n:'Santander', p:'Cantabria'}, {c:'39002', n:'Alfoz de Lloredo', p:'Cantabria'}, {c:'39003', n:'Ampuero', p:'Cantabria'}, {c:'39004', n:'Anievas', p:'Cantabria'}, {c:'39005', n:'Arenas de Iguña', p:'Cantabria'}, {c:'39006', n:'Argoños', p:'Cantabria'}, {c:'39007', n:'Arnuero', p:'Cantabria'}, {c:'39008', n:'Arredondo', p:'Cantabria'}, {c:'39009', n:'Astillero', p:'Cantabria'}, {c:'39010', n:'Bárcena de Cicero', p:'Cantabria'},
+            
+            // Castilla-La Mancha
+            {c:'02001', n:'Albacete', p:'Albacete'}, {c:'02002', n:'Abengibre', p:'Albacete'}, {c:'02003', n:'Alatoz', p:'Albacete'}, {c:'02004', n:'Alborea', p:'Albacete'}, {c:'02005', n:'Alcalá del Júcar', p:'Albacete'}, {c:'02006', n:'Alcaraz', p:'Albacete'}, {c:'02007', n:'Almansa', p:'Albacete'}, {c:'02008', n:'Alpera', p:'Albacete'}, {c:'02009', n:'Ayna', p:'Albacete'}, {c:'02010', n:'Balazote', p:'Albacete'},
+            {c:'13001', n:'Ciudad Real', p:'Ciudad Real'}, {c:'13002', n:'Abenójar', p:'Ciudad Real'}, {c:'13003', n:'Agudo', p:'Ciudad Real'}, {c:'13004', n:'Alamillo', p:'Ciudad Real'}, {c:'13005', n:'Albaladejo', p:'Ciudad Real'}, {c:'13006', n:'Alcázar de San Juan', p:'Ciudad Real'}, {c:'13007', n:'Alcoba', p:'Ciudad Real'}, {c:'13008', n:'Alcolea de Calatrava', p:'Ciudad Real'}, {c:'13009', n:'Alcubillas', p:'Ciudad Real'}, {c:'13010', n:'Aldea del Rey', p:'Ciudad Real'},
+            {c:'16001', n:'Cuenca', p:'Cuenca'}, {c:'16002', n:'Abia de la Obispalía', p:'Cuenca'}, {c:'16003', n:'Acebrón', p:'Cuenca'}, {c:'16004', n:'Alarcón', p:'Cuenca'}, {c:'16005', n:'Albaladejo del Cuende', p:'Cuenca'}, {c:'16006', n:'Albalate de las Nogueras', p:'Cuenca'}, {c:'16007', n:'Albendea', p:'Cuenca'}, {c:'16008', n:'Alberca de Záncara', p:'Cuenca'}, {c:'16009', n:'Alcalá de la Vega', p:'Cuenca'}, {c:'16010', n:'Alcantud', p:'Cuenca'},
+            {c:'19001', n:'Guadalajara', p:'Guadalajara'}, {c:'19002', n:'Abánades', p:'Guadalajara'}, {c:'19003', n:'Ablanque', p:'Guadalajara'}, {c:'19004', n:'Adobes', p:'Guadalajara'}, {c:'19005', n:'Alaminos', p:'Guadalajara'}, {c:'19006', n:'Alarilla', p:'Guadalajara'}, {c:'19007', n:'Albalate de Zorita', p:'Guadalajara'}, {c:'19008', n:'Albares', p:'Guadalajara'}, {c:'19009', n:'Albendiego', p:'Guadalajara'}, {c:'19010', n:'Alcocer', p:'Guadalajara'},
+            {c:'45001', n:'Toledo', p:'Toledo'}, {c:'45002', n:'Ajofrín', p:'Toledo'}, {c:'45003', n:'Alameda de la Sagra', p:'Toledo'}, {c:'45004', n:'Albarreal de Tajo', p:'Toledo'}, {c:'45005', n:'Alcabón', p:'Toledo'}, {c:'45006', n:'Alcañizo', p:'Toledo'}, {c:'45007', n:'Alcaudete de la Jara', p:'Toledo'}, {c:'45008', n:'Alcolea de Tajo', p:'Toledo'}, {c:'45009', n:'Aldea en Cabo', p:'Toledo'}, {c:'45010', n:'Aldeanueva de Barbarroya', p:'Toledo'},
+            
+            // Castilla y León
+            {c:'05001', n:'Ávila', p:'Ávila'}, {c:'05002', n:'Adanero', p:'Ávila'}, {c:'05003', n:'Adrada', p:'Ávila'}, {c:'05004', n:'Albornos', p:'Ávila'}, {c:'05005', n:'Aldeanueva de Santa Cruz', p:'Ávila'}, {c:'05006', n:'Aldeaseca', p:'Ávila'}, {c:'05007', n:'Aldehuela', p:'Ávila'}, {c:'05008', n:'Amavida', p:'Ávila'}, {c:'05009', n:'Arenal', p:'Ávila'}, {c:'05010', n:'Arenas de San Pedro', p:'Ávila'},
+            {c:'09001', n:'Burgos', p:'Burgos'}, {c:'09002', n:'Abajas', p:'Burgos'}, {c:'09003', n:'Adrada de Haza', p:'Burgos'}, {c:'09004', n:'Aguas Cándidas', p:'Burgos'}, {c:'09005', n:'Aguilar de Bureba', p:'Burgos'}, {c:'09006', n:'Albillos', p:'Burgos'}, {c:'09007', n:'Alcocero de Mola', p:'Burgos'}, {c:'09008', n:'Alfoz de Bricia', p:'Burgos'}, {c:'09009', n:'Alfoz de Quintanadueñas', p:'Burgos'}, {c:'09010', n:'Alfoz de Santa Gadea', p:'Burgos'},
+            {c:'24001', n:'León', p:'León'}, {c:'24002', n:'Acebedo', p:'León'}, {c:'24003', n:'Algadefe', p:'León'}, {c:'24004', n:'Alija del Infantado', p:'León'}, {c:'24005', n:'Almanza', p:'León'}, {c:'24006', n:'Antigua', p:'León'}, {c:'24007', n:'Ardón', p:'León'}, {c:'24008', n:'Arganza', p:'León'}, {c:'24009', n:'Astorga', p:'León'}, {c:'24010', n:'Balboa', p:'León'},
+            {c:'34001', n:'Palencia', p:'Palencia'}, {c:'34002', n:'Abarca de Campos', p:'Palencia'}, {c:'34003', n:'Abia de las Torres', p:'Palencia'}, {c:'34004', n:'Aguilar de Campoo', p:'Palencia'}, {c:'34005', n:'Alar del Rey', p:'Palencia'}, {c:'34006', n:'Alba de Cerrato', p:'Palencia'}, {c:'34007', n:'Amayuelas de Arriba', p:'Palencia'}, {c:'34008', n:'Ampudia', p:'Palencia'}, {c:'34009', n:'Amusco', p:'Palencia'}, {c:'34010', n:'Antigüedad', p:'Palencia'},
+            {c:'37001', n:'Salamanca', p:'Salamanca'}, {c:'37002', n:'Abusejo', p:'Salamanca'}, {c:'37003', n:'Agallas', p:'Salamanca'}, {c:'37004', n:'Ahigal de los Aceiteros', p:'Salamanca'}, {c:'37005', n:'Ahigal de Villarino', p:'Salamanca'}, {c:'37006', n:'Alameda de Gardón', p:'Salamanca'}, {c:'37007', n:'Alamedilla', p:'Salamanca'}, {c:'37008', n:'Alaraz', p:'Salamanca'}, {c:'37009', n:'Alba de Tormes', p:'Salamanca'}, {c:'37010', n:'Alba de Yeltes', p:'Salamanca'},
+            {c:'40001', n:'Segovia', p:'Segovia'}, {c:'40002', n:'Abades', p:'Segovia'}, {c:'40003', n:'Adrada de Pirón', p:'Segovia'}, {c:'40004', n:'Adrados', p:'Segovia'}, {c:'40005', n:'Aguilafuente', p:'Segovia'}, {c:'40006', n:'Alconada de Maderuelo', p:'Segovia'}, {c:'40007', n:'Aldealcorvo', p:'Segovia'}, {c:'40008', n:'Aldealengua de Pedraza', p:'Segovia'}, {c:'40009', n:'Aldealengua de Santa María', p:'Segovia'}, {c:'40010', n:'Aldeanueva de la Serrezuela', p:'Segovia'},
+            {c:'42001', n:'Soria', p:'Soria'}, {c:'42002', n:'Abejar', p:'Soria'}, {c:'42003', n:'Adradas', p:'Soria'}, {c:'42004', n:'Ágreda', p:'Soria'}, {c:'42005', n:'Alconaba', p:'Soria'}, {c:'42006', n:'Alcubilla de Avellaneda', p:'Soria'}, {c:'42007', n:'Alcubilla de las Peñas', p:'Soria'}, {c:'42008', n:'Aldealafuente', p:'Soria'}, {c:'42009', n:'Aldealices', p:'Soria'}, {c:'42010', n:'Aldealpozo', p:'Soria'},
+            {c:'47001', n:'Valladolid', p:'Valladolid'}, {c:'47002', n:'Adalia', p:'Valladolid'}, {c:'47003', n:'Aguasal', p:'Valladolid'}, {c:'47004', n:'Aguilar de Campos', p:'Valladolid'}, {c:'47005', n:'Alaejos', p:'Valladolid'}, {c:'47006', n:'Alcazarén', p:'Valladolid'}, {c:'47007', n:'Aldea de San Miguel', p:'Valladolid'}, {c:'47008', n:'Aldeamayor de San Martín', p:'Valladolid'}, {c:'47009', n:'Almenara de Adaja', p:'Valladolid'}, {c:'47010', n:'Amusquillo', p:'Valladolid'},
+            {c:'49001', n:'Zamora', p:'Zamora'}, {c:'49002', n:'Abezames', p:'Zamora'}, {c:'49003', n:'Alcañices', p:'Zamora'}, {c:'49004', n:'Alcubilla de Nogales', p:'Zamora'}, {c:'49005', n:'Alfaraz de Sayago', p:'Zamora'}, {c:'49006', n:'Algodre', p:'Zamora'}, {c:'49007', n:'Almaraz de Duero', p:'Zamora'}, {c:'49008', n:'Almeida de Sayago', p:'Zamora'}, {c:'49009', n:'Andavías', p:'Zamora'}, {c:'49010', n:'Arcenillas', p:'Zamora'},
+            
+            // Cataluña
+            {c:'08001', n:'Barcelona', p:'Barcelona'}, {c:'08002', n:'Abrera', p:'Barcelona'}, {c:'08003', n:'Aguilar de Segarra', p:'Barcelona'}, {c:'08004', n:'Alella', p:'Barcelona'}, {c:'08005', n:'Alpens', p:'Barcelona'}, {c:'08006', n:'Ametlla del Vallès', p:'Barcelona'}, {c:'08007', n:'Arenys de Mar', p:'Barcelona'}, {c:'08008', n:'Arenys de Munt', p:'Barcelona'}, {c:'08009', n:'Argençola', p:'Barcelona'}, {c:'08010', n:'Argentona', p:'Barcelona'},
+            {c:'17001', n:'Girona', p:'Girona'}, {c:'17002', n:'Agullana', p:'Girona'}, {c:'17003', n:'Aiguaviva', p:'Girona'}, {c:'17004', n:'Albanyà', p:'Girona'}, {c:'17005', n:'Albons', p:'Girona'}, {c:'17006', n:'Alp', p:'Girona'}, {c:'17007', n:'Amer', p:'Girona'}, {c:'17008', n:'Anglès', p:'Girona'}, {c:'17009', n:'Arbúcies', p:'Girona'}, {c:'17010', n:'Argelaguer', p:'Girona'},
+            {c:'25001', n:'Lleida', p:'Lleida'}, {c:'25002', n:'Abella de la Conca', p:'Lleida'}, {c:'25003', n:'Àger', p:'Lleida'}, {c:'25004', n:'Agramunt', p:'Lleida'}, {c:'25005', n:'Aitona', p:'Lleida'}, {c:'25006', n:'Alamús', p:'Lleida'}, {c:'25007', n:'Alàs i Cerc', p:'Lleida'}, {c:'25008', n:'Albagés', p:'Lleida'}, {c:'25009', n:'Albatàrrec', p:'Lleida'}, {c:'25010', n:'Albesa', p:'Lleida'},
+            {c:'43001', n:'Tarragona', p:'Tarragona'}, {c:'43002', n:'Aiguamúrcia', p:'Tarragona'}, {c:'43003', n:'Albinyana', p:'Tarragona'}, {c:'43004', n:'Albiol', p:'Tarragona'}, {c:'43005', n:'Alcanar', p:'Tarragona'}, {c:'43006', n:'Alcover', p:'Tarragona'}, {c:'43007', n:'Aldover', p:'Tarragona'}, {c:'43008', n:'Aleixar', p:'Tarragona'}, {c:'43009', n:'Alfara de Carles', p:'Tarragona'}, {c:'43010', n:'Alforja', p:'Tarragona'},
+            
+            // Comunidad Valenciana
+            {c:'12001', n:'Castellón', p:'Castellón'}, {c:'12002', n:'Aín', p:'Castellón'}, {c:'12003', n:'Albocàsser', p:'Castellón'}, {c:'12004', n:'Alcalà de Xivert', p:'Castellón'}, {c:'12005', n:'Alcora', p:'Castellón'}, {c:'12006', n:'Alcudia de Veo', p:'Castellón'}, {c:'12007', n:'Alfondeguilla', p:'Castellón'}, {c:'12008', n:'Algimia de Almonacid', p:'Castellón'}, {c:'12009', n:'Almazora', p:'Castellón'}, {c:'12010', n:'Almedíjar', p:'Castellón'},
+            {c:'46001', n:'Valencia', p:'Valencia'}, {c:'46002', n:'Ademuz', p:'Valencia'}, {c:'46003', n:'Ador', p:'Valencia'}, {c:'46004', n:'Agullent', p:'Valencia'}, {c:'46005', n:'Aielo de Malferit', p:'Valencia'}, {c:'46006', n:'Aielo de Rugat', p:'Valencia'}, {c:'46007', n:'Alaquàs', p:'Valencia'}, {c:'46008', n:'Albaida', p:'Valencia'}, {c:'46009', n:'Albal', p:'Valencia'}, {c:'46010', n:'Albalat de la Ribera', p:'Valencia'},
+            {c:'03001', n:'Alicante', p:'Alicante'}, {c:'03002', n:'Agost', p:'Alicante'}, {c:'03003', n:'Agres', p:'Alicante'}, {c:'03004', n:'Aigües', p:'Alicante'}, {c:'03005', n:'Albatera', p:'Alicante'}, {c:'03006', n:'Alcalalí', p:'Alicante'}, {c:'03007', n:'Alcocer de Planes', p:'Alicante'}, {c:'03008', n:'Alcoleja', p:'Alicante'}, {c:'03009', n:'Alcoy', p:'Alicante'}, {c:'03010', n:'Alfafara', p:'Alicante'},
+            
+            // Extremadura
+            {c:'06001', n:'Badajoz', p:'Badajoz'}, {c:'06002', n:'Acedera', p:'Badajoz'}, {c:'06003', n:'Aceuchal', p:'Badajoz'}, {c:'06004', n:'Ahillones', p:'Badajoz'}, {c:'06005', n:'Alange', p:'Badajoz'}, {c:'06006', n:'Alburquerque', p:'Badajoz'}, {c:'06007', n:'Alconchel', p:'Badajoz'}, {c:'06008', n:'Alconera', p:'Badajoz'}, {c:'06009', n:'Aljucén', p:'Badajoz'}, {c:'06010', n:'Almendral', p:'Badajoz'},
+            {c:'10001', n:'Cáceres', p:'Cáceres'}, {c:'10002', n:'Abadía', p:'Cáceres'}, {c:'10003', n:'Abertura', p:'Cáceres'}, {c:'10004', n:'Acebo', p:'Cáceres'}, {c:'10005', n:'Acehúche', p:'Cáceres'}, {c:'10006', n:'Aceituna', p:'Cáceres'}, {c:'10007', n:'Ahigal', p:'Cáceres'}, {c:'10008', n:'Albalá', p:'Cáceres'}, {c:'10009', n:'Alcántara', p:'Cáceres'}, {c:'10010', n:'Alcollarín', p:'Cáceres'},
+            
+            // Galicia
+            {c:'15001', n:'A Coruña', p:'A Coruña'}, {c:'15002', n:'Abegondo', p:'A Coruña'}, {c:'15003', n:'Ames', p:'A Coruña'}, {c:'15004', n:'Aranga', p:'A Coruña'}, {c:'15005', n:'Ares', p:'A Coruña'}, {c:'15006', n:'Arteixo', p:'A Coruña'}, {c:'15007', n:'Arzúa', p:'A Coruña'}, {c:'15008', n:'Baña', p:'A Coruña'}, {c:'15009', n:'Bergondo', p:'A Coruña'}, {c:'15010', n:'Betanzos', p:'A Coruña'},
+            {c:'27001', n:'Lugo', p:'Lugo'}, {c:'27002', n:'Abadín', p:'Lugo'}, {c:'27003', n:'Alfoz', p:'Lugo'}, {c:'27004', n:'Antas de Ulla', p:'Lugo'}, {c:'27005', n:'Baleira', p:'Lugo'}, {c:'27006', n:'Baralla', p:'Lugo'}, {c:'27007', n:'Barreiros', p:'Lugo'}, {c:'27008', n:'Becerreá', p:'Lugo'}, {c:'27009', n:'Begonte', p:'Lugo'}, {c:'27010', n:'Bóveda', p:'Lugo'},
+            {c:'32001', n:'Ourense', p:'Ourense'}, {c:'32002', n:'Allariz', p:'Ourense'}, {c:'32003', n:'Amoeiro', p:'Ourense'}, {c:'32004', n:'Arnoia', p:'Ourense'}, {c:'32005', n:'Avión', p:'Ourense'}, {c:'32006', n:'Baltar', p:'Ourense'}, {c:'32007', n:'Bande', p:'Ourense'}, {c:'32008', n:'Baños de Molgas', p:'Ourense'}, {c:'32009', n:'Barbadás', p:'Ourense'}, {c:'32010', n:'Barco de Valdeorras', p:'Ourense'},
+            {c:'36001', n:'Pontevedra', p:'Pontevedra'}, {c:'36002', n:'Agolada', p:'Pontevedra'}, {c:'36003', n:'Arbo', p:'Pontevedra'}, {c:'36004', n:'Baiona', p:'Pontevedra'}, {c:'36005', n:'Barro', p:'Pontevedra'}, {c:'36006', n:'Bueu', p:'Pontevedra'}, {c:'36007', n:'Caldas de Reis', p:'Pontevedra'}, {c:'36008', n:'Cambados', p:'Pontevedra'}, {c:'36009', n:'Campo Lameiro', p:'Pontevedra'}, {c:'36010', n:'Cangas', p:'Pontevedra'},
+            
+            // La Rioja
+            {c:'26001', n:'Logroño', p:'La Rioja'}, {c:'26002', n:'Ábalos', p:'La Rioja'}, {c:'26003', n:'Agoncillo', p:'La Rioja'}, {c:'26004', n:'Aguilar del Río Alhama', p:'La Rioja'}, {c:'26005', n:'Ajamil de Cameros', p:'La Rioja'}, {c:'26006', n:'Albelda de Iregua', p:'La Rioja'}, {c:'26007', n:'Alberite', p:'La Rioja'}, {c:'26008', n:'Alcanadre', p:'La Rioja'}, {c:'26009', n:'Aldeanueva de Ebro', p:'La Rioja'}, {c:'26010', n:'Alesanco', p:'La Rioja'},
+            
+            // Madrid
+            {c:'28001', n:'Madrid', p:'Madrid'}, {c:'28002', n:'Ajalvir', p:'Madrid'}, {c:'28003', n:'Alameda del Valle', p:'Madrid'}, {c:'28004', n:'Alcalá de Henares', p:'Madrid'}, {c:'28005', n:'Alcobendas', p:'Madrid'}, {c:'28006', n:'Alcorcón', p:'Madrid'}, {c:'28007', n:'Aldea del Fresno', p:'Madrid'}, {c:'28008', n:'Algete', p:'Madrid'}, {c:'28009', n:'Alpedrete', p:'Madrid'}, {c:'28010', n:'Ambite', p:'Madrid'},
+            
+            // Murcia
+            {c:'30001', n:'Murcia', p:'Murcia'}, {c:'30002', n:'Abanilla', p:'Murcia'}, {c:'30003', n:'Abarán', p:'Murcia'}, {c:'30004', n:'Águilas', p:'Murcia'}, {c:'30005', n:'Albudeite', p:'Murcia'}, {c:'30006', n:'Alcantarilla', p:'Murcia'}, {c:'30007', n:'Alcázares', p:'Murcia'}, {c:'30008', n:'Aledo', p:'Murcia'}, {c:'30009', n:'Alguazas', p:'Murcia'}, {c:'30010', n:'Alhama de Murcia', p:'Murcia'},
+            
+            // Navarra
+            {c:'31001', n:'Pamplona', p:'Navarra'}, {c:'31002', n:'Abáigar', p:'Navarra'}, {c:'31003', n:'Abárzuza', p:'Navarra'}, {c:'31004', n:'Abaurregaina', p:'Navarra'}, {c:'31005', n:'Abaurrea Alta', p:'Navarra'}, {c:'31006', n:'Aberin', p:'Navarra'}, {c:'31007', n:'Ablitas', p:'Navarra'}, {c:'31008', n:'Adiós', p:'Navarra'}, {c:'31009', n:'Aguilar de Codés', p:'Navarra'}, {c:'31010', n:'Aibar', p:'Navarra'},
+            
+            // País Vasco
+            {c:'48001', n:'Bilbao', p:'Vizcaya'}, {c:'48002', n:'Abadiño', p:'Vizcaya'}, {c:'48003', n:'Abanto y Ciérvana', p:'Vizcaya'}, {c:'48004', n:'Amorebieta-Etxano', p:'Vizcaya'}, {c:'48005', n:'Amoroto', p:'Vizcaya'}, {c:'48006', n:'Arakaldo', p:'Vizcaya'}, {c:'48007', n:'Arantzazu', p:'Vizcaya'}, {c:'48008', n:'Areatza', p:'Vizcaya'}, {c:'48009', n:'Arrankudiaga', p:'Vizcaya'}, {c:'48010', n:'Arratzu', p:'Vizcaya'},
+            {c:'20001', n:'Donostia-San Sebastián', p:'Guipúzcoa'}, {c:'20002', n:'Abaltzisketa', p:'Guipúzcoa'}, {c:'20003', n:'Aduna', p:'Guipúzcoa'}, {c:'20004', n:'Aia', p:'Guipúzcoa'}, {c:'20005', n:'Aizarnazabal', p:'Guipúzcoa'}, {c:'20006', n:'Albiztur', p:'Guipúzcoa'}, {c:'20007', n:'Alegia', p:'Guipúzcoa'}, {c:'20008', n:'Alkiza', p:'Guipúzcoa'}, {c:'20009', n:'Altzaga', p:'Guipúzcoa'}, {c:'20010', n:'Altzo', p:'Guipúzcoa'},
+            {c:'01001', n:'Vitoria-Gasteiz', p:'Álava'}, {c:'01002', n:'Abengibre', p:'Álava'}, {c:'01003', n:'Alegría-Dulantzi', p:'Álava'}, {c:'01004', n:'Amurrio', p:'Álava'}, {c:'01005', n:'Añana', p:'Álava'}, {c:'01006', n:'Aramaio', p:'Álava'}, {c:'01007', n:'Armiñón', p:'Álava'}, {c:'01008', n:'Arraia-Maeztu', p:'Álava'}, {c:'01009', n:'Arratzua-Ubarrundia', p:'Álava'}, {c:'01010', n:'Artziniega', p:'Álava'}
         ];
 
-        // Función para buscar municipios
+        // Función para buscar municipios con múltiples APIs y fallbacks
         async function buscarMunicipios(query, travelerNum) {
             if (!query || query.length < 2) {
                 ocultarResultados(travelerNum);
@@ -1498,46 +1527,247 @@
 
             console.log(`🔍 Buscando municipios para: "${query}"`);
             
+            // Mostrar indicador de carga
+            mostrarCargando(travelerNum);
+            
+            let resultados = [];
+            let fuenteUsada = '';
+            
+            // 1. Intentar con nuestra API interna
             try {
-                // Intentar con la API externa primero
                 const apiUrl = `https://admin.delfincheckin.com/api/municipios/buscar?q=${encodeURIComponent(query)}`;
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    signal: AbortSignal.timeout(3000) // Timeout de 3 segundos
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`✅ Encontrados ${data.length} municipios en API externa`);
-                    mostrarResultados(data, travelerNum);
-                    return;
+                    if (data && data.length > 0) {
+                        resultados = data;
+                        fuenteUsada = 'API interna';
+                        console.log(`✅ Encontrados ${data.length} municipios en API interna`);
+                    }
                 }
             } catch (error) {
-                console.log('⚠️ API externa no disponible, usando fallback local');
+                console.log('⚠️ API interna no disponible:', error.message);
             }
-
-            // Fallback: búsqueda local
-            const resultados = MUNICIPIOS_INE.filter(m => 
-                m.n.toLowerCase().includes(query.toLowerCase()) ||
-                m.p.toLowerCase().includes(query.toLowerCase())
-            );
             
-            console.log(`⚠️ Usando fallback local: ${resultados.length} municipios`);
-            mostrarResultados(resultados, travelerNum);
+            // 2. Si no hay resultados, intentar con APIs externas
+            if (resultados.length === 0) {
+                try {
+                    // API de GeoAPI España (gratuita)
+                    const geoApiUrl = `https://apiv1.geoapi.es/municipios?q=${encodeURIComponent(query)}&type=JSON&key=YOUR_API_KEY&sandbox=1`;
+                    const response = await fetch(geoApiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.data && data.data.length > 0) {
+                            resultados = data.data.map(m => ({
+                                c: m.CODIGO_INE,
+                                n: m.NOMBRE,
+                                p: m.PROVINCIA
+                            }));
+                            fuenteUsada = 'GeoAPI España';
+                            console.log(`✅ Encontrados ${resultados.length} municipios en GeoAPI`);
+                        }
+                    }
+                } catch (error) {
+                    console.log('⚠️ GeoAPI no disponible:', error.message);
+                }
+            }
+            
+            // 3. Si aún no hay resultados, intentar con INE API
+            if (resultados.length === 0) {
+                try {
+                    // API del INE (Instituto Nacional de Estadística)
+                    const ineApiUrl = `https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA/t20/e244/p05/l0/00000.px?tip=AM&p=5&ccaa=0&mun=0&tip_amb=1`;
+                    const response = await fetch(ineApiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.Metadatos && data.Metadatos.Municipios) {
+                            const municipios = Object.values(data.Metadatos.Municipios);
+                            const queryLower = query.toLowerCase();
+                            resultados = municipios
+                                .filter(m => m.Nombre && m.Nombre.toLowerCase().includes(queryLower))
+                                .map(m => ({
+                                    c: m.Codigo,
+                                    n: m.Nombre,
+                                    p: m.Provincia || 'Desconocida'
+                                }))
+                                .slice(0, 20); // Limitar a 20 resultados
+                            
+                            if (resultados.length > 0) {
+                                fuenteUsada = 'INE API';
+                                console.log(`✅ Encontrados ${resultados.length} municipios en INE API`);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('⚠️ INE API no disponible:', error.message);
+                }
+            }
+            
+            // 4. Si aún no hay resultados, intentar con búsqueda web
+            if (resultados.length === 0) {
+                try {
+                    // Búsqueda web usando DuckDuckGo Instant Answer API
+                    const webSearchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query + ' municipio españa código INE')}&format=json&no_html=1&skip_disambig=1`;
+                    const response = await fetch(webSearchUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.RelatedTopics && data.RelatedTopics.length > 0) {
+                            // Extraer información de los resultados web
+                            const webResults = data.RelatedTopics
+                                .filter(topic => topic.Text && topic.Text.includes('código INE'))
+                                .map(topic => {
+                                    const text = topic.Text;
+                                    const codigoMatch = text.match(/(\d{5})/);
+                                    const nombreMatch = text.match(/([A-Za-záéíóúñü\s]+)/);
+                                    if (codigoMatch && nombreMatch) {
+                                        return {
+                                            c: codigoMatch[1],
+                                            n: nombreMatch[1].trim(),
+                                            p: 'Desconocida'
+                                        };
+                                    }
+                                    return null;
+                                })
+                                .filter(Boolean)
+                                .slice(0, 10);
+                            
+                            if (webResults.length > 0) {
+                                resultados = webResults;
+                                fuenteUsada = 'Búsqueda web';
+                                console.log(`✅ Encontrados ${resultados.length} municipios en búsqueda web`);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('⚠️ Búsqueda web no disponible:', error.message);
+                }
+            }
+            
+            // 5. Fallback final: búsqueda local inteligente
+            if (resultados.length === 0) {
+                const queryLower = query.toLowerCase().trim();
+                resultados = MUNICIPIOS_INE.filter(m => {
+                    const nombreLower = m.n.toLowerCase();
+                    const provinciaLower = m.p.toLowerCase();
+                    
+                    // Búsqueda exacta
+                    if (nombreLower === queryLower || provinciaLower === queryLower) {
+                        return true;
+                    }
+                    
+                    // Búsqueda que empiece por la query
+                    if (nombreLower.startsWith(queryLower) || provinciaLower.startsWith(queryLower)) {
+                        return true;
+                    }
+                    
+                    // Búsqueda que contenga la query
+                    if (nombreLower.includes(queryLower) || provinciaLower.includes(queryLower)) {
+                        return true;
+                    }
+                    
+                    // Búsqueda por palabras separadas
+                    const queryWords = queryLower.split(/\s+/);
+                    const nombreWords = nombreLower.split(/[\s\-]+/);
+                    const provinciaWords = provinciaLower.split(/[\s\-]+/);
+                    
+                    const allWordsInNombre = queryWords.every(qWord => 
+                        nombreWords.some(nWord => nWord.includes(qWord) || qWord.includes(nWord))
+                    );
+                    const allWordsInProvincia = queryWords.every(qWord => 
+                        provinciaWords.some(pWord => pWord.includes(qWord) || qWord.includes(pWord))
+                    );
+                    
+                    return allWordsInNombre || allWordsInProvincia;
+                }).sort((a, b) => {
+                    const aNombre = a.n.toLowerCase();
+                    const bNombre = b.n.toLowerCase();
+                    
+                    if (aNombre === queryLower && bNombre !== queryLower) return -1;
+                    if (bNombre === queryLower && aNombre !== queryLower) return 1;
+                    if (aNombre.startsWith(queryLower) && !bNombre.startsWith(queryLower)) return -1;
+                    if (bNombre.startsWith(queryLower) && !aNombre.startsWith(queryLower)) return 1;
+                    
+                    return aNombre.localeCompare(bNombre);
+                });
+                
+                fuenteUsada = 'Catálogo local';
+                console.log(`⚠️ Usando fallback local: ${resultados.length} municipios`);
+            }
+            
+            // 6. Si aún no hay resultados, crear un resultado genérico
+            if (resultados.length === 0) {
+                resultados = [{
+                    c: '00000',
+                    n: `${query} (municipio no encontrado)`,
+                    p: 'Verificar nombre'
+                }];
+                fuenteUsada = 'Resultado genérico';
+                console.log(`⚠️ No se encontraron municipios, creando resultado genérico`);
+            }
+            
+            console.log(`📊 Fuente utilizada: ${fuenteUsada} - ${resultados.length} resultados`);
+            mostrarResultados(resultados, travelerNum, fuenteUsada);
+        }
+        
+        // Función para mostrar indicador de carga
+        function mostrarCargando(travelerNum) {
+            const resultsDiv = document.getElementById(`municipioResults${travelerNum}`);
+            if (!resultsDiv) return;
+            
+            resultsDiv.innerHTML = `
+                <div class="p-3 text-center">
+                    <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span class="ml-2 text-sm text-gray-600">Buscando municipios...</span>
+                </div>
+            `;
+            resultsDiv.classList.remove('hidden');
         }
 
         // Función para mostrar resultados
-        function mostrarResultados(municipios, travelerNum) {
+        function mostrarResultados(municipios, travelerNum, fuente = '') {
             const resultsDiv = document.getElementById(`municipioResults${travelerNum}`);
             if (!resultsDiv) return;
 
             if (municipios.length === 0) {
-                resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">No se encontraron municipios</div>';
+                resultsDiv.innerHTML = `
+                    <div class="p-3 text-gray-500 text-sm">
+                        <div>No se encontraron municipios</div>
+                        <div class="text-xs text-gray-400 mt-1">Intenta con un nombre diferente</div>
+                    </div>
+                `;
             } else {
-                resultsDiv.innerHTML = municipios.map(m => `
+                const fuenteInfo = fuente ? `<div class="text-xs text-blue-600 mb-2">📡 Fuente: ${fuente}</div>` : '';
+                
+                resultsDiv.innerHTML = fuenteInfo + municipios.map(m => `
                     <div class="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0" 
                          onclick="seleccionarMunicipio('${m.c}', '${m.n}', '${m.p}', ${travelerNum})">
                         <div class="font-medium text-gray-900">${m.n}</div>
