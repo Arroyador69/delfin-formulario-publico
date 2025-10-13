@@ -1598,48 +1598,47 @@
             
             // 5. Fallback final: búsqueda local inteligente
             if (resultados.length === 0) {
-                const queryLower = query.toLowerCase().trim();
+                const queryNormalizada = normalizarTexto(query);
                 resultados = MUNICIPIOS_INE.filter(m => {
-                    const nombreLower = m.n.toLowerCase();
-                    const provinciaLower = m.p.toLowerCase();
+                    const nombreNormalizado = normalizarTexto(m.n);
+                    const provinciaNormalizada = normalizarTexto(m.p);
                     
-                    // Búsqueda exacta
-                    if (nombreLower === queryLower || provinciaLower === queryLower) {
+                    // Búsqueda EXACTA (solo coincidencias exactas)
+                    if (nombreNormalizado === queryNormalizada) {
                         return true;
                     }
                     
-                    // Búsqueda que empiece por la query
-                    if (nombreLower.startsWith(queryLower) || provinciaLower.startsWith(queryLower)) {
+                    // Búsqueda que empiece EXACTAMENTE por la query (solo para nombres de municipios)
+                    if (nombreNormalizado.startsWith(queryNormalizada)) {
                         return true;
                     }
                     
-                    // Búsqueda que contenga la query
-                    if (nombreLower.includes(queryLower) || provinciaLower.includes(queryLower)) {
-                        return true;
+                    // Búsqueda por palabras EXACTAS (todas las palabras deben coincidir exactamente)
+                    const queryWords = queryNormalizada.split(/\s+/).filter(w => w.length > 0);
+                    const nombreWords = nombreNormalizado.split(/[\s\-]+/).filter(w => w.length > 0);
+                    
+                    // Solo mostrar si TODAS las palabras de la búsqueda están en el nombre
+                    if (queryWords.length > 0) {
+                        const todasLasPalabrasCoinciden = queryWords.every(qWord => 
+                            nombreWords.some(nWord => nWord === qWord || nWord.startsWith(qWord))
+                        );
+                        return todasLasPalabrasCoinciden;
                     }
                     
-                    // Búsqueda por palabras separadas
-                    const queryWords = queryLower.split(/\s+/);
-                    const nombreWords = nombreLower.split(/[\s\-]+/);
-                    const provinciaWords = provinciaLower.split(/[\s\-]+/);
-                    
-                    const allWordsInNombre = queryWords.every(qWord => 
-                        nombreWords.some(nWord => nWord.includes(qWord) || qWord.includes(nWord))
-                    );
-                    const allWordsInProvincia = queryWords.every(qWord => 
-                        provinciaWords.some(pWord => pWord.includes(qWord) || qWord.includes(pWord))
-                    );
-                    
-                    return allWordsInNombre || allWordsInProvincia;
+                    return false;
                 }).sort((a, b) => {
-                    const aNombre = a.n.toLowerCase();
-                    const bNombre = b.n.toLowerCase();
+                    const aNombre = normalizarTexto(a.n);
+                    const bNombre = normalizarTexto(b.n);
                     
-                    if (aNombre === queryLower && bNombre !== queryLower) return -1;
-                    if (bNombre === queryLower && aNombre !== queryLower) return 1;
-                    if (aNombre.startsWith(queryLower) && !bNombre.startsWith(queryLower)) return -1;
-                    if (bNombre.startsWith(queryLower) && !aNombre.startsWith(queryLower)) return 1;
+                    // Priorizar coincidencias exactas
+                    if (aNombre === queryNormalizada && bNombre !== queryNormalizada) return -1;
+                    if (bNombre === queryNormalizada && aNombre !== queryNormalizada) return 1;
                     
+                    // Luego coincidencias que empiecen por la query
+                    if (aNombre.startsWith(queryNormalizada) && !bNombre.startsWith(queryNormalizada)) return -1;
+                    if (bNombre.startsWith(queryNormalizada) && !aNombre.startsWith(queryNormalizada)) return 1;
+                    
+                    // Finalmente orden alfabético
                     return aNombre.localeCompare(bNombre);
                 });
                 
@@ -1676,6 +1675,15 @@
             resultsDiv.classList.remove('hidden');
         }
 
+        // Función para normalizar texto (quitar tildes y acentos)
+        function normalizarTexto(texto) {
+            return texto
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Quitar tildes y acentos
+                .trim();
+        }
+
         // Función para mostrar resultados
         function mostrarResultados(municipios, travelerNum, fuente = '') {
             const resultsDiv = document.getElementById(`municipioResults${travelerNum}`);
@@ -1689,9 +1697,8 @@
                     </div>
                 `;
             } else {
-                const fuenteInfo = fuente ? `<div class="text-xs text-blue-600 mb-2">📡 Fuente: ${fuente}</div>` : '';
-                
-                resultsDiv.innerHTML = fuenteInfo + municipios.map(m => `
+                // Eliminado el texto "Fuente: Catálogo local" - solo mostrar resultados
+                resultsDiv.innerHTML = municipios.map(m => `
                     <div class="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0" 
                          onclick="seleccionarMunicipio('${m.c}', '${m.n}', '${m.p}', ${travelerNum})">
                         <div class="font-medium text-gray-900">${m.n}</div>
