@@ -1201,9 +1201,27 @@
         function getApiUrl() {
           try {
             const u = new URL(window.location.href);
+            
+            // Prioridad 1: Parámetro api_endpoint del tenant
+            const tenantEndpoint = u.searchParams.get('api_endpoint');
+            if (tenantEndpoint) {
+              console.log('Usando endpoint del tenant:', tenantEndpoint);
+              return tenantEndpoint;
+            }
+            
+            // Prioridad 2: Parámetro api manual
             const fromQuery = u.searchParams.get('api');
-            if (fromQuery) { localStorage.setItem('apiUrl', fromQuery); return fromQuery; }
-            return localStorage.getItem('apiUrl') || DEFAULT_API;
+            if (fromQuery) { 
+              localStorage.setItem('apiUrl', fromQuery); 
+              return fromQuery; 
+            }
+            
+            // Prioridad 3: localStorage
+            const fromStorage = localStorage.getItem('apiUrl');
+            if (fromStorage) return fromStorage;
+            
+            // Prioridad 4: Endpoint por defecto
+            return DEFAULT_API;
           } catch { return DEFAULT_API; }
         }
 
