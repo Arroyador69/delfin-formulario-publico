@@ -1573,13 +1573,19 @@
                     if (response.ok) {
                         const data = await response.json();
                         if (data && data.data && data.data.length > 0) {
-                            resultados = data.data.map(m => ({
-                                c: m.CODIGO_INE,
-                                n: m.NOMBRE,
-                                p: m.PROVINCIA
+                            // Filtrar por el término de búsqueda
+                            const queryLower = query.toLowerCase();
+                            const filteredData = data.data.filter(m => 
+                                m.DMUN50 && m.DMUN50.toLowerCase().includes(queryLower)
+                            );
+                            
+                            resultados = filteredData.map(m => ({
+                                c: m.CMUN || m.CODIGO_INE || '00000',
+                                n: m.DMUN50 || m.NOMBRE,
+                                p: m.PROVINCIA || 'Desconocida'
                             }));
                             fuenteUsada = 'GeoAPI España';
-                            console.log(`✅ Encontrados ${resultados.length} municipios en GeoAPI`);
+                            console.log(`✅ Encontrados ${resultados.length} municipios en GeoAPI para "${query}"`);
                         }
                     }
                 } catch (error) {
