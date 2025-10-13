@@ -1322,6 +1322,9 @@
             const form = document.getElementById('guestRegistrationForm');
             const traveler2Fields = form.querySelectorAll('[name*="2"]');
             traveler2Fields.forEach(field => {
+                // Quitar required de todos los campos del viajero 2 cuando se oculta
+                field.required = false;
+                
                 if (field.type === 'checkbox') {
                     field.checked = false;
                 } else if (field.tagName === 'SELECT') {
@@ -1340,6 +1343,11 @@
         // Función global para actualizar campos según país (España vs Extranjero)
         function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
             if (!paisInput || !ineInput || !municipioInput) return;
+            
+            // Verificar si el contenedor del viajero está visible
+            const travelerSection = paisInput.closest('.border');
+            const isTravelerVisible = travelerSection && !travelerSection.classList.contains('hidden');
+            
             const paisValue = (paisInput.value || '').toLowerCase().trim();
             const esEspana = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana' || paisValue.startsWith('españa') || paisValue.startsWith('spain');
             console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
@@ -1349,7 +1357,8 @@
             const municipioContainer = municipioInput.closest('div');
             
             if (esEspana) {
-                ineInput.required = true;
+                // Solo aplicar required si el viajero está visible
+                ineInput.required = isTravelerVisible;
                 if (ineRequired) { ineRequired.classList && ineRequired.classList.remove('hidden'); ineRequired.style && (ineRequired.style.display = 'inline'); }
                 municipioInput.required = false;
                 if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.add('hidden'); municipioRequired.style && (municipioRequired.style.display = 'none'); }
@@ -1360,7 +1369,8 @@
             } else {
                 ineInput.required = false;
                 if (ineRequired) { ineRequired.classList && ineRequired.classList.add('hidden'); ineRequired.style && (ineRequired.style.display = 'none'); }
-                municipioInput.required = true;
+                // Solo aplicar required si el viajero está visible
+                municipioInput.required = isTravelerVisible;
                 if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.remove('hidden'); municipioRequired.style && (municipioRequired.style.display = 'inline'); }
                 
                 // Ocultar campo INE, mostrar nombre municipio
