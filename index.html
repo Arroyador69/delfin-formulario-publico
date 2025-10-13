@@ -1319,6 +1319,38 @@
             if (pais2) pais2.value = 'España';
         }
 
+        // Función global para actualizar campos según país (España vs Extranjero)
+        function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
+            if (!paisInput || !ineInput || !municipioInput) return;
+            const paisValue = (paisInput.value || '').toLowerCase().trim();
+            const esEspana = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana' || paisValue.startsWith('españa') || paisValue.startsWith('spain');
+            console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
+            
+            // También mostrar/ocultar visualmente los campos
+            const ineContainer = ineInput.closest('div');
+            const municipioContainer = municipioInput.closest('div');
+            
+            if (esEspana) {
+                ineInput.required = true;
+                if (ineRequired) { ineRequired.classList && ineRequired.classList.remove('hidden'); ineRequired.style && (ineRequired.style.display = 'inline'); }
+                municipioInput.required = false;
+                if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.add('hidden'); municipioRequired.style && (municipioRequired.style.display = 'none'); }
+                
+                // Mostrar campo INE, ocultar nombre municipio
+                if (ineContainer) { ineContainer.style.display = 'block'; }
+                if (municipioContainer) { municipioContainer.style.display = 'none'; }
+            } else {
+                ineInput.required = false;
+                if (ineRequired) { ineRequired.classList && ineRequired.classList.add('hidden'); ineRequired.style && (ineRequired.style.display = 'none'); }
+                municipioInput.required = true;
+                if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.remove('hidden'); municipioRequired.style && (municipioRequired.style.display = 'inline'); }
+                
+                // Ocultar campo INE, mostrar nombre municipio
+                if (ineContainer) { ineContainer.style.display = 'none'; }
+                if (municipioContainer) { municipioContainer.style.display = 'block'; }
+            }
+        }
+
         // Función para manejar campos INE según nacionalidad
         function handleINEFields() {
             // Viajero 1
@@ -1334,37 +1366,6 @@
             const ineRequired2 = document.getElementById('ineRequired2');
             const municipioInput2 = document.getElementById('nombreMunicipio2');
             const municipioRequired2 = document.getElementById('municipioRequired2');
-
-            function updateFields(paisInput, ineInput, ineRequired, municipioInput, municipioRequired) {
-                if (!paisInput || !ineInput || !municipioInput) return;
-                const paisValue = (paisInput.value || '').toLowerCase().trim();
-                const esEspana = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana' || paisValue.startsWith('españa') || paisValue.startsWith('spain');
-                console.log(`País detectado: "${paisValue}" - Es España: ${esEspana}`);
-                
-                // También mostrar/ocultar visualmente los campos
-                const ineContainer = ineInput.closest('div');
-                const municipioContainer = municipioInput.closest('div');
-                
-                if (esEspana) {
-                    ineInput.required = true;
-                    if (ineRequired) { ineRequired.classList && ineRequired.classList.remove('hidden'); ineRequired.style && (ineRequired.style.display = 'inline'); }
-                    municipioInput.required = false;
-                    if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.add('hidden'); municipioRequired.style && (municipioRequired.style.display = 'none'); }
-                    
-                    // Mostrar campo INE, ocultar nombre municipio
-                    if (ineContainer) { ineContainer.style.display = 'block'; }
-                    if (municipioContainer) { municipioContainer.style.display = 'none'; }
-                } else {
-                    ineInput.required = false;
-                    if (ineRequired) { ineRequired.classList && ineRequired.classList.add('hidden'); ineRequired.style && (ineRequired.style.display = 'none'); }
-                    municipioInput.required = true;
-                    if (municipioRequired) { municipioRequired.classList && municipioRequired.classList.remove('hidden'); municipioRequired.style && (municipioRequired.style.display = 'inline'); }
-                    
-                    // Ocultar campo INE, mostrar nombre municipio
-                    if (ineContainer) { ineContainer.style.display = 'none'; }
-                    if (municipioContainer) { municipioContainer.style.display = 'block'; }
-                }
-            }
 
             // Event listeners
             if (pais1) {
@@ -1534,7 +1535,10 @@
                 telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
                 email: String(formData.get('correo')||'').trim().toLowerCase(),
                 direccion: String(formData.get('direccion')||'').trim(),
-                cp: String(formData.get('codigoPostal')||'').padStart(5,'0'),
+                cp: (() => {
+                    const codigoPostal = String(formData.get('codigoPostal')||'').trim();
+                    return codigoPostal ? codigoPostal.padStart(5,'0') : '';
+                })(),
                 ine: (() => {
                     const codigoMunicipio = String(formData.get('codigoMunicipio')||'').trim();
                     return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
@@ -1576,7 +1580,10 @@
                     telefono: String(formData.get('telefono2')||'').replace(/\s+/g,''),
                     email: String(formData.get('correo2')||'').trim().toLowerCase(),
                     direccion: String(formData.get('direccion2')||'').trim(),
-                    cp: String(formData.get('codigoPostal2')||'').padStart(5,'0'),
+                    cp: (() => {
+                        const codigoPostal2 = String(formData.get('codigoPostal2')||'').trim();
+                        return codigoPostal2 ? codigoPostal2.padStart(5,'0') : '';
+                    })(),
                     ine: (() => {
                         const codigoMunicipio = String(formData.get('codigoMunicipio2')||'').trim();
                         return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
@@ -1627,7 +1634,11 @@
                 const cleaned = {};
                 for (const [k, v] of Object.entries(obj)) {
                     const cleanedValue = clean(v);
-                    if (cleanedValue !== null && cleanedValue !== '') {
+                    // Eliminar valores vacíos, null, undefined y strings que solo contienen espacios
+                    if (cleanedValue !== null && 
+                        cleanedValue !== undefined && 
+                        cleanedValue !== '' && 
+                        !(typeof cleanedValue === 'string' && cleanedValue.trim() === '')) {
                         cleaned[k] = cleanedValue;
                     }
                 }
