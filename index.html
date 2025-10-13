@@ -1930,10 +1930,29 @@
                   if (dq) dq.textContent = 'Request payload:\n' + JSON.stringify(cleanData, null, 2);
                 }
                 
+                // 🔍 DEBUG DETALLADO ANTES DEL ENVÍO
+                console.log('═══════════════════════════════════════════════');
+                console.log('🔍 PAYLOAD COMPLETO ANTES DE ENVÍO:');
+                console.log('═══════════════════════════════════════════════');
+                console.log('Payload keys:', Object.keys(cleanData));
+                console.log('Payload completo:', JSON.stringify(cleanData, null, 2));
+                
+                // Log específico de los campos críticos
+                console.log('\n🔍 CAMPOS CRÍTICOS:');
+                console.log('- contrato:', cleanData.contrato);
+                console.log('- viajeros:', cleanData.viajeros);
+                console.log('- titular:', cleanData.titular);
+                console.log('- tenantId:', cleanData.tenantId);
+                console.log('- formData:', cleanData.formData);
+                
+                const apiUrl = getApiUrl();
+                console.log('\n🌐 URL de envío:', apiUrl);
+                console.log('═══════════════════════════════════════════════\n');
+                
                 // 🔬 DEBUG: Endpoint de debug eliminado para evitar mensajes de error confusos
                 
                 // Enviar datos a la API de Vercel (nuevo endpoint flexible)
-                const response = await fetch(getApiUrl(), {
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     mode: 'cors',
                     headers: {
@@ -1942,6 +1961,32 @@
                     },
                     body: JSON.stringify(cleanData),
                 });
+                
+                // 🔍 DEBUG DE LA RESPUESTA
+                console.log('═══════════════════════════════════════════════');
+                console.log('📥 RESPUESTA DEL SERVIDOR:');
+                console.log('═══════════════════════════════════════════════');
+                console.log('- Status:', response.status);
+                console.log('- Status Text:', response.statusText);
+                console.log('- OK:', response.ok);
+                console.log('- Headers:', Object.fromEntries(response.headers.entries()));
+                
+                // Leer el cuerpo de la respuesta para debug
+                let responseBodyText = '';
+                let responseBodyJson = null;
+                try {
+                    responseBodyText = await response.clone().text();
+                    console.log('- Body (raw text):', responseBodyText);
+                    try {
+                        responseBodyJson = JSON.parse(responseBodyText);
+                        console.log('- Body (parsed JSON):', responseBodyJson);
+                    } catch (e) {
+                        console.log('- Body no es JSON válido');
+                    }
+                } catch (e) {
+                    console.error('- Error leyendo respuesta:', e);
+                }
+                console.log('═══════════════════════════════════════════════\n');
                 
                 if (!response.ok) {
                   let errorMessage = `Error ${response.status}: ${response.statusText}`;
