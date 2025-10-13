@@ -1662,6 +1662,13 @@
                 const cleaned = {};
                 for (const [k, v] of Object.entries(obj)) {
                     const cleanedValue = clean(v);
+                    
+                    // Preservar objetos principales (contrato, viajeros) incluso si están parcialmente vacíos
+                    if (k === 'contrato' || k === 'viajeros' || k === 'titular') {
+                        cleaned[k] = cleanedValue || {};
+                        continue;
+                    }
+                    
                     // Eliminar valores vacíos, null, undefined y strings que solo contienen espacios
                     if (cleanedValue !== null && 
                         cleanedValue !== undefined && 
