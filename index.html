@@ -478,18 +478,29 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.municipalityCode">
                                     Código municipio INE (5) <span id="ineRequired1" class="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="codigoMunicipio"
-                                    id="codigoMunicipio1"
-                                    class="form-input"
-                                    maxlength="5"
-                                    placeholder="29042"
-                                />
+                                <div class="relative">
+                                    <input
+                                        type="text"
+                                        name="codigoMunicipio"
+                                        id="codigoMunicipio1"
+                                        class="form-input"
+                                        maxlength="5"
+                                        placeholder="29042"
+                                        readonly
+                                    />
+                                    <input
+                                        type="text"
+                                        id="municipioSearch1"
+                                        class="form-input mt-2"
+                                        placeholder="Buscar municipio (ej: Fuengirola, Málaga...)"
+                                        autocomplete="off"
+                                    />
+                                    <div id="municipioResults1" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div>
+                                </div>
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
                                     <span id="ineHelp1">
-                                        <strong>SOLO para españoles:</strong> Código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)<br>
-                                        Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                        <strong>SOLO para españoles:</strong> Busca tu municipio arriba y se asignará automáticamente el código INE<br>
+                                        Ejemplo: escribe "Fuengirola" → se asigna código 29042<br>
                                         <strong class="text-green-600">Para extranjeros:</strong> Dejar vacío y rellenar solo "Nombre del municipio" abajo
                                     </span>
                                 </p>
@@ -689,18 +700,29 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.municipalityCode">
                                     Código municipio INE (5) <span id="ineRequired2" class="text-red-500">*</span>
                                 </label>
-                                <input
-                                    type="text"
-                                    name="codigoMunicipio2"
-                                    id="codigoMunicipio2"
-                                    class="form-input"
-                                    maxlength="5"
-                                    placeholder="29042"
-                                />
+                                <div class="relative">
+                                    <input
+                                        type="text"
+                                        name="codigoMunicipio2"
+                                        id="codigoMunicipio2"
+                                        class="form-input"
+                                        maxlength="5"
+                                        placeholder="29042"
+                                        readonly
+                                    />
+                                    <input
+                                        type="text"
+                                        id="municipioSearch2"
+                                        class="form-input mt-2"
+                                        placeholder="Buscar municipio (ej: Fuengirola, Málaga...)"
+                                        autocomplete="off"
+                                    />
+                                    <div id="municipioResults2" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div>
+                                </div>
                                 <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
                                     <span id="ineHelp2">
-                                        <strong>SOLO para españoles:</strong> Código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)<br>
-                                        Ejemplo: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br>
+                                        <strong>SOLO para españoles:</strong> Busca tu municipio arriba y se asignará automáticamente el código INE<br>
+                                        Ejemplo: escribe "Fuengirola" → se asigna código 29042<br>
                                         <strong class="text-green-600">Para extranjeros:</strong> Dejar vacío y rellenar solo "Nombre del municipio" abajo
                                     </span>
                                 </p>
@@ -1407,6 +1429,198 @@
             }
         }
 
+        // ===== FUNCIONALIDAD DE BÚSQUEDA DE MUNICIPIOS =====
+        
+        // Catálogo local de municipios principales como fallback
+        const MUNICIPIOS_INE = [
+            {c:'29042', n:'Fuengirola', p:'Málaga'},
+            {c:'29045', n:'Málaga', p:'Málaga'},
+            {c:'28001', n:'Madrid', p:'Madrid'},
+            {c:'08001', n:'Barcelona', p:'Barcelona'},
+            {c:'46001', n:'Valencia', p:'Valencia'},
+            {c:'41001', n:'Sevilla', p:'Sevilla'},
+            {c:'15001', n:'A Coruña', p:'A Coruña'},
+            {c:'48001', n:'Bilbao', p:'Vizcaya'},
+            {c:'33001', n:'Oviedo', p:'Asturias'},
+            {c:'35001', n:'Las Palmas', p:'Las Palmas'},
+            {c:'38001', n:'Santa Cruz de Tenerife', p:'Santa Cruz de Tenerife'},
+            {c:'07001', n:'Palma', p:'Baleares'},
+            {c:'29001', n:'Almería', p:'Almería'},
+            {c:'11001', n:'Cádiz', p:'Cádiz'},
+            {c:'14001', n:'Córdoba', p:'Córdoba'},
+            {c:'18001', n:'Granada', p:'Granada'},
+            {c:'21001', n:'Huelva', p:'Huelva'},
+            {c:'23001', n:'Jaén', p:'Jaén'},
+            {c:'22001', n:'Huesca', p:'Huesca'},
+            {c:'50001', n:'Zaragoza', p:'Zaragoza'},
+            {c:'44001', n:'Teruel', p:'Teruel'},
+            {c:'33001', n:'Oviedo', p:'Asturias'},
+            {c:'39001', n:'Santander', p:'Cantabria'},
+            {c:'09001', n:'Burgos', p:'Burgos'},
+            {c:'24001', n:'León', p:'León'},
+            {c:'34001', n:'Palencia', p:'Palencia'},
+            {c:'37001', n:'Salamanca', p:'Salamanca'},
+            {c:'40001', n:'Segovia', p:'Segovia'},
+            {c:'42001', n:'Soria', p:'Soria'},
+            {c:'47001', n:'Valladolid', p:'Valladolid'},
+            {c:'49001', n:'Zamora', p:'Zamora'},
+            {c:'26001', n:'Logroño', p:'La Rioja'},
+            {c:'06001', n:'Badajoz', p:'Badajoz'},
+            {c:'10001', n:'Cáceres', p:'Cáceres'},
+            {c:'16001', n:'Cuenca', p:'Cuenca'},
+            {c:'19001', n:'Guadalajara', p:'Guadalajara'},
+            {c:'45001', n:'Toledo', p:'Toledo'},
+            {c:'13001', n:'Ciudad Real', p:'Ciudad Real'},
+            {c:'02001', n:'Albacete', p:'Albacete'},
+            {c:'12001', n:'Castellón', p:'Castellón'},
+            {c:'03001', n:'Alicante', p:'Alicante'},
+            {c:'17001', n:'Girona', p:'Girona'},
+            {c:'25001', n:'Lleida', p:'Lleida'},
+            {c:'43001', n:'Tarragona', p:'Tarragona'},
+            {c:'27001', n:'Lugo', p:'Lugo'},
+            {c:'32001', n:'Ourense', p:'Ourense'},
+            {c:'36001', n:'Pontevedra', p:'Pontevedra'},
+            {c:'05001', n:'Ávila', p:'Ávila'},
+            {c:'04001', n:'Almería', p:'Almería'},
+            {c:'08001', n:'Barcelona', p:'Barcelona'},
+            {c:'29001', n:'Málaga', p:'Málaga'},
+            {c:'28001', n:'Madrid', p:'Madrid'},
+            {c:'46001', n:'Valencia', p:'Valencia'},
+            {c:'41001', n:'Sevilla', p:'Sevilla'}
+        ];
+
+        // Función para buscar municipios
+        async function buscarMunicipios(query, travelerNum) {
+            if (!query || query.length < 2) {
+                ocultarResultados(travelerNum);
+                return;
+            }
+
+            console.log(`🔍 Buscando municipios para: "${query}"`);
+            
+            try {
+                // Intentar con la API externa primero
+                const apiUrl = `https://admin.delfincheckin.com/api/municipios/buscar?q=${encodeURIComponent(query)}`;
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`✅ Encontrados ${data.length} municipios en API externa`);
+                    mostrarResultados(data, travelerNum);
+                    return;
+                }
+            } catch (error) {
+                console.log('⚠️ API externa no disponible, usando fallback local');
+            }
+
+            // Fallback: búsqueda local
+            const resultados = MUNICIPIOS_INE.filter(m => 
+                m.n.toLowerCase().includes(query.toLowerCase()) ||
+                m.p.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            console.log(`⚠️ Usando fallback local: ${resultados.length} municipios`);
+            mostrarResultados(resultados, travelerNum);
+        }
+
+        // Función para mostrar resultados
+        function mostrarResultados(municipios, travelerNum) {
+            const resultsDiv = document.getElementById(`municipioResults${travelerNum}`);
+            if (!resultsDiv) return;
+
+            if (municipios.length === 0) {
+                resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">No se encontraron municipios</div>';
+            } else {
+                resultsDiv.innerHTML = municipios.map(m => `
+                    <div class="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0" 
+                         onclick="seleccionarMunicipio('${m.c}', '${m.n}', '${m.p}', ${travelerNum})">
+                        <div class="font-medium text-gray-900">${m.n}</div>
+                        <div class="text-sm text-gray-500">${m.p} - Código: ${m.c}</div>
+                    </div>
+                `).join('');
+            }
+            
+            resultsDiv.classList.remove('hidden');
+        }
+
+        // Función para ocultar resultados
+        function ocultarResultados(travelerNum) {
+            const resultsDiv = document.getElementById(`municipioResults${travelerNum}`);
+            if (resultsDiv) {
+                resultsDiv.classList.add('hidden');
+            }
+        }
+
+        // Función para seleccionar un municipio
+        function seleccionarMunicipio(codigo, nombre, provincia, travelerNum) {
+            const codigoInput = document.getElementById(`codigoMunicipio${travelerNum}`);
+            const searchInput = document.getElementById(`municipioSearch${travelerNum}`);
+            
+            if (codigoInput) {
+                codigoInput.value = codigo;
+                codigoInput.style.backgroundColor = '#d1fae5'; // Verde claro
+                codigoInput.style.borderColor = '#10b981'; // Verde
+                
+                // Restaurar color después de 2 segundos
+                setTimeout(() => {
+                    codigoInput.style.backgroundColor = '';
+                    codigoInput.style.borderColor = '';
+                }, 2000);
+            }
+            
+            if (searchInput) {
+                searchInput.value = `${nombre} (${provincia})`;
+            }
+            
+            ocultarResultados(travelerNum);
+            console.log(`✅ Municipio seleccionado: ${nombre} (${provincia}) - Código: ${codigo}`);
+        }
+
+        // Función para configurar el selector de municipios
+        function setupMunicipioSelector(travelerNum) {
+            const searchInput = document.getElementById(`municipioSearch${travelerNum}`);
+            if (!searchInput) return;
+
+            let timeoutId;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
+                
+                if (query.length >= 2) {
+                    timeoutId = setTimeout(() => {
+                        buscarMunicipios(query, travelerNum);
+                    }, 300); // Debounce de 300ms
+                } else {
+                    ocultarResultados(travelerNum);
+                }
+            });
+
+            // Ocultar resultados al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest(`#municipioSearch${travelerNum}`) && 
+                    !e.target.closest(`#municipioResults${travelerNum}`)) {
+                    ocultarResultados(travelerNum);
+                }
+            });
+
+            // Limpiar campo INE si se borra la búsqueda
+            searchInput.addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const codigoInput = document.getElementById(`codigoMunicipio${travelerNum}`);
+                    if (codigoInput) {
+                        codigoInput.value = '';
+                    }
+                }
+            });
+        }
+
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             initializeLanguage();
@@ -1425,6 +1639,10 @@
             
             // Inicializar campos INE dinámicos
             handleINEFields();
+            
+            // Inicializar selectores de municipios
+            setupMunicipioSelector(1);
+            setupMunicipioSelector(2);
             
             // Inicializar campos según el país por defecto
             setTimeout(() => {
