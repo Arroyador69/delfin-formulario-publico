@@ -1178,6 +1178,33 @@
             return translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
         }
 
+        // Función para poblar los selects de países
+        function populateCountrySelects(language = 'es') {
+          const selects = document.querySelectorAll('.country-select, .nationality-select');
+          
+          selects.forEach(select => {
+            // Limpiar opciones existentes excepto la primera
+            while (select.children.length > 1) {
+              select.removeChild(select.lastChild);
+            }
+            
+            // Agregar países ordenados
+            const sortedCountries = COUNTRIES_DATA
+              .map(country => ({
+                iso3: country.iso3,
+                name: country.name[language] || country.name.es
+              }))
+              .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
+            
+            sortedCountries.forEach(country => {
+              const option = document.createElement('option');
+              option.value = country.iso3;
+              option.textContent = country.name;
+              select.appendChild(option);
+            });
+          });
+        }
+
         // Función para cambiar idioma
         function changeLanguage(lang) {
             // Actualizar botones de idioma
@@ -1206,10 +1233,8 @@
             });
             
             // Actualizar selects de países si existen
-            if (window.countrySelectManager) {
-                window.countrySelectManager.currentLanguage = lang;
-                window.countrySelectManager.countries = getCountriesSorted(lang);
-                window.countrySelectManager.refreshSelects();
+            if (typeof populateCountrySelects === 'function') {
+                populateCountrySelects(lang);
             }
             
             // Guardar preferencia en localStorage
@@ -2727,45 +2752,11 @@ const COUNTRIES_DATA = [
   { iso3: 'ZWE', name: { es: 'Zimbabue', en: 'Zimbabwe', fr: 'Zimbabwe', ru: 'Зимбабве' } }
 ];
 
-// Función para poblar los selects de países
-function populateCountrySelects(language = 'es') {
-  const selects = document.querySelectorAll('.country-select, .nationality-select');
-  
-  selects.forEach(select => {
-    // Limpiar opciones existentes excepto la primera
-    while (select.children.length > 1) {
-      select.removeChild(select.lastChild);
-    }
-    
-    // Agregar países ordenados
-    const sortedCountries = COUNTRIES_DATA
-      .map(country => ({
-        iso3: country.iso3,
-        name: country.name[language] || country.name.es
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
-    
-    sortedCountries.forEach(country => {
-      const option = document.createElement('option');
-      option.value = country.iso3;
-      option.textContent = country.name;
-      select.appendChild(option);
-    });
-  });
-}
 
 // Inicializar selects cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-  populateCountrySelects('es');
-  
-  // Actualizar selects cuando cambie el idioma
-  const languageButtons = document.querySelectorAll('[data-lang]');
-  languageButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const lang = this.getAttribute('data-lang');
-      populateCountrySelects(lang);
-    });
-  });
+  // Los selects se inicializarán cuando se cargue el idioma
+  // No necesitamos código duplicado aquí
 });
 </script>
 <script>
