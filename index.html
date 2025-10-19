@@ -420,6 +420,7 @@
                                     name="telefono"
                                     required
                                     class="form-input"
+                                    placeholder="+34 666 123 456"
                                 />
                             </div>
                             
@@ -645,6 +646,7 @@
                                     name="telefono2"
                                     required
                                     class="form-input"
+                                    placeholder="+34 666 123 456"
                                 />
                             </div>
                             
@@ -2312,8 +2314,14 @@
                     showError('El teléfono es obligatorio'); 
                     return; 
                 }
-                if (telefono.length < 9) { 
-                    showError('El teléfono debe tener al menos 9 dígitos'); 
+                // Validar formato de teléfono internacional (permite +, espacios, guiones, paréntesis)
+                const telefonoLimpio = telefono.replace(/[\s\-\(\)]/g, '');
+                if (telefonoLimpio.length < 7) { 
+                    showError('El teléfono debe tener al menos 7 dígitos'); 
+                    return; 
+                }
+                if (!/^[\+]?[\d\s\-\(\)]{7,20}$/.test(telefono)) { 
+                    showError('Formato de teléfono inválido. Use formato internacional (ej: +34 666 123 456)'); 
                     return; 
                 }
 
