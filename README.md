@@ -18,14 +18,15 @@ Formulario de registro de viajeros completamente independiente y público, compa
 
 * **Formulario Público**: `https://form.delfincheckin.com`
 * **Dashboard Protegido**: `https://admin.delfincheckin.com`
-* **API de Envío**: `https://admin.delfincheckin.com/api/partes`
+* **API de Envío**: `https://admin.delfincheckin.com/api/public/form/[tenant_id]/submit`
 
 ## 🔗 Conexión con Dashboard
 
 El formulario está configurado para enviar datos a:
 
-* **API**: `https://admin.delfincheckin.com/api/partes`
+* **API**: `https://admin.delfincheckin.com/api/public/form/[tenant_id]/submit`
 * **Dashboard**: `https://admin.delfincheckin.com/guest-registrations-dashboard`
+* **Base de datos**: Neon PostgreSQL (hosteado en Neon.tech)
 
 ## 📱 Uso
 
@@ -44,10 +45,10 @@ Si cambias la URL de tu dashboard, actualiza estas líneas en `index.html`:
 
 ```javascript
 // Línea ~400: URL de la API
-const response = await fetch('TU_NUEVA_URL_API', {
+const response = await fetch('https://admin.delfincheckin.com/api/public/form/' + tenantId + '/submit', {
 
 // Línea ~410: URL del dashboard
-window.open('TU_NUEVA_URL_DASHBOARD', '_blank');
+window.open('https://admin.delfincheckin.com/guest-registrations-dashboard', '_blank');
 ```
 
 ### Cambiar Estilos
@@ -59,7 +60,8 @@ Los estilos están en la sección `<style>` del HTML y usan Tailwind CSS desde C
 * **Formulario Público**: Accesible sin autenticación
 * **API Protegida**: Solo tu dashboard puede acceder a los datos
 * **Validación Cliente**: Campos obligatorios validados antes del envío
-* **Dashboard Seguro**: Autenticación HTTP Basic en `admin.delfincheckin.com`
+* **Dashboard Seguro**: Autenticación JWT en `admin.delfincheckin.com`
+* **Base de datos**: Neon PostgreSQL con conexiones seguras
 
 ## 📞 Soporte
 

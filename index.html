@@ -418,6 +418,7 @@
                                 <input
                                     type="tel"
                                     name="telefono"
+                                    required
                                     class="form-input"
                                 />
                             </div>
@@ -486,6 +487,7 @@
                                         maxlength="5"
                                         placeholder="29042"
                                         readonly
+                                        required
                                     />
                                     <input
                                         type="text"
@@ -641,6 +643,7 @@
                                 <input
                                     type="tel"
                                     name="telefono2"
+                                    required
                                     class="form-input"
                                 />
                             </div>
@@ -706,6 +709,7 @@
                                         maxlength="5"
                                         placeholder="29042"
                                         readonly
+                                        required
                                     />
                                     <input
                                         type="text"
@@ -2302,6 +2306,17 @@
                 const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
                 if (docErr) { showError(docErr); return; }
 
+                // Validar teléfono obligatorio
+                const telefono = String(formData.get('telefono') || '').trim();
+                if (!telefono) { 
+                    showError('El teléfono es obligatorio'); 
+                    return; 
+                }
+                if (telefono.length < 9) { 
+                    showError('El teléfono debe tener al menos 9 dígitos'); 
+                    return; 
+                }
+
                 // Validar fecha de nacimiento obligatoria (formato ISO)
                 const birthISO = toISODate(formData.get('fechaNacimiento'));
                 if (!birthISO) { showError('Fecha de nacimiento requerida (AAAA-MM-DD)'); return; }
@@ -2311,6 +2326,17 @@
                 const esEspanol = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana';
                 
                 if (esEspanol) {
+                    // Validar código INE obligatorio para españoles
+                    const codigoINE = String(formData.get('codigoMunicipio') || '').trim();
+                    if (!codigoINE) {
+                        showError('Para españoles es obligatorio el código INE del municipio');
+                        return;
+                    }
+                    if (codigoINE.length !== 5 || !/^\d{5}$/.test(codigoINE)) {
+                        showError('El código INE debe tener exactamente 5 dígitos');
+                        return;
+                    }
+                    
                     const muniErr = validateMunicipioVsCP(
                         pad5(formData.get('codigoPostal')),
                         pad5(formData.get('codigoMunicipio'))
