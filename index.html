@@ -1820,6 +1820,14 @@
                 codigoInput.style.backgroundColor = '#d1fae5'; // Verde claro
                 codigoInput.style.borderColor = '#10b981'; // Verde
                 
+                console.log('🔍 DEBUG seleccionarMunicipio - Código INE asignado:', {
+                    element: codigoInput,
+                    elementId: codigoInput.id,
+                    newValue: codigo,
+                    currentValue: codigoInput.value,
+                    travelerNum: travelerNum
+                });
+                
                 // Restaurar color después de 2 segundos
                 setTimeout(() => {
                     codigoInput.style.backgroundColor = '';
@@ -2060,9 +2068,25 @@
                     return codigoPostal ? codigoPostal.padStart(5,'0') : '';
                 })(),
                 ine: (() => {
-                    // Obtener el valor del campo INE directamente del DOM ya que está readonly
+                    // Captura robusta del código INE desde el DOM
                     const ineElement = document.getElementById('codigoMunicipio1');
-                    const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : String(formData.get('codigoMunicipio')||'').trim();
+                    let codigoMunicipio = '';
+                    
+                    if (ineElement && ineElement.value) {
+                        codigoMunicipio = String(ineElement.value).trim();
+                    } else {
+                        // Fallback: intentar desde formData
+                        codigoMunicipio = String(formData.get('codigoMunicipio')||'').trim();
+                    }
+                    
+                    // Debug: mostrar qué se está capturando
+                    console.log('🔍 DEBUG INE Viajero 1:', {
+                        ineElement: ineElement,
+                        ineValue: ineElement ? ineElement.value : 'no element',
+                        formDataValue: formData.get('codigoMunicipio'),
+                        finalValue: codigoMunicipio
+                    });
+                    
                     return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                 })(),
                 nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
@@ -2108,9 +2132,25 @@
                         return codigoPostal2 ? codigoPostal2.padStart(5,'0') : '';
                     })(),
                     ine: (() => {
-                        // Obtener el valor del campo INE directamente del DOM ya que está readonly
+                        // Captura robusta del código INE desde el DOM
                         const ineElement = document.getElementById('codigoMunicipio2');
-                        const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : String(formData.get('codigoMunicipio2')||'').trim();
+                        let codigoMunicipio = '';
+                        
+                        if (ineElement && ineElement.value) {
+                            codigoMunicipio = String(ineElement.value).trim();
+                        } else {
+                            // Fallback: intentar desde formData
+                            codigoMunicipio = String(formData.get('codigoMunicipio2')||'').trim();
+                        }
+                        
+                        // Debug: mostrar qué se está capturando
+                        console.log('🔍 DEBUG INE Viajero 2:', {
+                            ineElement: ineElement,
+                            ineValue: ineElement ? ineElement.value : 'no element',
+                            formDataValue: formData.get('codigoMunicipio2'),
+                            finalValue: codigoMunicipio
+                        });
+                        
                         return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                     })(),
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
