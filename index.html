@@ -894,8 +894,8 @@
                 "travelers.gender.male": "Hombre",
                 "travelers.gender.female": "Mujer",
                 "travelers.gender.other": "Otro",
-                "travelers.phone": "Teléfono",
-                "travelers.email": "Correo electrónico",
+                "travelers.phone": "Teléfono *",
+                "travelers.email": "Correo electrónico *",
                 "travelers.address": "Dirección *",
                 "travelers.postalCode": "Código postal *",
                 "travelers.country": "País *",
@@ -988,8 +988,8 @@
                 "travelers.gender.male": "Male",
                 "travelers.gender.female": "Female",
                 "travelers.gender.other": "Other",
-                "travelers.phone": "Phone",
-                "travelers.email": "Email",
+                "travelers.phone": "Phone *",
+                "travelers.email": "Email *",
                 "travelers.address": "Address *",
                 "travelers.postalCode": "Postal code *",
                 "travelers.country": "Country *",
@@ -1082,8 +1082,8 @@
                 "travelers.gender.male": "Homme",
                 "travelers.gender.female": "Femme",
                 "travelers.gender.other": "Autre",
-                "travelers.phone": "Téléphone",
-                "travelers.email": "Email",
+                "travelers.phone": "Téléphone *",
+                "travelers.email": "Email *",
                 "travelers.address": "Adresse *",
                 "travelers.postalCode": "Code postal *",
                 "travelers.country": "Pays *",
@@ -1214,12 +1214,23 @@
           const selects = document.querySelectorAll('.country-select, .nationality-select');
           
           selects.forEach(select => {
-            // Limpiar opciones existentes excepto la primera
-            while (select.children.length > 1) {
-              select.removeChild(select.lastChild);
+            // Guardar valor seleccionado actual
+            const currentValue = select.value;
+            
+            // Limpiar todas las opciones
+            select.innerHTML = '';
+            
+            // Agregar opción vacía si es necesario
+            if (select.name === 'pais' || select.name === 'pais2') {
+              const emptyOption = document.createElement('option');
+              emptyOption.value = '';
+              emptyOption.textContent = language === 'es' ? 'Seleccione país' : 
+                                       language === 'en' ? 'Select country' :
+                                       language === 'fr' ? 'Sélectionnez le pays' : 'Выберите страну';
+              select.appendChild(emptyOption);
             }
             
-            // Agregar países ordenados
+            // Agregar países ordenados y únicos
             const sortedCountries = COUNTRIES_DATA
               .map(country => ({
                 iso3: country.iso3,
@@ -1227,12 +1238,28 @@
               }))
               .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
             
+            // Usar Set para evitar duplicados
+            const uniqueCountries = [];
+            const seenNames = new Set();
+            
             sortedCountries.forEach(country => {
+              if (!seenNames.has(country.name)) {
+                seenNames.add(country.name);
+                uniqueCountries.push(country);
+              }
+            });
+            
+            uniqueCountries.forEach(country => {
               const option = document.createElement('option');
               option.value = country.iso3;
               option.textContent = country.name;
               select.appendChild(option);
             });
+            
+            // Restaurar valor seleccionado si existe
+            if (currentValue) {
+              select.value = currentValue;
+            }
           });
         }
 
@@ -1862,6 +1889,13 @@
             // Inicializar selectores de municipios
             setupMunicipioSelector(1);
             setupMunicipioSelector(2);
+            
+            // Inicializar selects de países
+            setTimeout(() => {
+                if (typeof populateCountrySelects === 'function') {
+                    populateCountrySelects(document.documentElement.lang || 'es');
+                }
+            }, 100);
             
             // Inicializar campos según el país por defecto
             setTimeout(() => {
