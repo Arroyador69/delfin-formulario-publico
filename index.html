@@ -2070,11 +2070,16 @@
                 ine: (() => {
                     // Captura directa del código INE desde el DOM (campo readonly)
                     const ineElement = document.getElementById('codigoMunicipio1');
-                    const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : '';
+                    let codigoMunicipio = '';
+                    
+                    if (ineElement) {
+                        codigoMunicipio = String(ineElement.value || '').trim();
+                    }
                     
                     console.log('🔍 CAPTURA INE Viajero 1:', {
                         element: ineElement,
-                        value: codigoMunicipio,
+                        elementValue: ineElement ? ineElement.value : 'no element',
+                        finalValue: codigoMunicipio,
                         padded: codigoMunicipio ? codigoMunicipio.padStart(5,'0') : ''
                     });
                     
@@ -2125,11 +2130,16 @@
                     ine: (() => {
                         // Captura directa del código INE desde el DOM (campo readonly)
                         const ineElement = document.getElementById('codigoMunicipio2');
-                        const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : '';
+                        let codigoMunicipio = '';
+                        
+                        if (ineElement) {
+                            codigoMunicipio = String(ineElement.value || '').trim();
+                        }
                         
                         console.log('🔍 CAPTURA INE Viajero 2:', {
                             element: ineElement,
-                            value: codigoMunicipio,
+                            elementValue: ineElement ? ineElement.value : 'no element',
+                            finalValue: codigoMunicipio,
                             padded: codigoMunicipio ? codigoMunicipio.padStart(5,'0') : ''
                         });
                         
@@ -2476,7 +2486,19 @@
                     console.log('🔍 VERIFICACIÓN INE en payload:', {
                         viajero1_ine: cleanData.viajeros[0].ine,
                         viajero1_nombreMunicipio: cleanData.viajeros[0].nombreMunicipio,
-                        viajero1_paisResidencia: cleanData.viajeros[0].paisResidencia
+                        viajero1_paisResidencia: cleanData.viajeros[0].paisResidencia,
+                        viajero1_direccion: cleanData.viajeros[0].direccion,
+                        viajero1_cp: cleanData.viajeros[0].cp
+                    });
+                    
+                    // Verificar que al menos uno de los dos campos esté presente
+                    const tieneIne = cleanData.viajeros[0].ine && cleanData.viajeros[0].ine.length > 0;
+                    const tieneNombreMunicipio = cleanData.viajeros[0].nombreMunicipio && cleanData.viajeros[0].nombreMunicipio.length > 0;
+                    
+                    console.log('🔍 VALIDACIÓN MIR:', {
+                        tieneIne: tieneIne,
+                        tieneNombreMunicipio: tieneNombreMunicipio,
+                        cumpleNormasMIR: tieneIne || tieneNombreMunicipio
                     });
                 }
 
