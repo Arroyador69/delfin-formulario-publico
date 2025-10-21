@@ -2000,10 +2000,14 @@
         };
 
         const mapPago = (x) => {
-            const k = String(x).toLowerCase();
-            if (k.includes('efect')) return { code:'EFECTIVO', label:'Efectivo' };
-            if (k.includes('tarj')) return { code:'TARJETA', label:'Tarjeta' };
-            if (k.includes('trans') || k.includes('bank')) return { code:'TRANSFERENCIA', label:'Transferencia' };
+            const k = String(x || '').toLowerCase();
+            if (k.includes('efect')) return { code:'EFECT', label:'Efectivo' };
+            if (k.includes('tarj')) return { code:'TARJT', label:'Tarjeta' };
+            if (k.includes('trans') || k.includes('bank')) return { code:'TRANS', label:'Transferencia' };
+            if (k.includes('plat')) return { code:'PLATF', label:'Plataforma' };
+            if (k.includes('movil')) return { code:'MOVIL', label:'Móvil' };
+            if (k.includes('cheq') || k.includes('treg')) return { code:'TREG', label:'Cheque' };
+            if (k.includes('dest')) return { code:'DESTI', label:'Destino' };
             return { code:'OTRO', label:String(x) };
         };
 
@@ -2056,7 +2060,9 @@
                     return codigoPostal ? codigoPostal.padStart(5,'0') : '';
                 })(),
                 ine: (() => {
-                    const codigoMunicipio = String(formData.get('codigoMunicipio')||'').trim();
+                    // Obtener el valor del campo INE directamente del DOM ya que está readonly
+                    const ineElement = document.getElementById('codigoMunicipio1');
+                    const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : String(formData.get('codigoMunicipio')||'').trim();
                     return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                 })(),
                 nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
@@ -2102,7 +2108,9 @@
                         return codigoPostal2 ? codigoPostal2.padStart(5,'0') : '';
                     })(),
                     ine: (() => {
-                        const codigoMunicipio = String(formData.get('codigoMunicipio2')||'').trim();
+                        // Obtener el valor del campo INE directamente del DOM ya que está readonly
+                        const ineElement = document.getElementById('codigoMunicipio2');
+                        const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : String(formData.get('codigoMunicipio2')||'').trim();
                         return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                     })(),
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
