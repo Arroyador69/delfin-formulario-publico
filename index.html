@@ -2647,6 +2647,14 @@
                     }
                 }
 
+                console.log('🔍 DEBUG VALIDACIÓN ORDEN FECHAS:', {
+                    fechaContrato,
+                    fechaEntrada,
+                    fechaSalida,
+                    fechaNacimiento: formData.get('fechaNacimiento'),
+                    fechaPago
+                });
+                
                 const orderErr = validateDateOrder({
                     fechaContrato,
                     fechaEntrada,
@@ -2654,10 +2662,22 @@
                     fechaNacimiento: formData.get('fechaNacimiento'),
                     fechaPago
                 });
-                if (orderErr) { showError(orderErr); return; }
+                if (orderErr) { 
+                    console.log('❌ ERROR ORDEN FECHAS:', orderErr);
+                    showError(orderErr); 
+                    return; 
+                }
 
+                console.log('🔍 DEBUG VALIDACIÓN CADUCIDAD:', {
+                    caducidad: formData.get('caducidadTarjeta')
+                });
+                
                 const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
-                if (cardErr) { showError(cardErr); return; }
+                if (cardErr) { 
+                    console.log('❌ ERROR CADUCIDAD:', cardErr);
+                    showError(cardErr); 
+                    return; 
+                }
 
                 // ===== USAR BUILDER DEFENSIVO =====
                 const cleanData = buildPayloadDefensive(formData);
