@@ -253,15 +253,25 @@
                             />
                         </div>
                         
-                        <div>
+                        <div id="medioPagoContainer" class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="contract.paymentMethod">
-                                Medio de pago
+                                Medio de pago <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="medioPago"
                                 class="form-input"
-                            />
+                            >
+                                <option value="" data-i18n="contract.paymentMethodSelect">Seleccione medio de pago</option>
+                                <option value="tarjeta_credito" data-i18n="contract.paymentMethods.creditCard">Tarjeta de Crédito</option>
+                                <option value="tarjeta_debito" data-i18n="contract.paymentMethods.debitCard">Tarjeta de Débito</option>
+                                <option value="paypal" data-i18n="contract.paymentMethods.paypal">PayPal</option>
+                                <option value="stripe" data-i18n="contract.paymentMethods.stripe">Stripe</option>
+                                <option value="transferencia_bancaria" data-i18n="contract.paymentMethods.bankTransfer">Transferencia Bancaria</option>
+                                <option value="bizum" data-i18n="contract.paymentMethods.bizum">Bizum</option>
+                                <option value="efectivo" data-i18n="contract.paymentMethods.cash">Efectivo</option>
+                                <option value="cheque" data-i18n="contract.paymentMethods.check">Cheque</option>
+                                <option value="otro" data-i18n="contract.paymentMethods.other">Otro</option>
+                            </select>
                         </div>
                         
                         <div>
@@ -859,6 +869,16 @@
                 "contract.payment.other": "Otro",
                 "contract.paymentDate": "Fecha de pago (AAAA-MM-DD)",
                 "contract.paymentMethod": "Medio de pago",
+                "contract.paymentMethodSelect": "Seleccione medio de pago",
+                "contract.paymentMethods.creditCard": "Tarjeta de Crédito",
+                "contract.paymentMethods.debitCard": "Tarjeta de Débito",
+                "contract.paymentMethods.paypal": "PayPal",
+                "contract.paymentMethods.stripe": "Stripe",
+                "contract.paymentMethods.bankTransfer": "Transferencia Bancaria",
+                "contract.paymentMethods.bizum": "Bizum",
+                "contract.paymentMethods.cash": "Efectivo",
+                "contract.paymentMethods.check": "Cheque",
+                "contract.paymentMethods.other": "Otro",
                 "contract.cardholder": "Titular",
                 "contract.expiry": "Caducidad (MM/AAAA)",
                 "travelers.title": "Viajeros",
@@ -945,6 +965,16 @@
                 "contract.payment.other": "Other",
                 "contract.paymentDate": "Payment date (YYYY-MM-DD)",
                 "contract.paymentMethod": "Payment method",
+                "contract.paymentMethodSelect": "Select payment method",
+                "contract.paymentMethods.creditCard": "Credit Card",
+                "contract.paymentMethods.debitCard": "Debit Card",
+                "contract.paymentMethods.paypal": "PayPal",
+                "contract.paymentMethods.stripe": "Stripe",
+                "contract.paymentMethods.bankTransfer": "Bank Transfer",
+                "contract.paymentMethods.bizum": "Bizum",
+                "contract.paymentMethods.cash": "Cash",
+                "contract.paymentMethods.check": "Check",
+                "contract.paymentMethods.other": "Other",
                 "contract.cardholder": "Cardholder",
                 "contract.expiry": "Expiry (MM/YYYY)",
                 "travelers.title": "Travelers",
@@ -1039,6 +1069,16 @@
                 "contract.payment.other": "Autre",
                 "contract.paymentDate": "Date de paiement (AAAA-MM-JJ)",
                 "contract.paymentMethod": "Moyen de paiement",
+                "contract.paymentMethodSelect": "Sélectionnez le moyen de paiement",
+                "contract.paymentMethods.creditCard": "Carte de Crédit",
+                "contract.paymentMethods.debitCard": "Carte de Débit",
+                "contract.paymentMethods.paypal": "PayPal",
+                "contract.paymentMethods.stripe": "Stripe",
+                "contract.paymentMethods.bankTransfer": "Virement Bancaire",
+                "contract.paymentMethods.bizum": "Bizum",
+                "contract.paymentMethods.cash": "Espèces",
+                "contract.paymentMethods.check": "Chèque",
+                "contract.paymentMethods.other": "Autre",
                 "contract.cardholder": "Titulaire",
                 "contract.expiry": "Expiration (MM/AAAA)",
                 "travelers.title": "Voyageurs",
@@ -1125,6 +1165,16 @@
                 "contract.paymentType": "Тип оплаты *",
                 "contract.paymentDate": "Дата платежа (ГГГГ-ММ-ДД)",
                 "contract.paymentMethod": "Способ оплаты",
+                "contract.paymentMethodSelect": "Выберите способ оплаты",
+                "contract.paymentMethods.creditCard": "Кредитная карта",
+                "contract.paymentMethods.debitCard": "Дебетовая карта",
+                "contract.paymentMethods.paypal": "PayPal",
+                "contract.paymentMethods.stripe": "Stripe",
+                "contract.paymentMethods.bankTransfer": "Банковский перевод",
+                "contract.paymentMethods.bizum": "Bizum",
+                "contract.paymentMethods.cash": "Наличные",
+                "contract.paymentMethods.check": "Чек",
+                "contract.paymentMethods.other": "Другое",
                 "contract.cardholder": "Держатель карты",
                 "contract.expiry": "Срок действия (ММ/ГГГГ)",
                 "contract.payment.cash": "Наличные",
@@ -1899,6 +1949,40 @@
             });
         }
 
+        // Función para manejar la lógica del tipo de pago
+        function setupPaymentTypeLogic() {
+            const tipoPagoSelect = document.querySelector('select[name="tipoPago"]');
+            const medioPagoContainer = document.getElementById('medioPagoContainer');
+            const medioPagoSelect = document.querySelector('select[name="medioPago"]');
+            
+            if (!tipoPagoSelect || !medioPagoContainer || !medioPagoSelect) {
+                console.warn('No se encontraron los elementos del tipo de pago');
+                return;
+            }
+            
+            // Función para actualizar la visibilidad del medio de pago
+            function updatePaymentMethodVisibility() {
+                const tipoPago = tipoPagoSelect.value;
+                
+                if (tipoPago === 'Plataforma') {
+                    // Mostrar campo de medio de pago y hacerlo obligatorio
+                    medioPagoContainer.classList.remove('hidden');
+                    medioPagoSelect.required = true;
+                } else {
+                    // Ocultar campo de medio de pago y limpiarlo
+                    medioPagoContainer.classList.add('hidden');
+                    medioPagoSelect.required = false;
+                    medioPagoSelect.value = '';
+                }
+            }
+            
+            // Event listener para cambios en el tipo de pago
+            tipoPagoSelect.addEventListener('change', updatePaymentMethodVisibility);
+            
+            // Inicializar estado al cargar
+            updatePaymentMethodVisibility();
+        }
+
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             initializeLanguage();
@@ -1921,6 +2005,9 @@
             // Inicializar selectores de municipios
             setupMunicipioSelector(1);
             setupMunicipioSelector(2);
+            
+            // Inicializar lógica de tipo de pago
+            setupPaymentTypeLogic();
             
             // Inicializar selects de países
             setTimeout(() => {
@@ -2459,6 +2546,13 @@
                     fechaSalida: { original: formData.get('fechaSalida'), formateada: fechaSalida },
                     fechaPago: { original: formData.get('fechaPago'), formateada: fechaPago }
                 });
+                
+                console.log('🔍 DEBUG PAGO:', {
+                    tipoPago: formData.get('tipoPago'),
+                    medioPago: formData.get('medioPago'),
+                    titular: formData.get('titular'),
+                    caducidad: formData.get('caducidad')
+                });
 
                 // --- Validaciones robustas previas ---
                 console.log('🔍 DEBUG VALIDACIÓN DOCUMENTO:', {
@@ -2476,7 +2570,15 @@
                 const telefono = String(formData.get('telefono') || '').trim();
                 if (!telefono) { 
                     showError('El teléfono es obligatorio'); 
-                    return; 
+                    return;
+                }
+                
+                // Validar medio de pago solo cuando tipo es "Plataforma" (según normas MIR)
+                const tipoPago = String(formData.get('tipoPago') || '').trim();
+                const medioPago = String(formData.get('medioPago') || '').trim();
+                if (tipoPago === 'Plataforma' && !medioPago) {
+                    showError('El medio de pago es obligatorio cuando el tipo de pago es "Plataforma"');
+                    return;
                 }
                 // Validar formato de teléfono internacional (permite +, espacios, guiones, paréntesis)
                 const telefonoLimpio = telefono.replace(/[\s\-\(\)]/g, '');
