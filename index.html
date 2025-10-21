@@ -2060,7 +2060,7 @@
                     return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                 })(),
                 nombreMunicipio: String(formData.get('nombreMunicipio')||'').trim(),
-                paisResidencia: iso3to2(getISO3FromInput('pais')),
+                paisResidencia: getISO3FromInput('pais'), // Mantener en ISO3 para MIR
             };
             // Normalización ESP/no-ESP: INE vs nombreMunicipio
             (function normalizeMunicipio(v) {
@@ -2106,7 +2106,7 @@
                         return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
                     })(),
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
-                    paisResidencia: iso3to2(getISO3FromInput('pais2')),
+                    paisResidencia: getISO3FromInput('pais2'), // Mantener en ISO3 para MIR
                 };
                 (function normalizeMunicipio(v) {
                     const esES = v.paisResidencia === 'ES';
@@ -2824,7 +2824,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Validaciones específicas para españoles
-        if(viajero.paisResidencia === 'ES' || viajero.nacionalidad === 'ESP') {
+        if(viajero.paisResidencia === 'ESP' || viajero.nacionalidad === 'ESP') {
           if(!viajero.ine) {
             errors.push(`Código INE del viajero ${index + 1} requerido para españoles`);
             showFieldError(`${prefix}codigoMunicipio`, 'Código INE requerido');
