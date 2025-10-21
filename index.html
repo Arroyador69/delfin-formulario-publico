@@ -584,6 +584,7 @@
                                     type="text"
                                     name="apellido2_2"
                                     class="form-input"
+                                    required
                                 />
                             </div>
                             
@@ -621,6 +622,7 @@
                                     type="text"
                                     name="numeroDocumento2"
                                     class="form-input"
+                                    required
                                 />
                             </div>
                             
@@ -2143,6 +2145,15 @@
                     nombreMunicipio: String(formData.get('nombreMunicipio2')||'').trim(),
                     paisResidencia: getISO3FromInput('pais2'), // Mantener en ISO3 para MIR
                 };
+                
+                console.log('🔍 VIAJERO 2 ANTES DE NORMALIZACIÓN:', {
+                    nombre: viajero2.nombre,
+                    primerApellido: viajero2.primerApellido,
+                    segundoApellido: viajero2.segundoApellido,
+                    numeroDocumento: viajero2.numeroDocumento,
+                    nacionalidad: viajero2.nacionalidad,
+                    paisResidencia: viajero2.paisResidencia
+                });
                 (function normalizeMunicipio(v) {
                     const esES = v.paisResidencia === 'ESP';
                     if (esES) {
