@@ -232,8 +232,8 @@
                                 class="form-input"
                             >
                                 <option value="EFECT" data-i18n="contract.payment.cash">Efectivo</option>
-                                <option value="TARJT" data-i18n="contract.payment.card">Tarjeta</option>
-                                <option value="PLATF" selected data-i18n="contract.payment.platform">Plataforma</option>
+                                <option value="TARJT" selected data-i18n="contract.payment.card">Tarjeta</option>
+                                <option value="PLATF" data-i18n="contract.payment.platform">Plataforma</option>
                                 <option value="TRANS" data-i18n="contract.payment.transfer">Transferencia</option>
                                 <option value="MOVIL" data-i18n="contract.payment.mobile">Móvil</option>
                                 <option value="TREG" data-i18n="contract.payment.check">Cheque</option>
@@ -1956,20 +1956,27 @@
             const medioPagoSelect = document.querySelector('select[name="medioPago"]');
             
             if (!tipoPagoSelect || !medioPagoContainer || !medioPagoSelect) {
-                console.warn('No se encontraron los elementos del tipo de pago');
+                console.warn('No se encontraron los elementos del tipo de pago:', {
+                    tipoPagoSelect: !!tipoPagoSelect,
+                    medioPagoContainer: !!medioPagoContainer,
+                    medioPagoSelect: !!medioPagoSelect
+                });
                 return;
             }
             
             // Función para actualizar la visibilidad del medio de pago
             function updatePaymentMethodVisibility() {
                 const tipoPago = tipoPagoSelect.value;
+                console.log('🔄 Actualizando visibilidad del medio de pago. Tipo seleccionado:', tipoPago);
                 
-                if (tipoPago === 'Plataforma') {
+                if (tipoPago === 'PLATF') {
                     // Mostrar campo de medio de pago y hacerlo obligatorio
+                    console.log('✅ Mostrando campo medio de pago (Plataforma seleccionada)');
                     medioPagoContainer.classList.remove('hidden');
                     medioPagoSelect.required = true;
                 } else {
                     // Ocultar campo de medio de pago y limpiarlo
+                    console.log('❌ Ocultando campo medio de pago (Tipo:', tipoPago, ')');
                     medioPagoContainer.classList.add('hidden');
                     medioPagoSelect.required = false;
                     medioPagoSelect.value = '';
@@ -1980,6 +1987,7 @@
             tipoPagoSelect.addEventListener('change', updatePaymentMethodVisibility);
             
             // Inicializar estado al cargar
+            console.log('🚀 Inicializando lógica de tipo de pago');
             updatePaymentMethodVisibility();
         }
 
@@ -2006,15 +2014,17 @@
             setupMunicipioSelector(1);
             setupMunicipioSelector(2);
             
-            // Inicializar lógica de tipo de pago
-            setupPaymentTypeLogic();
-            
             // Inicializar selects de países
             setTimeout(() => {
                 if (typeof populateCountrySelects === 'function') {
                     populateCountrySelects(document.documentElement.lang || 'es');
                 }
             }, 100);
+            
+            // Inicializar lógica de tipo de pago después de un pequeño delay
+            setTimeout(() => {
+                setupPaymentTypeLogic();
+            }, 200);
             
             // Inicializar campos según el país por defecto
             setTimeout(() => {
