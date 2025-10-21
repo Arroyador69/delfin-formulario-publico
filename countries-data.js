@@ -202,7 +202,6 @@ const COUNTRIES_DATA = [
   { "iso3": "SOM", "name": { "es": "Somalia", "en": "Somalia", "fr": "Somalie", "ru": "Сомали" } },
   { "iso3": "ZAF", "name": { "es": "Sudáfrica", "en": "South Africa", "fr": "Afrique du Sud", "ru": "Южно-Африканская Республика" } },
   { "iso3": "SSD", "name": { "es": "Sudán del Sur", "en": "South Sudan", "fr": "Soudan du Sud", "ru": "Южный Судан" } },
-  { "iso3": "ESP", "name": { "es": "España", "en": "Spain", "fr": "Espagne", "ru": "Испания" } },
   { "iso3": "LKA", "name": { "es": "Sri Lanka", "en": "Sri Lanka", "fr": "Sri Lanka", "ru": "Шри-Ланка" } },
   { "iso3": "SDN", "name": { "es": "Sudán", "en": "Sudan", "fr": "Soudan", "ru": "Судан" } },
   { "iso3": "SUR", "name": { "es": "Surinam", "en": "Suriname", "fr": "Suriname", "ru": "Суринам" } },
