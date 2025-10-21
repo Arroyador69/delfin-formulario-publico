@@ -1431,6 +1431,21 @@
         function showTraveler2() {
             document.getElementById('traveler2Section').classList.remove('hidden');
             document.getElementById('addTraveler2').style.display = 'none';
+            
+            // Marcar campos requeridos del segundo viajero
+            const form = document.getElementById('guestRegistrationForm');
+            const requiredFields = [
+                'nombre2', 'apellido1_2', 'fechaNacimiento2', 'tipoDocumento2', 
+                'numeroDocumento2', 'sexo2', 'nacionalidad2', 'telefono2', 
+                'correo2', 'direccion2', 'codigoPostal2', 'pais2'
+            ];
+            
+            requiredFields.forEach(fieldName => {
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    field.required = true;
+                }
+            });
         }
 
         function hideTraveler2() {
@@ -1929,6 +1944,9 @@
             // Event listeners para el segundo viajero
             document.getElementById('addTraveler2').addEventListener('click', showTraveler2);
             document.getElementById('removeTraveler2').addEventListener('click', hideTraveler2);
+            
+            // Inicializar campos del segundo viajero como no requeridos (está oculto por defecto)
+            hideTraveler2();
             
             // Event listeners para conversión automática de países/nacionalidades
             const countryInputs = document.querySelectorAll('.country-input');
