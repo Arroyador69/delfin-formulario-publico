@@ -291,9 +291,11 @@
                             </label>
                             <input
                                 type="text"
+                                id="caducidadTarjeta"
                                 name="caducidadTarjeta"
                                 placeholder="MM/AAAA"
                                 class="form-input"
+                                maxlength="7"
                             />
                             <p class="text-xs text-gray-500 mt-1" data-i18n="contract.expiryHelp">
                                 En caso de pago con tarjeta, indique la fecha de caducidad de la tarjeta utilizada
@@ -1991,6 +1993,44 @@
             updatePaymentMethodVisibility();
         }
 
+        // Función para manejar el auto-formato del campo de caducidad
+        function setupCardExpiryFormat() {
+            const expiryInput = document.getElementById('caducidadTarjeta');
+            
+            if (!expiryInput) {
+                console.warn('No se encontró el campo de caducidad de tarjeta');
+                return;
+            }
+            
+            // Event listener para el input
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, ''); // Solo números
+                
+                // Si tiene 2 dígitos, agregar "/" automáticamente
+                if (value.length === 2) {
+                    value = value + '/';
+                }
+                
+                // Limitar a 6 dígitos (MM/AAAA)
+                if (value.length > 7) {
+                    value = value.substring(0, 7);
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Event listener para el keydown (para manejar backspace)
+            expiryInput.addEventListener('keydown', function(e) {
+                // Si presiona backspace y está en la posición después del "/"
+                if (e.key === 'Backspace' && e.target.selectionStart === 3) {
+                    e.preventDefault();
+                    e.target.value = e.target.value.substring(0, 2);
+                }
+            });
+            
+            console.log('✅ Auto-formato de caducidad configurado');
+        }
+
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             initializeLanguage();
@@ -2025,6 +2065,11 @@
             setTimeout(() => {
                 setupPaymentTypeLogic();
             }, 200);
+            
+            // Inicializar auto-formato de caducidad de tarjeta
+            setTimeout(() => {
+                setupCardExpiryFormat();
+            }, 300);
             
             // Inicializar campos según el país por defecto
             setTimeout(() => {
