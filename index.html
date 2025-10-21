@@ -2010,15 +2010,18 @@
         };
 
         const mapPago = (x) => {
-            const k = String(x || '').toLowerCase();
-            if (k.includes('efect')) return { code:'EFECT', label:'Efectivo' };
-            if (k.includes('tarj')) return { code:'TARJT', label:'Tarjeta' };
-            if (k.includes('trans') || k.includes('bank')) return { code:'TRANS', label:'Transferencia' };
-            if (k.includes('plat')) return { code:'PLATF', label:'Plataforma' };
-            if (k.includes('movil')) return { code:'MOVIL', label:'Móvil' };
-            if (k.includes('cheq') || k.includes('treg')) return { code:'TREG', label:'Cheque' };
-            if (k.includes('dest')) return { code:'DESTI', label:'Destino' };
-            return { code:'OTRO', label:String(x) };
+            const k = String(x || '').toUpperCase();
+            // Mapeo directo de códigos MIR
+            const map = {
+                'EFECT': { code:'EFECT', label:'Efectivo' },
+                'TARJT': { code:'TARJT', label:'Tarjeta' },
+                'TRANS': { code:'TRANS', label:'Transferencia' },
+                'PLATF': { code:'PLATF', label:'Plataforma' },
+                'MOVIL': { code:'MOVIL', label:'Móvil' },
+                'TREG': { code:'TREG', label:'Cheque' },
+                'DESTI': { code:'DESTI', label:'Destino' }
+            };
+            return map[k] || { code:'OTRO', label:String(x) };
         };
 
         // Eliminada función iso3to2 - solo usamos ISO3 según normas MIR
@@ -2026,6 +2029,29 @@
         function buildPayloadDefensive(formData) {
             const pagoTipo = mapPago(formData.get('tipoPago'));
             const medioPago = String(formData.get('medioPago')||'').trim();
+            
+            // 🔍 DEBUG: Log de método de pago
+            console.log('🔍 DEBUG MÉTODO DE PAGO:', {
+                valorOriginal: formData.get('tipoPago'),
+                mapeado: pagoTipo,
+                medioPago: medioPago
+            });
+            
+            // 🔍 DEBUG: Log de fechas
+            console.log('🔍 DEBUG FECHAS:', {
+                fechaContrato: {
+                    original: formData.get('fechaContrato'),
+                    convertida: toISODate(formData.get('fechaContrato'))
+                },
+                fechaEntrada: {
+                    original: formData.get('fechaEntrada'),
+                    convertida: toISODateTime(formData.get('fechaEntrada'))
+                },
+                fechaSalida: {
+                    original: formData.get('fechaSalida'),
+                    convertida: toISODateTime(formData.get('fechaSalida'))
+                }
+            });
 
             // Función para obtener código ISO3 desde el select o input
             function getISO3FromInput(inputName) {
