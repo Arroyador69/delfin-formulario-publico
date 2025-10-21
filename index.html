@@ -2619,47 +2619,73 @@ document.addEventListener('DOMContentLoaded', function() {
   function formToParte(form){
     const fd = new FormData(form);
     const internet = fd.get('internet') ? true : false;
+    
+    // Estructura compatible con el endpoint MIR
     const parte = {
-      establecimiento: {
-        denominacion: 'Delfín Check-in',
-        direccionCompleta: 'Fuengirola, Málaga',
-        codigoEstablecimiento: fd.get('codigoEstablecimiento') || undefined,
-      },
-      viajeros: [
-        {
-          nombre: fd.get('nombre') || '',
-          primerApellido: fd.get('apellido1') || '',
-          segundoApellido: fd.get('apellido2') || undefined,
-          sexo: mapSexo(fd.get('sexo')),
-          documento: {
-            tipo: mapDocType(fd.get('tipoDocumento')),
-            numero: String(fd.get('numeroDocumento')||'').toUpperCase()
-          },
-          nacionalidad: toISO3(fd.get('nacionalidad')||fd.get('pais')) || 'ESP',
-          fechaNacimiento: fd.get('fechaNacimiento') || '' ,
-          residencia: {
-            direccion: fd.get('direccion') || '',
-            localidad: fd.get('nombreMunicipio') || '',
-            pais: toISO3(fd.get('pais')) || 'ESP'
-          }
-        }
-      ],
-      ejecucionContrato: {
-        fechaHoraEntrada: fd.get('fechaEntrada') ? new Date(fd.get('fechaEntrada')).toISOString() : '',
-        fechaHoraSalida: fd.get('fechaSalida') ? new Date(fd.get('fechaSalida')).toISOString() : ''
-      },
-      pago: {
-        tipo: (function(){
+      contrato: {
+        fechaContrato: fd.get('fechaContrato') || new Date().toISOString().split('T')[0],
+        entrada: fd.get('fechaEntrada') || '',
+        salida: fd.get('fechaSalida') || '',
+        nHabitaciones: parseInt(fd.get('numHabitaciones')) || 1,
+        internet: internet,
+        fechaPago: fd.get('fechaPago') || new Date().toISOString().split('T')[0],
+        tipoPagoCode: fd.get('tipoPago') || 'OTRO',
+        tipoPagoLabel: (function(){
           const m = fd.get('tipoPago');
           if(m==='EFECT') return 'EFECTIVO';
           if(m==='TARJT') return 'TARJETA';
           if(m==='PLATF') return 'PLATAFORMA';
           if(m==='TRANS') return 'TRANSFERENCIA';
           return 'PLATAFORMA';
-        })(),
-        identificacion: fd.get('medioPago') || undefined
-      }
+        })()
+      },
+      titular: {
+        // Datos del titular (opcional)
+      },
+      viajeros: [
+        {
+          nombre: fd.get('nombre') || '',
+          primerApellido: fd.get('apellido1') || '',
+          segundoApellido: fd.get('apellido2') || '',
+          fechaNacimiento: fd.get('fechaNacimiento') || '',
+          tipoDocumento: mapDocType(fd.get('tipoDocumento')) || 'PASSPORT',
+          numeroDocumento: String(fd.get('numeroDocumento')||'').toUpperCase(),
+          sexo: mapSexo(fd.get('sexo')) || 'M',
+          nacionalidad: toISO3(fd.get('nacionalidad')||fd.get('pais')) || 'ESP',
+          nacionalidadISO2: fd.get('nacionalidad') || fd.get('pais') || 'ES',
+          telefono: fd.get('telefono') || '',
+          email: fd.get('correo') || '',
+          direccion: fd.get('direccion') || '',
+          cp: fd.get('codigoPostal') || '',
+          ine: fd.get('codigoMunicipio') || '',
+          nombreMunicipio: fd.get('nombreMunicipio') || '',
+          paisResidencia: fd.get('pais') || 'ES'
+        }
+      ]
     };
+    
+    // Agregar segundo viajero si existe
+    if (fd.get('nombre2')) {
+      parte.viajeros.push({
+        nombre: fd.get('nombre2') || '',
+        primerApellido: fd.get('apellido1_2') || '',
+        segundoApellido: fd.get('apellido2_2') || '',
+        fechaNacimiento: fd.get('fechaNacimiento2') || '',
+        tipoDocumento: mapDocType(fd.get('tipoDocumento2')) || 'PASSPORT',
+        numeroDocumento: String(fd.get('numeroDocumento2')||'').toUpperCase(),
+        sexo: mapSexo(fd.get('sexo2')) || 'M',
+        nacionalidad: toISO3(fd.get('nacionalidad2')||fd.get('pais2')) || 'ESP',
+        nacionalidadISO2: fd.get('nacionalidad2') || fd.get('pais2') || 'ES',
+        telefono: fd.get('telefono2') || '',
+        email: fd.get('correo2') || '',
+        direccion: fd.get('direccion2') || '',
+        cp: fd.get('codigoPostal2') || '',
+        ine: fd.get('codigoMunicipio2') || '',
+        nombreMunicipio: fd.get('nombreMunicipio2') || '',
+        paisResidencia: fd.get('pais2') || 'ES'
+      });
+    }
+    
     return parte;
   }
 
@@ -2670,18 +2696,19 @@ document.addEventListener('DOMContentLoaded', function() {
     clearFieldErrors();
     
     // Validar contrato
-    if(!parte.ejecucionContrato.fechaHoraEntrada) {
-      errors.push('Entrada requerida');
-      showFieldError('fechaHoraEntrada', 'Entrada requerida');
+    if(!parte.contrato.entrada) {
+      errors.push('Fecha de entrada requerida');
+      showFieldError('fechaEntrada', 'Fecha de entrada requerida');
     }
-    if(!parte.ejecucionContrato.fechaHoraSalida) {
-      errors.push('Salida requerida');
-      showFieldError('fechaHoraSalida', 'Salida requerida');
+    if(!parte.contrato.salida) {
+      errors.push('Fecha de salida requerida');
+      showFieldError('fechaSalida', 'Fecha de salida requerida');
     }
-    if(new Date(parte.ejecucionContrato.fechaHoraEntrada) > new Date(parte.ejecucionContrato.fechaHoraSalida)) {
-      errors.push('Entrada no puede ser posterior a salida');
+    if(parte.contrato.entrada && parte.contrato.salida && 
+       new Date(parte.contrato.entrada) > new Date(parte.contrato.salida)) {
+      errors.push('La entrada no puede ser posterior a la salida');
     }
-    if(!parte.contrato.tipoPago) {
+    if(!parte.contrato.tipoPagoCode) {
       errors.push('Tipo de pago requerido');
       showFieldError('tipoPago', 'Tipo de pago requerido');
     }
@@ -2690,86 +2717,87 @@ document.addEventListener('DOMContentLoaded', function() {
       showFieldError('fechaContrato', 'Fecha de contrato requerida');
     }
     
-    // Validar primer viajero
-    if(parte.viajeros && parte.viajeros.length > 0) {
-      const v = parte.viajeros[0];
-      
-      // Campos obligatorios para todos los viajeros
-      if(!v.nombre) {
-        errors.push('Nombre requerido');
-        showFieldError('nombre', 'Nombre requerido');
-      }
-      if(!v.primerApellido) {
-        errors.push('Primer apellido requerido');
-        showFieldError('apellido1', 'Primer apellido requerido');
-      }
-      if(!v.fechaNacimiento) {
-        errors.push('Fecha de nacimiento requerida');
-        showFieldError('fechaNacimiento', 'Fecha de nacimiento requerida');
-      }
-      if(!v.tipoDocumento) {
-        errors.push('Tipo de documento requerido');
-        showFieldError('tipoDocumento', 'Tipo de documento requerido');
-      }
-      if(!v.numeroDocumento) {
-        errors.push('Número de documento requerido');
-        showFieldError('numeroDocumento', 'Número de documento requerido');
-      }
-      if(!v.direccion) {
-        errors.push('Dirección requerida');
-        showFieldError('direccion', 'Dirección requerida');
-      }
-      if(!v.nacionalidad) {
-        errors.push('Nacionalidad requerida');
-        showFieldError('nacionalidad', 'Nacionalidad requerida');
-      }
-      if(!v.sexo) {
-        errors.push('Sexo requerido');
-        showFieldError('sexo', 'Sexo requerido');
-      }
-      if(!v.cp) {
-        errors.push('Código postal requerido');
-        showFieldError('codigoPostal', 'Código postal requerido');
-      }
-      if(!v.paisResidencia) {
-        errors.push('País requerido');
-        showFieldError('pais', 'País requerido');
-      }
-      
-      // Teléfono y email obligatorios solo para el primer viajero
-      if(!v.telefono) {
-        errors.push('Teléfono del primer viajero requerido');
-        showFieldError('telefono', 'Teléfono requerido');
-      }
-      if(!v.correo) {
-        errors.push('Email del primer viajero requerido');
-        showFieldError('correo', 'Email requerido');
-      } else if(!isValidEmail(v.correo)) {
-        errors.push('Email del primer viajero no válido');
-        showFieldError('correo', 'Email no válido');
-      }
-      
-      // Segundo apellido obligatorio solo para españoles
-      const esEspana = v.nacionalidad === 'ESP';
-      if(esEspana && !v.segundoApellido) {
-        errors.push('Segundo apellido requerido para españoles');
-        showFieldError('apellido2', 'Segundo apellido requerido para españoles');
-      }
-      
-      // Validación condicional de INE: solo para españoles
-      const esEspanaResidencia = v.paisResidencia === 'ESP';
-      if(esEspanaResidencia) {
-        if(!v.ine || !/^\d{5}$/.test(v.ine)) {
-          errors.push('Código municipio INE requerido para españoles');
-          showFieldError('codigoMunicipio', 'Código municipio INE requerido para españoles');
+    // Validar viajeros
+    if(!parte.viajeros || parte.viajeros.length === 0) {
+      errors.push('Al menos un viajero es requerido');
+    } else {
+      parte.viajeros.forEach((viajero, index) => {
+        const prefix = index === 0 ? '' : `${index + 1}_`;
+        
+        if(!viajero.nombre) {
+          errors.push(`Nombre del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}nombre`, 'Nombre requerido');
         }
-      } else {
-        // Para extranjeros, nombre del municipio es requerido
-        if(!v.nombreMunicipio || v.nombreMunicipio.trim() === '') {
-          errors.push('Nombre del municipio requerido para extranjeros');
-          showFieldError('nombreMunicipio', 'Nombre del municipio requerido para extranjeros');
+        if(!viajero.primerApellido) {
+          errors.push(`Primer apellido del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}apellido1`, 'Primer apellido requerido');
         }
-      }
+        if(!viajero.fechaNacimiento) {
+          errors.push(`Fecha de nacimiento del viajero ${index + 1} requerida`);
+          showFieldError(`${prefix}fechaNacimiento`, 'Fecha de nacimiento requerida');
+        }
+        if(!viajero.tipoDocumento) {
+          errors.push(`Tipo de documento del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}tipoDocumento`, 'Tipo de documento requerido');
+        }
+        if(!viajero.numeroDocumento) {
+          errors.push(`Número de documento del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}numeroDocumento`, 'Número de documento requerido');
+        }
+        if(!viajero.nacionalidad) {
+          errors.push(`Nacionalidad del viajero ${index + 1} requerida`);
+          showFieldError(`${prefix}nacionalidad`, 'Nacionalidad requerida');
+        }
+        if(!viajero.sexo) {
+          errors.push(`Sexo del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}sexo`, 'Sexo requerido');
+        }
+        if(!viajero.direccion) {
+          errors.push(`Dirección del viajero ${index + 1} requerida`);
+          showFieldError(`${prefix}direccion`, 'Dirección requerida');
+        }
+        if(!viajero.cp) {
+          errors.push(`Código postal del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}codigoPostal`, 'Código postal requerido');
+        }
+        if(!viajero.paisResidencia) {
+          errors.push(`País de residencia del viajero ${index + 1} requerido`);
+          showFieldError(`${prefix}pais`, 'País requerido');
+        }
+        
+        // Validaciones específicas para el primer viajero
+        if(index === 0) {
+          if(!viajero.telefono) {
+            errors.push('Teléfono del primer viajero requerido');
+            showFieldError('telefono', 'Teléfono requerido');
+          }
+          if(!viajero.email) {
+            errors.push('Email del primer viajero requerido');
+            showFieldError('correo', 'Email requerido');
+          } else if(!isValidEmail(viajero.email)) {
+            errors.push('Email del primer viajero no válido');
+            showFieldError('correo', 'Email no válido');
+          }
+        }
+        
+        // Validaciones específicas para españoles
+        if(viajero.paisResidencia === 'ES' || viajero.nacionalidad === 'ESP') {
+          if(!viajero.ine) {
+            errors.push(`Código INE del viajero ${index + 1} requerido para españoles`);
+            showFieldError(`${prefix}codigoMunicipio`, 'Código INE requerido');
+          }
+          if(viajero.segundoApellido && !viajero.segundoApellido.trim()) {
+            errors.push(`Segundo apellido del viajero ${index + 1} requerido para españoles`);
+            showFieldError(`${prefix}apellido2`, 'Segundo apellido requerido');
+          }
+        } else {
+          // Para extranjeros, nombre del municipio es requerido
+          if(!viajero.nombreMunicipio) {
+            errors.push(`Nombre del municipio del viajero ${index + 1} requerido para extranjeros`);
+            showFieldError(`${prefix}nombreMunicipio`, 'Nombre del municipio requerido');
+          }
+        }
+      });
     }
     
     return errors;
