@@ -2068,23 +2068,14 @@
                     return codigoPostal ? codigoPostal.padStart(5,'0') : '';
                 })(),
                 ine: (() => {
-                    // Captura robusta del código INE desde el DOM
+                    // Captura directa del código INE desde el DOM (campo readonly)
                     const ineElement = document.getElementById('codigoMunicipio1');
-                    let codigoMunicipio = '';
+                    const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : '';
                     
-                    if (ineElement && ineElement.value) {
-                        codigoMunicipio = String(ineElement.value).trim();
-                    } else {
-                        // Fallback: intentar desde formData
-                        codigoMunicipio = String(formData.get('codigoMunicipio')||'').trim();
-                    }
-                    
-                    // Debug: mostrar qué se está capturando
-                    console.log('🔍 DEBUG INE Viajero 1:', {
-                        ineElement: ineElement,
-                        ineValue: ineElement ? ineElement.value : 'no element',
-                        formDataValue: formData.get('codigoMunicipio'),
-                        finalValue: codigoMunicipio
+                    console.log('🔍 CAPTURA INE Viajero 1:', {
+                        element: ineElement,
+                        value: codigoMunicipio,
+                        padded: codigoMunicipio ? codigoMunicipio.padStart(5,'0') : ''
                     });
                     
                     return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
@@ -2132,23 +2123,14 @@
                         return codigoPostal2 ? codigoPostal2.padStart(5,'0') : '';
                     })(),
                     ine: (() => {
-                        // Captura robusta del código INE desde el DOM
+                        // Captura directa del código INE desde el DOM (campo readonly)
                         const ineElement = document.getElementById('codigoMunicipio2');
-                        let codigoMunicipio = '';
+                        const codigoMunicipio = ineElement ? String(ineElement.value || '').trim() : '';
                         
-                        if (ineElement && ineElement.value) {
-                            codigoMunicipio = String(ineElement.value).trim();
-                        } else {
-                            // Fallback: intentar desde formData
-                            codigoMunicipio = String(formData.get('codigoMunicipio2')||'').trim();
-                        }
-                        
-                        // Debug: mostrar qué se está capturando
-                        console.log('🔍 DEBUG INE Viajero 2:', {
-                            ineElement: ineElement,
-                            ineValue: ineElement ? ineElement.value : 'no element',
-                            formDataValue: formData.get('codigoMunicipio2'),
-                            finalValue: codigoMunicipio
+                        console.log('🔍 CAPTURA INE Viajero 2:', {
+                            element: ineElement,
+                            value: codigoMunicipio,
+                            padded: codigoMunicipio ? codigoMunicipio.padStart(5,'0') : ''
                         });
                         
                         return codigoMunicipio ? codigoMunicipio.padStart(5,'0') : '';
@@ -2488,6 +2470,15 @@
                 // (Optional debug a solo cliente)
                 console.log('🧾 FormData bruta:', Object.fromEntries(formData.entries()));
                 console.log('📤 Payload limpio enviado:', JSON.stringify(cleanData, null, 2));
+                
+                // Debug específico para código INE
+                if (cleanData && cleanData.viajeros && cleanData.viajeros[0]) {
+                    console.log('🔍 VERIFICACIÓN INE en payload:', {
+                        viajero1_ine: cleanData.viajeros[0].ine,
+                        viajero1_nombreMunicipio: cleanData.viajeros[0].nombreMunicipio,
+                        viajero1_paisResidencia: cleanData.viajeros[0].paisResidencia
+                    });
+                }
 
                 // Volcar payload en panel debug
                 if (isDebug()) {
