@@ -1988,8 +1988,8 @@
             const s = String(d).trim();
             // Caso estándar de input type=date
             if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-            // admite "10/09/2025", "10-09-2025"
-            if (/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/.test(s)) {
+            // admite "10/09/2025", "10-09-2025", "22/10/2025"
+            if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(s)) {
                 const sep = s.includes('/') ? '/' : '-';
                 const [dd, mm, yyyy] = s.split(sep);
                 return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
@@ -2402,7 +2402,8 @@
             } else if (tipo === 'NIE') {
                 if (!/^[XYZxyz]\d{7}[A-Za-z]$/.test(n)) return 'Formato de NIE inválido (X/Y/Z + 7 dígitos + letra)';
             } else if (tipo === 'PAS') {
-                if (!/^[A-Za-z0-9]{3,15}$/.test(n)) return 'Pasaporte inválido (3-15 caracteres alfanuméricos)';
+                // Formato más flexible para pasaportes internacionales
+                if (!/^[A-Za-z0-9]{2,20}$/.test(n)) return 'Pasaporte inválido (2-20 caracteres alfanuméricos)';
             }
             return null;
         }
@@ -2451,10 +2452,25 @@
                 const fechaEntrada = formatDateForMIR(formData.get('fechaEntrada'));
                 const fechaSalida = formatDateForMIR(formData.get('fechaSalida'));
                 const fechaPago = formatDateForMIR(formData.get('fechaPago'));
+                
+                console.log('🔍 DEBUG FECHAS:', {
+                    fechaContrato: { original: formData.get('fechaContrato'), formateada: fechaContrato },
+                    fechaEntrada: { original: formData.get('fechaEntrada'), formateada: fechaEntrada },
+                    fechaSalida: { original: formData.get('fechaSalida'), formateada: fechaSalida },
+                    fechaPago: { original: formData.get('fechaPago'), formateada: fechaPago }
+                });
 
                 // --- Validaciones robustas previas ---
+                console.log('🔍 DEBUG VALIDACIÓN DOCUMENTO:', {
+                    tipo: formData.get('tipoDocumento'),
+                    numero: formData.get('numeroDocumento')
+                });
                 const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
-                if (docErr) { showError(docErr); return; }
+                if (docErr) { 
+                    console.log('❌ ERROR DOCUMENTO:', docErr);
+                    showError(docErr); 
+                    return; 
+                }
 
                 // Validar teléfono obligatorio
                 const telefono = String(formData.get('telefono') || '').trim();
@@ -2481,6 +2497,13 @@
                 const paisValue = String(formData.get('pais') || '').toLowerCase().trim();
                 const esEspanol = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana';
                 
+                console.log('🔍 DEBUG PAÍS:', {
+                    paisValue: paisValue,
+                    esEspanol: esEspanol,
+                    codigoMunicipio: formData.get('codigoMunicipio'),
+                    nombreMunicipio: formData.get('nombreMunicipio')
+                });
+                
                 if (esEspanol) {
                     // Validar código INE obligatorio para españoles
                     const codigoINE = String(formData.get('codigoMunicipio') || '').trim();
@@ -2501,7 +2524,12 @@
                 } else {
                     // Para extranjeros, asegurar que el nombre del municipio esté presente
                     const nombreMunicipio = String(formData.get('nombreMunicipio') || '').trim();
+                    console.log('🔍 DEBUG EXTRANJERO:', {
+                        nombreMunicipio: nombreMunicipio,
+                        length: nombreMunicipio.length
+                    });
                     if (!nombreMunicipio) {
+                        console.log('❌ ERROR: Nombre del municipio vacío para extranjero');
                         showError('Para extranjeros es obligatorio el nombre del municipio');
                         return;
                     }
@@ -2598,6 +2626,7 @@
                 console.log('- Status Text:', response.statusText);
                 console.log('- OK:', response.ok);
                 console.log('- Headers:', Object.fromEntries(response.headers.entries()));
+                console.log('- URL:', response.url);
                 
                 // Leer el cuerpo de la respuesta para debug
                 let responseBodyText = '';
