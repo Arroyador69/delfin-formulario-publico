@@ -2719,16 +2719,30 @@
                 
                 // 🔬 DEBUG: Endpoint de debug eliminado para evitar mensajes de error confusos
                 
-                // Enviar datos a la API de Vercel (nuevo endpoint flexible)
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(cleanData),
-                });
+                console.log('🚀 INICIANDO ENVÍO AL SERVIDOR...');
+                console.log('📤 Datos a enviar:', JSON.stringify(cleanData, null, 2));
+                
+                let response;
+                try {
+                    // Enviar datos a la API de Vercel (nuevo endpoint flexible)
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(cleanData),
+                    });
+                    console.log('✅ FETCH COMPLETADO - Respuesta recibida');
+                } catch (fetchError) {
+                    console.error('❌ ERROR EN FETCH:', fetchError);
+                    console.error('❌ Tipo de error:', fetchError.name);
+                    console.error('❌ Mensaje:', fetchError.message);
+                    console.error('❌ Stack:', fetchError.stack);
+                    showError(`Error de conexión: ${fetchError.message}`);
+                    return;
+                }
                 
                 // 🔍 DEBUG DE LA RESPUESTA
                 console.log('═══════════════════════════════════════════════');
