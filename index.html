@@ -2004,31 +2004,80 @@
             
             // Event listener para el input
             expiryInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, ''); // Solo números
+                let value = e.target.value;
+                let cursorPos = e.target.selectionStart;
                 
-                // Si tiene 2 dígitos, agregar "/" automáticamente
-                if (value.length === 2) {
-                    value = value + '/';
+                // Remover todo excepto números y "/"
+                let cleanValue = value.replace(/[^\d\/]/g, '');
+                
+                // Si no tiene "/" y tiene al menos 2 dígitos, agregarlo
+                if (!cleanValue.includes('/') && cleanValue.length >= 2) {
+                    cleanValue = cleanValue.substring(0, 2) + '/' + cleanValue.substring(2);
+                    cursorPos = 3; // Posicionar cursor después del "/"
                 }
                 
-                // Limitar a 6 dígitos (MM/AAAA)
-                if (value.length > 7) {
-                    value = value.substring(0, 7);
+                // Limitar a 7 caracteres (MM/AAAA)
+                if (cleanValue.length > 7) {
+                    cleanValue = cleanValue.substring(0, 7);
                 }
                 
-                e.target.value = value;
+                // Actualizar el valor
+                e.target.value = cleanValue;
+                
+                // Restaurar posición del cursor
+                setTimeout(() => {
+                    e.target.setSelectionRange(cursorPos, cursorPos);
+                }, 0);
             });
             
-            // Event listener para el keydown (para manejar backspace)
+            // Event listener para el keydown (para manejar backspace y navegación)
             expiryInput.addEventListener('keydown', function(e) {
-                // Si presiona backspace y está en la posición después del "/"
-                if (e.key === 'Backspace' && e.target.selectionStart === 3) {
+                const value = e.target.value;
+                const cursorPos = e.target.selectionStart;
+                
+                // Si presiona backspace y está en la posición del "/" (posición 2)
+                if (e.key === 'Backspace' && cursorPos === 2 && value.charAt(2) === '/') {
                     e.preventDefault();
-                    e.target.value = e.target.value.substring(0, 2);
+                    e.target.value = value.substring(0, 1); // Mantener solo el primer dígito
+                    e.target.setSelectionRange(1, 1);
+                }
+                // Si presiona backspace y está después del "/" (posición 3)
+                else if (e.key === 'Backspace' && cursorPos === 3) {
+                    e.preventDefault();
+                    e.target.value = value.substring(0, 2); // Mantener solo los dos primeros dígitos
+                    e.target.setSelectionRange(2, 2);
+                }
+                // Si presiona delete y está antes del "/" (posición 1)
+                else if (e.key === 'Delete' && cursorPos === 1 && value.charAt(2) === '/') {
+                    e.preventDefault();
+                    e.target.value = value.substring(0, 1) + value.substring(3); // Eliminar segundo dígito
+                    e.target.setSelectionRange(1, 1);
                 }
             });
             
-            console.log('✅ Auto-formato de caducidad configurado');
+            // Event listener para paste
+            expiryInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                let pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                
+                // Limpiar texto pegado
+                let cleanText = pastedText.replace(/[^\d\/]/g, '');
+                
+                // Si tiene formato MM/AAAA, mantenerlo
+                if (/^\d{2}\/\d{4}$/.test(cleanText)) {
+                    e.target.value = cleanText;
+                }
+                // Si son solo números, formatear
+                else if (/^\d{6}$/.test(cleanText)) {
+                    e.target.value = cleanText.substring(0, 2) + '/' + cleanText.substring(2);
+                }
+                // Si son menos de 6 dígitos, solo limpiar
+                else if (/^\d{1,5}$/.test(cleanText)) {
+                    e.target.value = cleanText;
+                }
+            });
+            
+            console.log('✅ Auto-formato robusto de caducidad configurado');
         }
 
         // Inicializar idioma al cargar la página
