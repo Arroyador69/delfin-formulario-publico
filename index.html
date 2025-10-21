@@ -615,7 +615,7 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentNumber">
-                                    Número documento
+                                    Número documento <span class="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -982,7 +982,7 @@
                 "travelers.municipalityHelp": "<strong>ONLY for Spanish:</strong> INE municipality code (5 digits: 2 province + 3 municipality)<br>Example: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong class=\"text-green-600\">For foreigners:</strong> Leave empty and fill only \"Municipality name\" below",
                 "travelers.municipalityName": "Municipality Name",
                 "travelers.municipalityNameHelp": "<strong class=\"text-green-600\">Only for foreigners:</strong> Name of the city/municipality where you reside",
-                "travelers.documentNumber": "Document number",
+                "travelers.documentNumber": "Document number *",
                 "travelers.nationality": "Nationality",
                 "travelers.gender": "Gender",
                 "travelers.gender.male": "Male",
@@ -1076,7 +1076,7 @@
                 "travelers.municipalityHelp": "<strong>SEULEMENT pour les Espagnols:</strong> Code INE de la municipalité (5 chiffres: 2 province + 3 municipalité)<br>Exemple: 29042 (Fuengirola), 29045 (Málaga), 28001 (Madrid), 08001 (Barcelona)<br><strong class=\"text-green-600\">Pour les étrangers:</strong> Laisser vide et remplir seulement \"Nom de la municipalité\" ci-dessous",
                 "travelers.municipalityName": "Nom de la municipalité",
                 "travelers.municipalityNameHelp": "<strong class=\"text-green-600\">Seulement pour les étrangers:</strong> Nom de la ville/municipalité où vous résidez",
-                "travelers.documentNumber": "Numéro de document",
+                "travelers.documentNumber": "Numéro de document *",
                 "travelers.nationality": "Nationalité",
                 "travelers.gender": "Sexe",
                 "travelers.gender.male": "Homme",
@@ -1227,6 +1227,13 @@
               emptyOption.textContent = language === 'es' ? 'Seleccione país' : 
                                        language === 'en' ? 'Select country' :
                                        language === 'fr' ? 'Sélectionnez le pays' : 'Выберите страну';
+              select.appendChild(emptyOption);
+            } else if (select.name === 'nacionalidad' || select.name === 'nacionalidad2') {
+              const emptyOption = document.createElement('option');
+              emptyOption.value = '';
+              emptyOption.textContent = language === 'es' ? 'Seleccione nacionalidad' : 
+                                       language === 'en' ? 'Select nationality' :
+                                       language === 'fr' ? 'Sélectionnez la nationalité' : 'Выберите национальность';
               select.appendChild(emptyOption);
             }
             
@@ -2039,9 +2046,10 @@
                 tipoDocumento: mapDocType(formData.get('tipoDocumento')),
                 numeroDocumento: String((formData.get('numeroDocumento')||'').toUpperCase().replace(/\s+/g,'')),
                 sexo: mapSexo(formData.get('sexo')),
+                nacionalidad: getISO3FromInput('nacionalidad'),
                 nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad')),
                 telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
-                email: String(formData.get('correo')||'').trim().toLowerCase(),
+                correo: String(formData.get('correo')||'').trim().toLowerCase(),
                 direccion: String(formData.get('direccion')||'').trim(),
                 cp: (() => {
                     const codigoPostal = String(formData.get('codigoPostal')||'').trim();
@@ -2084,9 +2092,10 @@
                     tipoDocumento: mapDocType(formData.get('tipoDocumento2')),
                     numeroDocumento: String((formData.get('numeroDocumento2')||'').toUpperCase().replace(/\s+/g,'')),
                     sexo: mapSexo(formData.get('sexo2')),
+                    nacionalidad: getISO3FromInput('nacionalidad2'),
                     nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad2')),
                     telefono: String(formData.get('telefono2')||'').replace(/\s+/g,''),
-                    email: String(formData.get('correo2')||'').trim().toLowerCase(),
+                    correo: String(formData.get('correo2')||'').trim().toLowerCase(),
                     direccion: String(formData.get('direccion2')||'').trim(),
                     cp: (() => {
                         const codigoPostal2 = String(formData.get('codigoPostal2')||'').trim();
