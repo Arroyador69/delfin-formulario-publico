@@ -2019,10 +2019,7 @@
             return { code:'OTRO', label:String(x) };
         };
 
-        const iso3to2 = (x) => {
-            const map = { ESP:'ES', FRA:'FR', GBR:'GB', ITA:'IT', DEU:'DE' };
-            return map[String(x).toUpperCase()] || String(x).toUpperCase();
-        };
+        // Eliminada función iso3to2 - solo usamos ISO3 según normas MIR
 
         function buildPayloadDefensive(formData) {
             const pagoTipo = mapPago(formData.get('tipoPago'));
@@ -2059,7 +2056,6 @@
                 numeroDocumento: String((formData.get('numeroDocumento')||'').toUpperCase().replace(/\s+/g,'')),
                 sexo: mapSexo(formData.get('sexo')),
                 nacionalidad: getISO3FromInput('nacionalidad'),
-                nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad')),
                 telefono: String(formData.get('telefono')||'').replace(/\s+/g,''),
                 correo: String(formData.get('correo')||'').trim().toLowerCase(),
                 direccion: String(formData.get('direccion')||'').trim(),
@@ -2090,8 +2086,8 @@
             };
             // Normalización ESP/no-ESP: INE vs nombreMunicipio
             (function normalizeMunicipio(v) {
-                const paisISO2 = v.paisResidencia;
-                const esES = paisISO2 === 'ES';
+                const paisISO3 = v.paisResidencia;
+                const esES = paisISO3 === 'ESP';
                 if (esES) {
                     // Para España exigimos INE y podemos limpiar nombreMunicipio si no se usó
                     if (!/^\d{5}$/.test(v.ine)) v.ine = '';
@@ -2119,7 +2115,6 @@
                     numeroDocumento: String((formData.get('numeroDocumento2')||'').toUpperCase().replace(/\s+/g,'')),
                     sexo: mapSexo(formData.get('sexo2')),
                     nacionalidad: getISO3FromInput('nacionalidad2'),
-                    nacionalidadISO2: iso3to2(getISO3FromInput('nacionalidad2')),
                     telefono: String(formData.get('telefono2')||'').replace(/\s+/g,''),
                     correo: String(formData.get('correo2')||'').trim().toLowerCase(),
                     direccion: String(formData.get('direccion2')||'').trim(),
@@ -2149,7 +2144,7 @@
                     paisResidencia: getISO3FromInput('pais2'), // Mantener en ISO3 para MIR
                 };
                 (function normalizeMunicipio(v) {
-                    const esES = v.paisResidencia === 'ES';
+                    const esES = v.paisResidencia === 'ESP';
                     if (esES) {
                         if (!/^\d{5}$/.test(v.ine)) v.ine = '';
                     } else {
