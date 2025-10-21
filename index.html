@@ -2771,10 +2771,10 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('Teléfono del primer viajero requerido');
             showFieldError('telefono', 'Teléfono requerido');
           }
-          if(!viajero.email) {
+          if(!viajero.correo) {
             errors.push('Email del primer viajero requerido');
             showFieldError('correo', 'Email requerido');
-          } else if(!isValidEmail(viajero.email)) {
+          } else if(!isValidEmail(viajero.correo)) {
             errors.push('Email del primer viajero no válido');
             showFieldError('correo', 'Email no válido');
           }
