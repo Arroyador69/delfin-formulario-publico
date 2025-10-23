@@ -21,6 +21,16 @@
             border-color: #3b82f6; 
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
         }
+        .field-error { 
+            border-color: #ef4444 !important; 
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important; 
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
         .btn-primary { 
             background-color: #2563eb; 
             color: white; 
@@ -2028,6 +2038,11 @@
                 setTimeout(() => {
                     e.target.setSelectionRange(cursorPos, cursorPos);
                 }, 0);
+                
+                // Remover resaltado de error si el formato es correcto
+                if (/^\d{2}\/\d{4}$/.test(cleanValue)) {
+                    e.target.classList.remove('field-error');
+                }
             });
             
             // Event listener para el keydown (para manejar backspace y navegación)
@@ -2519,7 +2534,7 @@
         }
 
         // ---- Validaciones extra robustas MIR ----
-        function showError(msg) {
+        function showError(msg, fieldId = null) {
             const errorDetails = document.getElementById('errorDetails');
             if (errorDetails) errorDetails.textContent = msg;
             
@@ -2531,6 +2546,26 @@
               const successMessage = document.getElementById('successMessage');
               if (successMessage) successMessage.style.display = 'none';
             } catch {}
+            
+            // Resaltar el campo específico si se proporciona
+            if (fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    // Remover resaltado anterior
+                    document.querySelectorAll('.field-error').forEach(el => {
+                        el.classList.remove('field-error');
+                    });
+                    
+                    // Resaltar el campo con error
+                    field.classList.add('field-error');
+                    field.focus();
+                    
+                    // Remover resaltado después de 5 segundos
+                    setTimeout(() => {
+                        field.classList.remove('field-error');
+                    }, 5000);
+                }
+            }
             
             // Aplicar traducciones al mensaje de error
             const currentLang = document.documentElement.getAttribute('lang') || 'es';
@@ -2602,15 +2637,32 @@
             return String(cp || '').slice(0,2) === String(ine || '').slice(0,2);
         }
         function validateMunicipioVsCP(cp, ine) {
-            if (!isFiveDigits(cp)) return 'Código postal debe tener 5 dígitos';
-            if (!isFiveDigits(ine)) return 'Código INE del municipio debe tener 5 dígitos (no es el código postal)';
+            if (!isFiveDigits(cp)) return 'El código postal debe tener exactamente 5 dígitos (ejemplo: 28001)';
+            if (!isFiveDigits(ine)) return 'El código INE del municipio debe tener exactamente 5 dígitos (ejemplo: 28001). NO es el código postal';
             if (cp === ine) return 'El código INE del municipio debe ser diferente al código postal';
-            if (!sameProvince(cp, ine)) return 'Los dos primeros dígitos del INE deben coincidir con la provincia del código postal';
+            if (!sameProvince(cp, ine)) return 'Los dos primeros dígitos del código INE deben coincidir con la provincia del código postal';
             return null;
         }
         function validateCardExpiry(exp) {
             if (!exp) return null;
-            if (!/^(0[1-9]|1[0-2])\/\d{4}$/.test(exp)) return 'Caducidad de tarjeta debe ser MM/AAAA';
+            
+            // Validar formato básico
+            if (!/^\d{2}\/\d{4}$/.test(exp)) {
+                return 'La fecha de caducidad debe tener el formato MM/AAAA (ejemplo: 12/2025)';
+            }
+            
+            // Validar mes (01-12)
+            const month = parseInt(exp.split('/')[0]);
+            if (month < 1 || month > 12) {
+                return 'El mes debe estar entre 01 y 12';
+            }
+            
+            // Validar año (no puede ser menor a 2024)
+            const year = parseInt(exp.split('/')[1]);
+            if (year < 2024) {
+                return 'El año no puede ser menor a 2024';
+            }
+            
             return null;
         }
 
@@ -2714,11 +2766,11 @@
                     // Validar código INE obligatorio para españoles
                     const codigoINE = String(formData.get('codigoMunicipio') || '').trim();
                     if (!codigoINE) {
-                        showError('Para españoles es obligatorio el código INE del municipio');
+                        showError('Para españoles es obligatorio el código INE del municipio', 'codigoMunicipio');
                         return;
                     }
                     if (codigoINE.length !== 5 || !/^\d{5}$/.test(codigoINE)) {
-                        showError('El código INE debe tener exactamente 5 dígitos');
+                        showError('El código INE debe tener exactamente 5 dígitos (ejemplo: 28001)', 'codigoMunicipio');
                         return;
                     }
                     
@@ -2726,7 +2778,25 @@
                         pad5(formData.get('codigoPostal')),
                         pad5(formData.get('codigoMunicipio'))
                     );
-                    if (muniErr) { showError(muniErr); return; }
+                    if (muniErr) { 
+                        // Determinar qué campo tiene el error
+                        const cp = pad5(formData.get('codigoPostal'));
+                        const ine = pad5(formData.get('codigoMunicipio'));
+                        let fieldId = 'codigoPostal';
+                        
+                        if (!isFiveDigits(cp)) {
+                            fieldId = 'codigoPostal';
+                        } else if (!isFiveDigits(ine)) {
+                            fieldId = 'codigoMunicipio';
+                        } else if (cp === ine) {
+                            fieldId = 'codigoMunicipio';
+                        } else if (!sameProvince(cp, ine)) {
+                            fieldId = 'codigoMunicipio';
+                        }
+                        
+                        showError(muniErr, fieldId); 
+                        return; 
+                    }
                 } else {
                     // Para extranjeros, asegurar que el nombre del municipio esté presente
                     const nombreMunicipio = String(formData.get('nombreMunicipio') || '').trim();
@@ -2769,7 +2839,7 @@
                 const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
                 if (cardErr) { 
                     console.log('❌ ERROR CADUCIDAD:', cardErr);
-                    showError(cardErr); 
+                    showError(cardErr, 'caducidadTarjeta'); 
                     return; 
                 }
 
