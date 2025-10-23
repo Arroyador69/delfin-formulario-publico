@@ -10118,179 +10118,57 @@
             fuenteUsada = 'Dataset INE local';
             console.log(`✅ Encontrados ${resultados.length} municipios en dataset INE local para "${query}"`);
             
-            // 2. FALLBACK: Si no hay resultados locales, intentar APIs externas
+            // 2. BÚSQUEDA LOCAL MEJORADA: Si no hay resultados, ampliar criterios de búsqueda
             if (resultados.length === 0) {
-                console.log('⚠️ No se encontraron municipios en dataset local, intentando APIs externas...');
-                try {
-                    // API de GeoAPI España (gratuita)
-                    const geoApiUrl = `https://apiv1.geoapi.es/municipios?q=${encodeURIComponent(query)}&type=JSON&key=39eeee949b9f019db9e56964e58ab5019f9c73381f9fa4bd1cfb74f4181e1776&sandbox=1`;
-                    const response = await fetch(geoApiUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.data && data.data.length > 0) {
-                            // Filtrar por el término de búsqueda
-                            const queryLower = query.toLowerCase();
-                            const filteredData = data.data.filter(m => 
-                                m.DMUN50 && m.DMUN50.toLowerCase().includes(queryLower)
-                            );
-                            
-                            resultados = filteredData.map(m => ({
-                                c: m.CMUN || m.CODIGO_INE || '00000',
-                                n: m.DMUN50 || m.NOMBRE,
-                                p: m.PROVINCIA || 'Desconocida'
-                            }));
-                            fuenteUsada = 'GeoAPI España (fallback)';
-                            console.log(`✅ Encontrados ${resultados.length} municipios en GeoAPI para "${query}"`);
-                        }
-                    }
-                } catch (error) {
-                    console.log('⚠️ GeoAPI no disponible:', error.message);
-                }
-            }
-            
-            // 3. Si aún no hay resultados, intentar con INE API
-            if (resultados.length === 0) {
-                try {
-                    // API del INE (Instituto Nacional de Estadística)
-                    const ineApiUrl = `https://servicios.ine.es/wstempus/js/ES/DATOS_TABLA/t20/e244/p05/l0/00000.px?tip=AM&p=5&ccaa=0&mun=0&tip_amb=1`;
-                    const response = await fetch(ineApiUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.Metadatos && data.Metadatos.Municipios) {
-                            const municipios = Object.values(data.Metadatos.Municipios);
-                            const queryLower = query.toLowerCase();
-                            resultados = municipios
-                                .filter(m => m.Nombre && m.Nombre.toLowerCase().includes(queryLower))
-                                .map(m => ({
-                                    c: m.Codigo,
-                                    n: m.Nombre,
-                                    p: m.Provincia || 'Desconocida'
-                                }))
-                                .slice(0, 20); // Limitar a 20 resultados
-                            
-                            if (resultados.length > 0) {
-                                fuenteUsada = 'INE API (fallback)';
-                                console.log(`✅ Encontrados ${resultados.length} municipios en INE API`);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.log('⚠️ INE API no disponible:', error.message);
-                }
-            }
-            
-            // 4. Si aún no hay resultados, intentar con búsqueda web
-            if (resultados.length === 0) {
-                try {
-                    // Búsqueda web usando DuckDuckGo Instant Answer API
-                    const webSearchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query + ' municipio españa código INE')}&format=json&no_html=1&skip_disambig=1`;
-                    const response = await fetch(webSearchUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.RelatedTopics && data.RelatedTopics.length > 0) {
-                            // Extraer información de los resultados web
-                            const webResults = data.RelatedTopics
-                                .filter(topic => topic.Text && topic.Text.includes('código INE'))
-                                .map(topic => {
-                                    const text = topic.Text;
-                                    const codigoMatch = text.match(/(\d{5})/);
-                                    const nombreMatch = text.match(/([A-Za-záéíóúñü\s]+)/);
-                                    if (codigoMatch && nombreMatch) {
-                                        return {
-                                            c: codigoMatch[1],
-                                            n: nombreMatch[1].trim(),
-                                            p: 'Desconocida'
-                                        };
-                                    }
-                                    return null;
-                                })
-                                .filter(Boolean)
-                                .slice(0, 10);
-                            
-                            if (webResults.length > 0) {
-                                resultados = webResults;
-                                fuenteUsada = 'Búsqueda web (fallback)';
-                                console.log(`✅ Encontrados ${resultados.length} municipios en búsqueda web`);
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.log('⚠️ Búsqueda web no disponible:', error.message);
-                }
-            }
-            
-            // 5. Fallback final: búsqueda local inteligente
-            if (resultados.length === 0) {
-                const queryNormalizada = normalizarTexto(query);
+                console.log('🔍 Ampliando criterios de búsqueda local...');
+                
+                // Búsqueda más flexible en el dataset local INE
                 resultados = MUNICIPIOS_INE.filter(m => {
                     const nombreNormalizado = normalizarTexto(m.n);
                     const provinciaNormalizada = normalizarTexto(m.p);
                     
-                    // Búsqueda EXACTA (solo coincidencias exactas)
-                    if (nombreNormalizado === queryNormalizada) {
+                    // Búsqueda por similitud de texto (contiene cualquier parte)
+                    if (nombreNormalizado.includes(queryNormalizada)) {
                         return true;
                     }
                     
-                    // Búsqueda que empiece EXACTAMENTE por la query (solo para nombres de municipios)
-                    if (nombreNormalizado.startsWith(queryNormalizada)) {
-                        return true;
-                    }
-                    
-                    // Búsqueda por palabras EXACTAS (todas las palabras deben coincidir exactamente)
+                    // Búsqueda por palabras individuales
                     const queryWords = queryNormalizada.split(/\s+/).filter(w => w.length > 0);
                     const nombreWords = nombreNormalizado.split(/[\s\-]+/).filter(w => w.length > 0);
                     
-                    // Solo mostrar si TODAS las palabras de la búsqueda están en el nombre
-                    if (queryWords.length > 0) {
-                        const todasLasPalabrasCoinciden = queryWords.every(qWord => 
-                            nombreWords.some(nWord => nWord === qWord || nWord.startsWith(qWord))
-                        );
-                        return todasLasPalabrasCoinciden;
+                    // Si alguna palabra de la query está en el nombre
+                    if (queryWords.some(qWord => 
+                        nombreWords.some(nWord => nWord.includes(qWord))
+                    )) {
+                        return true;
+                    }
+                    
+                    // Búsqueda en provincia
+                    if (provinciaNormalizada.includes(queryNormalizada)) {
+                        return true;
                     }
                     
                     return false;
-                }).sort((a, b) => {
-                    const aNombre = normalizarTexto(a.n);
-                    const bNombre = normalizarTexto(b.n);
-                    
-                    // Priorizar coincidencias exactas
-                    if (aNombre === queryNormalizada && bNombre !== queryNormalizada) return -1;
-                    if (bNombre === queryNormalizada && aNombre !== queryNormalizada) return 1;
-                    
-                    // Luego coincidencias que empiecen por la query
-                    if (aNombre.startsWith(queryNormalizada) && !bNombre.startsWith(queryNormalizada)) return -1;
-                    if (bNombre.startsWith(queryNormalizada) && !aNombre.startsWith(queryNormalizada)) return 1;
-                    
-                    // Finalmente orden alfabético
-                    return aNombre.localeCompare(bNombre);
                 });
                 
-                fuenteUsada = 'Catálogo local (fallback)';
-                console.log(`⚠️ Usando fallback local: ${resultados.length} municipios`);
+                // Ordenar por relevancia
+                resultados.sort((a, b) => {
+                    const aNorm = normalizarTexto(a.n);
+                    const bNorm = normalizarTexto(b.n);
+                    
+                    // Priorizar coincidencias que empiecen por la query
+                    if (aNorm.startsWith(queryNormalizada) && !bNorm.startsWith(queryNormalizada)) return -1;
+                    if (bNorm.startsWith(queryNormalizada) && !aNorm.startsWith(queryNormalizada)) return 1;
+                    
+                    // Ordenar alfabéticamente
+                    return aNorm.localeCompare(bNorm);
+                });
+                
+                fuenteUsada = 'Dataset INE local (búsqueda ampliada)';
+                console.log(`✅ Encontrados ${resultados.length} municipios con búsqueda ampliada para "${query}"`);
             }
             
-            // 6. Si aún no hay resultados, crear un resultado genérico
+            // 3. Si aún no hay resultados, crear un resultado genérico
             if (resultados.length === 0) {
                 resultados = [{
                     c: '00000',
