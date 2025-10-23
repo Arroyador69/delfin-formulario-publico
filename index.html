@@ -2646,9 +2646,9 @@
         function validateCardExpiry(exp) {
             if (!exp) return null;
             
-            // Validar formato básico
+            // Validar que tenga exactamente 6 dígitos (2 para mes + 4 para año)
             if (!/^\d{2}\/\d{4}$/.test(exp)) {
-                return 'La fecha de caducidad debe tener el formato MM/AAAA (ejemplo: 12/2025)';
+                return 'La fecha de caducidad debe tener 6 dígitos en formato MM/AAAA (ejemplo: 12/2025)';
             }
             
             // Validar mes (01-12)
@@ -2832,15 +2832,22 @@
                     return; 
                 }
 
-                console.log('🔍 DEBUG VALIDACIÓN CADUCIDAD:', {
-                    caducidad: formData.get('caducidadTarjeta')
-                });
+                // Validar caducidad de tarjeta solo si el tipo de pago es "Tarjeta"
+                const tipoPago = formData.get('tipoPago');
+                console.log('🔍 DEBUG TIPO PAGO:', tipoPago);
                 
-                const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
-                if (cardErr) { 
-                    console.log('❌ ERROR CADUCIDAD:', cardErr);
-                    showError(cardErr, 'caducidadTarjeta'); 
-                    return; 
+                if (tipoPago === 'Tarjeta' || tipoPago === 'Card') {
+                    console.log('🔍 DEBUG VALIDACIÓN CADUCIDAD:', {
+                        caducidad: formData.get('caducidadTarjeta'),
+                        tipoPago: tipoPago
+                    });
+                    
+                    const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
+                    if (cardErr) { 
+                        console.log('❌ ERROR CADUCIDAD:', cardErr);
+                        showError(cardErr, 'caducidadTarjeta'); 
+                        return; 
+                    }
                 }
 
                 // ===== USAR BUILDER DEFENSIVO =====
