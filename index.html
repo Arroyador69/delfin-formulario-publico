@@ -1273,82 +1273,93 @@
             return translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
         }
 
-        // Función para poblar los selects de países
+        // Función robusta para poblar los selects de países
         function populateCountrySelects(language = 'es') {
-          console.log('🌍 Poblando selects de países con idioma:', language);
-          console.log('📊 COUNTRIES_DATA disponible:', typeof COUNTRIES_DATA !== 'undefined' ? COUNTRIES_DATA.length : 'NO DISPONIBLE');
+          console.log('🌍 INICIANDO: Poblando selects de países con idioma:', language);
           
-          const selects = document.querySelectorAll('select[name*="nacionalidad"], select[name*="pais"]');
-          console.log('🎯 Selects encontrados:', selects.length);
-          
+          // Verificar que COUNTRIES_DATA esté disponible
           if (typeof COUNTRIES_DATA === 'undefined') {
-            console.error('❌ COUNTRIES_DATA no está disponible');
+            console.error('❌ ERROR: COUNTRIES_DATA no está disponible');
+            console.log('🔍 Verificando si el archivo countries-data.js se cargó...');
+            
+            // Intentar cargar manualmente si no está disponible
+            setTimeout(() => {
+              if (typeof COUNTRIES_DATA !== 'undefined') {
+                console.log('✅ COUNTRIES_DATA cargado después del timeout');
+                populateCountrySelects(language);
+              } else {
+                console.error('❌ COUNTRIES_DATA sigue sin estar disponible');
+              }
+            }, 1000);
             return;
           }
           
-          selects.forEach(select => {
-            console.log('🔄 Procesando select:', select.name);
+          console.log('✅ COUNTRIES_DATA disponible con', COUNTRIES_DATA.length, 'países');
+          
+          // Buscar todos los selects de países y nacionalidades
+          const selects = document.querySelectorAll('select[name*="nacionalidad"], select[name*="pais"]');
+          console.log('🎯 Selects encontrados:', selects.length);
+          
+          if (selects.length === 0) {
+            console.error('❌ ERROR: No se encontraron selects de países/nacionalidades');
+            console.log('🔍 Selectores disponibles:', document.querySelectorAll('select'));
+            return;
+          }
+          
+          // Procesar cada select
+          selects.forEach((select, index) => {
+            console.log(`🔄 Procesando select ${index + 1}/${selects.length}:`, select.name);
             
-            // Guardar valor seleccionado actual
+            // Guardar valor actual
             const currentValue = select.value;
             
-            // Limpiar todas las opciones
+            // Limpiar opciones existentes
             select.innerHTML = '';
             
-            // Agregar opción vacía si es necesario
-            if (select.name === 'pais' || select.name === 'pais2') {
-              const emptyOption = document.createElement('option');
-              emptyOption.value = '';
+            // Agregar opción vacía
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            
+            if (select.name.includes('pais')) {
               emptyOption.textContent = language === 'es' ? 'Seleccione país' : 
                                        language === 'en' ? 'Select country' :
                                        language === 'fr' ? 'Sélectionnez le pays' : 'Выберите страну';
-              select.appendChild(emptyOption);
-            } else if (select.name === 'nacionalidad' || select.name === 'nacionalidad2') {
-              const emptyOption = document.createElement('option');
-              emptyOption.value = '';
+            } else if (select.name.includes('nacionalidad')) {
               emptyOption.textContent = language === 'es' ? 'Seleccione nacionalidad' : 
                                        language === 'en' ? 'Select nationality' :
                                        language === 'fr' ? 'Sélectionnez la nationalité' : 'Выберите национальность';
-              select.appendChild(emptyOption);
             }
             
-            // Agregar países ordenados y únicos
-            const sortedCountries = COUNTRIES_DATA
+            select.appendChild(emptyOption);
+            
+            // Procesar países
+            const countries = COUNTRIES_DATA
               .map(country => ({
                 iso3: country.iso3,
-                name: country.name[language] || country.name.es
+                name: country.name[language] || country.name.es || country.name.en
               }))
+              .filter(country => country.name) // Filtrar países sin nombre
               .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
             
-            console.log('📋 Países ordenados:', sortedCountries.length);
+            console.log(`📋 Procesando ${countries.length} países para select ${select.name}`);
             
-            // Usar Set para evitar duplicados
-            const uniqueCountries = [];
-            const seenNames = new Set();
-            
-            sortedCountries.forEach(country => {
-              if (!seenNames.has(country.name)) {
-                seenNames.add(country.name);
-                uniqueCountries.push(country);
-              }
-            });
-            
-            console.log('✅ Países únicos:', uniqueCountries.length);
-            
-            uniqueCountries.forEach(country => {
+            // Agregar países al select
+            countries.forEach(country => {
               const option = document.createElement('option');
               option.value = country.iso3;
               option.textContent = country.name;
               select.appendChild(option);
             });
             
-            // Restaurar valor seleccionado si existe
+            // Restaurar valor si existía
             if (currentValue) {
               select.value = currentValue;
             }
             
-            console.log('✅ Select', select.name, 'poblado con', select.options.length, 'opciones');
+            console.log(`✅ Select ${select.name} poblado con ${select.options.length} opciones`);
           });
+          
+          console.log('🎉 COMPLETADO: Todos los selects poblados correctamente');
         }
 
         // Función para cambiar idioma
@@ -1380,7 +1391,10 @@
             
             // Actualizar selects de países si existen
             if (typeof populateCountrySelects === 'function') {
+                console.log('🔄 Cambiando idioma y actualizando países...');
                 populateCountrySelects(lang);
+            } else {
+                console.warn('⚠️ populateCountrySelects no está disponible');
             }
             
             // Guardar preferencia en localStorage
@@ -1391,6 +1405,20 @@
         function initializeLanguage() {
             const savedLang = localStorage.getItem('preferredLanguage') || 'es';
             changeLanguage(savedLang);
+        }
+        
+        // Función para inicializar países después de cargar todos los scripts
+        function initializeCountriesWithRetry() {
+            console.log('🔄 Inicializando países con retry...');
+            
+            if (typeof COUNTRIES_DATA !== 'undefined' && typeof populateCountrySelects === 'function') {
+                console.log('✅ COUNTRIES_DATA y populateCountrySelects disponibles');
+                const currentLang = document.documentElement.lang || 'es';
+                populateCountrySelects(currentLang);
+            } else {
+                console.log('⏳ Esperando scripts... COUNTRIES_DATA:', typeof COUNTRIES_DATA, 'populateCountrySelects:', typeof populateCountrySelects);
+                setTimeout(initializeCountriesWithRetry, 1000);
+            }
         }
 
         // ===== API endpoint helper (override via ?api= or localStorage) =====
@@ -2114,7 +2142,12 @@
 
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM cargado, inicializando formulario...');
+            
             initializeLanguage();
+            
+            // Inicializar países con retry
+            setTimeout(initializeCountriesWithRetry, 500);
             
             // Detectar si se está usando file:// y mostrar aviso
             if (window.location.protocol === 'file:') {
