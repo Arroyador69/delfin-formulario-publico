@@ -1618,6 +1618,34 @@
           });
         }
 
+        // Función para cambiar idioma
+        function changeLanguage(lang) {
+            console.log('🌐 Cambiando idioma a:', lang);
+            
+            // Actualizar el atributo lang del documento
+            document.documentElement.lang = lang;
+            
+            // Actualizar botones de idioma
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Actualizar textos de la interfaz
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.dataset.translate;
+                element.textContent = getTranslation(key);
+            });
+            
+            // Poblar selects de países con el nuevo idioma
+            populateCountrySelects(lang);
+            
+            // Guardar preferencia en localStorage
+            localStorage.setItem('preferredLanguage', lang);
+        }
+
         // Función para inicializar idioma
         function initializeLanguage() {
             const savedLang = localStorage.getItem('preferredLanguage') || 'es';
