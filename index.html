@@ -1297,8 +1297,11 @@
           console.log('✅ COUNTRIES_DATA disponible con', COUNTRIES_DATA.length, 'países');
           
           // Buscar todos los selects de países y nacionalidades
-          const selects = document.querySelectorAll('select[name*="nacionalidad"], select[name*="pais"]');
+          const selects = document.querySelectorAll('select[name="nacionalidad"], select[name="nacionalidad2"], select[name="pais"], select[name="pais2"]');
           console.log('🎯 Selects encontrados:', selects.length);
+          console.log('🔍 Todos los selects en la página:', document.querySelectorAll('select'));
+          console.log('🔍 Selects con name="pais":', document.querySelectorAll('select[name="pais"]'));
+          console.log('🔍 Selects con name="nacionalidad":', document.querySelectorAll('select[name="nacionalidad"]'));
           
           if (selects.length === 0) {
             console.error('❌ ERROR: No se encontraron selects de países/nacionalidades');
@@ -1320,11 +1323,11 @@
             const emptyOption = document.createElement('option');
             emptyOption.value = '';
             
-            if (select.name.includes('pais')) {
+            if (select.name === 'pais' || select.name === 'pais2') {
               emptyOption.textContent = language === 'es' ? 'Seleccione país' : 
                                        language === 'en' ? 'Select country' :
                                        language === 'fr' ? 'Sélectionnez le pays' : 'Выберите страну';
-            } else if (select.name.includes('nacionalidad')) {
+            } else if (select.name === 'nacionalidad' || select.name === 'nacionalidad2') {
               emptyOption.textContent = language === 'es' ? 'Seleccione nacionalidad' : 
                                        language === 'en' ? 'Select nationality' :
                                        language === 'fr' ? 'Sélectionnez la nationalité' : 'Выберите национальность';
