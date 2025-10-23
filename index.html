@@ -1275,9 +1275,20 @@
 
         // Función para poblar los selects de países
         function populateCountrySelects(language = 'es') {
-          const selects = document.querySelectorAll('.country-select, .nationality-select');
+          console.log('🌍 Poblando selects de países con idioma:', language);
+          console.log('📊 COUNTRIES_DATA disponible:', typeof COUNTRIES_DATA !== 'undefined' ? COUNTRIES_DATA.length : 'NO DISPONIBLE');
+          
+          const selects = document.querySelectorAll('select[name*="nacionalidad"], select[name*="pais"]');
+          console.log('🎯 Selects encontrados:', selects.length);
+          
+          if (typeof COUNTRIES_DATA === 'undefined') {
+            console.error('❌ COUNTRIES_DATA no está disponible');
+            return;
+          }
           
           selects.forEach(select => {
+            console.log('🔄 Procesando select:', select.name);
+            
             // Guardar valor seleccionado actual
             const currentValue = select.value;
             
@@ -1309,6 +1320,8 @@
               }))
               .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
             
+            console.log('📋 Países ordenados:', sortedCountries.length);
+            
             // Usar Set para evitar duplicados
             const uniqueCountries = [];
             const seenNames = new Set();
@@ -1319,6 +1332,8 @@
                 uniqueCountries.push(country);
               }
             });
+            
+            console.log('✅ Países únicos:', uniqueCountries.length);
             
             uniqueCountries.forEach(country => {
               const option = document.createElement('option');
@@ -1331,6 +1346,8 @@
             if (currentValue) {
               select.value = currentValue;
             }
+            
+            console.log('✅ Select', select.name, 'poblado con', select.options.length, 'opciones');
           });
         }
 
