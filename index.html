@@ -1553,10 +1553,21 @@
           
           // Buscar todos los selects de países y nacionalidades
           const selects = document.querySelectorAll('select[name="nacionalidad"], select[name="nacionalidad2"], select[name="pais"], select[name="pais2"]');
-          console.log('🎯 Selects encontrados:', selects.length);
-          console.log('🔍 Todos los selects en la página:', document.querySelectorAll('select'));
-          console.log('🔍 Selects con name="pais":', document.querySelectorAll('select[name="pais"]'));
-          console.log('🔍 Selects con name="nacionalidad":', document.querySelectorAll('select[name="nacionalidad"]'));
+          console.log('🎯 DIAGNÓSTICO: Selects encontrados:', selects.length);
+          console.log('🔍 DIAGNÓSTICO: Todos los selects en la página:', document.querySelectorAll('select').length);
+          console.log('🔍 DIAGNÓSTICO: Selects con name="pais":', document.querySelectorAll('select[name="pais"]').length);
+          console.log('🔍 DIAGNÓSTICO: Selects con name="nacionalidad":', document.querySelectorAll('select[name="nacionalidad"]').length);
+          
+          // Log detallado de cada select encontrado
+          selects.forEach((select, index) => {
+            console.log(`🔍 DIAGNÓSTICO: Select ${index + 1}:`, {
+              name: select.name,
+              id: select.id,
+              className: select.className,
+              options: select.options.length,
+              element: select
+            });
+          });
           
           if (selects.length === 0) {
             console.error('❌ ERROR: No se encontraron selects de países/nacionalidades');
@@ -1599,7 +1610,8 @@
               .filter(country => country.name) // Filtrar países sin nombre
               .sort((a, b) => a.name.localeCompare(b.name, language === 'ru' ? 'ru' : 'es'));
             
-            console.log(`📋 Procesando ${countries.length} países para select ${select.name}`);
+            console.log(`📋 DIAGNÓSTICO: Procesando ${countries.length} países para select ${select.name}`);
+            console.log(`📋 DIAGNÓSTICO: Primeros 5 países:`, countries.slice(0, 5));
             
             // Agregar países al select
             countries.forEach(country => {
@@ -1614,7 +1626,8 @@
               select.value = currentValue;
             }
             
-            console.log(`✅ Select ${select.name} poblado con ${select.options.length} opciones`);
+            console.log(`✅ DIAGNÓSTICO: Select ${select.name} poblado con ${select.options.length} opciones`);
+            console.log(`✅ DIAGNÓSTICO: Opciones del select ${select.name}:`, Array.from(select.options).map(opt => ({ value: opt.value, text: opt.text })).slice(0, 5));
           });
         }
 
@@ -2388,6 +2401,22 @@
         // Inicializar idioma al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 DOM cargado, inicializando formulario...');
+            
+            // Verificar que los selects existen
+            const selects = document.querySelectorAll('select[name="nacionalidad"], select[name="nacionalidad2"], select[name="pais"], select[name="pais2"]');
+            console.log('🔍 DIAGNÓSTICO: Selects encontrados en DOM:', selects.length);
+            selects.forEach((select, index) => {
+                console.log(`🔍 Select ${index + 1}:`, select.name, select);
+            });
+            
+            // Verificar que COUNTRIES_DATA está disponible
+            console.log('🔍 DIAGNÓSTICO: COUNTRIES_DATA disponible:', typeof COUNTRIES_DATA !== 'undefined');
+            if (typeof COUNTRIES_DATA !== 'undefined') {
+                console.log('🔍 DIAGNÓSTICO: COUNTRIES_DATA.length:', COUNTRIES_DATA.length);
+            }
+            
+            // Verificar que populateCountrySelects está disponible
+            console.log('🔍 DIAGNÓSTICO: populateCountrySelects disponible:', typeof populateCountrySelects !== 'undefined');
             
             initializeLanguage();
             
