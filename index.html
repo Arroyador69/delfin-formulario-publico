@@ -3208,7 +3208,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Scripts para manejo de países/nacionalidades -->
 <script>
-// Datos de países completos con códigos ISO3 estándar para MIR - 233 países
+// Lista completa de países con códigos ISO3 oficiales para MIR - 249 países
 const COUNTRIES_DATA = [
   { "iso3": "AFG", "name": { "es": "Afganistán", "en": "Afghanistan", "fr": "Afghanistan", "ru": "Афганистан" } },
   { "iso3": "ALA", "name": { "es": "Islas Åland", "en": "Åland Islands", "fr": "Îles Åland", "ru": "Аландские острова" } },
@@ -3454,10 +3454,37 @@ const COUNTRIES_DATA = [
   { "iso3": "ESH", "name": { "es": "Sáhara Occidental", "en": "Western Sahara", "fr": "Sahara occidental", "ru": "Западная Сахара" } },
   { "iso3": "YEM", "name": { "es": "Yemen", "en": "Yemen", "fr": "Yémen", "ru": "Йемен" } },
   { "iso3": "ZMB", "name": { "es": "Zambia", "en": "Zambia", "fr": "Zambie", "ru": "Замбия" } },
-  { "iso3": "ZWE", "name": { "es": "Zimbabue", "en": "Zimbabwe", "fr": "Zimbabwe", "ru": "Зимбабве" } }
+  { "iso3": "ZWE", "name": { "es": "Zimbabue", "en": "Zimbabwe", "fr": "Zimbabwe", "ru": "Зимбабве" } },
+  { "iso3": "SLV", "name": { "es": "El Salvador", "en": "El Salvador", "fr": "El Salvador", "ru": "Сальвадор" } },
+  { "iso3": "SWZ", "name": { "es": "Eswatini", "en": "Eswatini", "fr": "Eswatini", "ru": "Эсватини" } },
+  { "iso3": "PYF", "name": { "es": "Polinesia Francesa", "en": "French Polynesia", "fr": "Polynésie française", "ru": "Французская Полинезия" } },
+  { "iso3": "ATF", "name": { "es": "Territorios Australes Franceses", "en": "French Southern Territories", "fr": "Terres australes françaises", "ru": "Французские Южные территории" } },
+  { "iso3": "DEU", "name": { "es": "Alemania", "en": "Germany", "fr": "Allemagne", "ru": "Германия" } },
+  { "iso3": "PRK", "name": { "es": "Corea (República Popular Democrática de)", "en": "Korea (Democratic People's Republic of)", "fr": "Corée (République populaire démocratique de)", "ru": "Корея (КНДР)" } },
+  { "iso3": "MKD", "name": { "es": "Macedonia del Norte", "en": "Republic of North Macedonia", "fr": "République de Macédoine du Nord", "ru": "Северная Македония" } },
+  { "iso3": "BLM", "name": { "es": "San Bartolomé", "en": "Saint Barthélemy", "fr": "Saint-Barthélemy", "ru": "Сен-Бартелеми" } },
+  { "iso3": "SHN", "name": { "es": "Santa Elena, Ascensión y Tristán de Acuña", "en": "Saint Helena, Ascension and Tristan da Cunha", "fr": "Sainte-Hélène, Ascension et Tristan da Cunha", "ru": "Остров Святой Елены" } },
+  { "iso3": "MAF", "name": { "es": "San Martín (parte francesa)", "en": "Saint Martin (French part)", "fr": "Saint-Martin (partie française)", "ru": "Сен-Мартен" } },
+  { "iso3": "SPM", "name": { "es": "San Pedro y Miquelón", "en": "Saint Pierre and Miquelon", "fr": "Saint-Pierre-et-Miquelon", "ru": "Сен-Пьер и Микелон" } },
+  { "iso3": "VCT", "name": { "es": "San Vicente y las Granadinas", "en": "Saint Vincent and the Grenadines", "fr": "Saint-Vincent-et-les Grenadines", "ru": "Сент-Винсент и Гренадины" } },
+  { "iso3": "WSM", "name": { "es": "Samoa", "en": "Samoa", "fr": "Samoa", "ru": "Самоа" } },
+  { "iso3": "SMR", "name": { "es": "San Marino", "en": "San Marino", "fr": "Saint-Marin", "ru": "Сан-Марино" } },
+  { "iso3": "STP", "name": { "es": "Santo Tomé y Príncipe", "en": "Sao Tome and Principe", "fr": "Sao Tomé-et-Principe", "ru": "Сан-Томе и Принсипи" } },
+  { "iso3": "SXM", "name": { "es": "Sint Maarten (parte holandesa)", "en": "Sint Maarten (Dutch part)", "fr": "Sint Maarten (partie néerlandaise)", "ru": "Синт-Мартен" } },
+  { "iso3": "SGS", "name": { "es": "Georgia del Sur y las Islas Sandwich del Sur", "en": "South Georgia and the South Sandwich Islands", "fr": "Géorgie du Sud-et-les Îles Sandwich du Sud", "ru": "Южная Георгия и Южные Сандвичевы острова" } },
+  { "iso3": "TWN", "name": { "es": "Taiwán (Provincia de China)", "en": "Taiwan (Province of China)", "fr": "Taïwan (Province de Chine)", "ru": "Тайвань (провинция Китая)" } },
+  { "iso3": "TJK", "name": { "es": "Tayikistán", "en": "Tajikistan", "fr": "Tadjikistan", "ru": "Таджикистан" } },
+  { "iso3": "TZA", "name": { "es": "Tanzania, República Unida de", "en": "Tanzania, United Republic of", "fr": "Tanzanie, République unie de", "ru": "Танзания" } },
+  { "iso3": "THA", "name": { "es": "Tailandia", "en": "Thailand", "fr": "Thaïlande", "ru": "Таиланд" } },
+  { "iso3": "TLS", "name": { "es": "Timor-Leste", "en": "Timor-Leste", "fr": "Timor-Leste", "ru": "Восточный Тимор" } },
+  { "iso3": "TGO", "name": { "es": "Togo", "en": "Togo", "fr": "Togo", "ru": "Того" } },
+  { "iso3": "TKL", "name": { "es": "Tokelau", "en": "Tokelau", "fr": "Tokelau", "ru": "Токелау" } },
+  { "iso3": "TON", "name": { "es": "Tonga", "en": "Tonga", "fr": "Tonga", "ru": "Тонга" } },
+  { "iso3": "VGB", "name": { "es": "Islas Vírgenes Británicas", "en": "Virgin Islands (British)", "fr": "Îles Vierges britanniques", "ru": "Британские Виргинские острова" } },
+  { "iso3": "VIR", "name": { "es": "Islas Vírgenes de los Estados Unidos", "en": "Virgin Islands (U.S.)", "fr": "Îles Vierges américaines", "ru": "Виргинские острова США" } }
 ];
 
-console.log('🌍 COUNTRIES_DATA completo cargado en HTML:', COUNTRIES_DATA.length, 'países con códigos ISO3 para MIR');
+console.log('🌍 COUNTRIES_DATA COMPLETO MIR cargado en HTML:', COUNTRIES_DATA.length, 'países con códigos ISO3 oficiales para MIR');
 </script>
 
 </html>
