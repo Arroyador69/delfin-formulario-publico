@@ -3157,13 +3157,13 @@
                 }
 
                 // Validar caducidad de tarjeta solo si el tipo de pago es "Tarjeta"
-                const tipoPago = formData.get('tipoPago');
-                console.log('🔍 DEBUG TIPO PAGO:', tipoPago);
+                const tipoPagoValue = formData.get('tipoPago');
+                console.log('🔍 DEBUG TIPO PAGO:', tipoPagoValue);
                 
-                if (tipoPago === 'Tarjeta' || tipoPago === 'Card') {
+                if (tipoPagoValue === 'Tarjeta' || tipoPagoValue === 'Card') {
                     console.log('🔍 DEBUG VALIDACIÓN CADUCIDAD:', {
                         caducidad: formData.get('caducidadTarjeta'),
-                        tipoPago: tipoPago
+                        tipoPago: tipoPagoValue
                     });
                     
                     const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
@@ -3406,7 +3406,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const input = document.getElementById('apiUrlInput');
   const saveBtn = document.getElementById('saveApiUrlBtn');
   const testBtn = document.getElementById('testApiBtn');
-  if (input) { input.value = localStorage.getItem('apiUrl') || getApiUrl(); }
+  if (input) { 
+    input.value = localStorage.getItem('apiUrl') || (typeof getApiUrl === 'function' ? getApiUrl() : 'https://admin.delfincheckin.com/api/registro-flex'); 
+  }
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
       const val = (input && input.value || '').trim();
