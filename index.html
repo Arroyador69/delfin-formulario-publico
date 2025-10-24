@@ -10837,9 +10837,15 @@
                         <div class="space-y-1">
                             <div><strong>Identificación:</strong> ${empresa.nombre_empresa} – NIF/CIF ${empresa.nif_empresa}</div>
                             <div><strong>Domicilio:</strong> ${empresa.direccion_empresa}, ${empresa.codigo_postal} ${empresa.ciudad}, ${empresa.provincia}</div>
-                            <div><strong>Contacto:</strong> ${empresa.telefono} | ${empresa.email}</div>
+                            <div><strong>Contacto:</strong> ${empresa.telefono}</div>
                         </div>
                     `;
+                }
+                
+                // Actualizar también el contacto técnico en el punto 2
+                const processorContact = document.querySelector('#privacyInfo .text-gray-600.mt-1');
+                if (processorContact && empresa.email) {
+                    processorContact.textContent = `Contacto técnico: ${empresa.email}`;
                 }
                 
             } catch (error) {
@@ -10855,6 +10861,12 @@
                             <div><strong>Contacto:</strong> soporte@delfincheckin.com</div>
                         </div>
                     `;
+                }
+                
+                // Mantener contacto técnico por defecto en caso de error
+                const processorContact = document.querySelector('#privacyInfo .text-gray-600.mt-1');
+                if (processorContact) {
+                    processorContact.textContent = `Contacto técnico: soporte@delfincheckin.com`;
                 }
             }
         }
