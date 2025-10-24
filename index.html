@@ -835,8 +835,36 @@
                     </div>
                 </div>
 
+                <!-- Checkbox de consentimiento de datos personales -->
+                <div class="pt-6 pb-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input
+                                    id="consentCheckbox"
+                                    name="consentCheckbox"
+                                    type="checkbox"
+                                    required
+                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                />
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="consentCheckbox" class="font-medium text-gray-900 cursor-pointer">
+                                    <span data-i18n="consent.title">Consentimiento para el tratamiento de datos personales</span>
+                                </label>
+                                <p class="mt-1 text-gray-700" data-i18n="consent.text">
+                                    He sido informado y acepto que, de conformidad con la <strong>Ley Orgánica 4/2015</strong> y el <strong>Real Decreto 933/2021</strong>, los datos personales recogidos en este formulario (Parte de Viajero) <strong>serán comunicados de forma obligatoria e inmediata al Ministerio del Interior</strong> a través del Sistema de Hospedajes (SES-Hospedajes) con el fin de <strong>cumplir con las obligaciones de registro y protección de la seguridad ciudadana</strong>. Acepto los términos y condiciones del alojamiento, que incluyen la presentación de la documentación requerida legalmente.
+                                </p>
+                                <div id="empresaInfo" class="mt-2 text-xs text-gray-600">
+                                    <!-- Los datos de la empresa se cargarán dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Botón de envío -->
-                <div class="pt-6">
+                <div class="pt-2">
                     <button
                         type="submit"
                         id="submitButton"
@@ -949,7 +977,10 @@
                 "submit.button": "Enviar Registro",
                 "submit.sending": "Enviando...",
                 "validation.documentRequired": "Si selecciona tipo de documento, debe proporcionar el número",
-                "validation.documentEmpty": "El número de documento no puede estar vacío"
+                "validation.documentEmpty": "El número de documento no puede estar vacío",
+                "consent.title": "Consentimiento para el tratamiento de datos personales",
+                "consent.text": "He sido informado y acepto que, de conformidad con la Ley Orgánica 4/2015 y el Real Decreto 933/2021, los datos personales recogidos en este formulario (Parte de Viajero) serán comunicados de forma obligatoria e inmediata al Ministerio del Interior a través del Sistema de Hospedajes (SES-Hospedajes) con el fin de cumplir con las obligaciones de registro y protección de la seguridad ciudadana. Acepto los términos y condiciones del alojamiento, que incluyen la presentación de la documentación requerida legalmente.",
+                "consent.required": "Debe aceptar el tratamiento de datos personales para continuar"
             },
             en: {
                 "header.title": "Delfín Check-in",
@@ -1053,7 +1084,10 @@
                 "submit.button": "Send Registration",
                 "submit.sending": "Sending...",
                 "validation.documentRequired": "If you select document type, you must provide the number",
-                "validation.documentEmpty": "Document number cannot be empty"
+                "validation.documentEmpty": "Document number cannot be empty",
+                "consent.title": "Consent for personal data processing",
+                "consent.text": "I have been informed and accept that, in accordance with Organic Law 4/2015 and Royal Decree 933/2021, the personal data collected in this form (Traveler Part) will be communicated mandatorily and immediately to the Ministry of the Interior through the Accommodation System (SES-Hospedajes) in order to comply with registration obligations and citizen security protection. I accept the accommodation terms and conditions, which include the presentation of legally required documentation.",
+                "consent.required": "You must accept personal data processing to continue"
             },
             fr: {
                 "header.title": "Delfín Check-in",
@@ -1157,7 +1191,10 @@
                 "submit.button": "Envoyer l'Enregistrement",
                 "submit.sending": "Envoi en cours...",
                 "validation.documentRequired": "Si vous sélectionnez un type de document, vous devez fournir le numéro",
-                "validation.documentEmpty": "Le numéro de document ne peut pas être vide"
+                "validation.documentEmpty": "Le numéro de document ne peut pas être vide",
+                "consent.title": "Consentement pour le traitement des données personnelles",
+                "consent.text": "J'ai été informé et j'accepte que, conformément à la Loi Organique 4/2015 et au Décret Royal 933/2021, les données personnelles collectées dans ce formulaire (Partie Voyageur) seront communiquées de manière obligatoire et immédiate au Ministère de l'Intérieur par le biais du Système d'Hébergement (SES-Hospedajes) afin de respecter les obligations d'enregistrement et de protection de la sécurité citoyenne. J'accepte les termes et conditions de l'hébergement, qui incluent la présentation de la documentation légalement requise.",
+                "consent.required": "Vous devez accepter le traitement des données personnelles pour continuer"
             },
             ru: {
                 "header.title": "Delfín Check-in",
@@ -1263,7 +1300,10 @@
                 "submit.button": "Отправить Регистрацию",
                 "submit.sending": "Отправка...",
                 "validation.documentRequired": "Если выбран тип документа, необходимо указать номер",
-                "validation.documentEmpty": "Номер документа не может быть пустым"
+                "validation.documentEmpty": "Номер документа не может быть пустым",
+                "consent.title": "Согласие на обработку персональных данных",
+                "consent.text": "Я проинформирован и согласен с тем, что в соответствии с Органическим законом 4/2015 и Королевским указом 933/2021, персональные данные, собранные в этой форме (Часть путешественника), будут переданы в обязательном порядке и немедленно в Министерство внутренних дел через Систему размещения (SES-Hospedajes) с целью соблюдения обязательств по регистрации и защиты гражданской безопасности. Я принимаю условия размещения, которые включают представление документации, требуемой законом.",
+                "consent.required": "Вы должны принять обработку персональных данных для продолжения"
             }
         };
 
@@ -10558,8 +10598,62 @@
                     }
                 });
             });
+            
+            // Cargar datos de la empresa para mostrar en el consentimiento
+            loadEmpresaInfo();
         });
 
+        // ===== FUNCIONES PARA CONSENTIMIENTO DE DATOS =====
+        
+        // Función para cargar información de la empresa
+        async function loadEmpresaInfo() {
+            try {
+                // Obtener tenant_id de la URL o parámetros
+                const urlParams = new URLSearchParams(window.location.search);
+                const tenantId = urlParams.get('tenant_id') || 'default';
+                
+                console.log('🏢 Cargando información de empresa para tenant:', tenantId);
+                
+                // Hacer petición a la API para obtener datos de la empresa
+                const response = await fetch(`https://admin.delfincheckin.com/api/public/empresa-info?tenant_id=${tenantId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const empresa = data.empresa;
+                
+                console.log('✅ Datos de empresa cargados:', empresa);
+                
+                // Mostrar información de la empresa en el consentimiento
+                const empresaInfoDiv = document.getElementById('empresaInfo');
+                if (empresaInfoDiv && empresa) {
+                    empresaInfoDiv.innerHTML = `
+                        <strong>Responsable del tratamiento:</strong><br>
+                        ${empresa.nombre_empresa}<br>
+                        NIF: ${empresa.nif_empresa}<br>
+                        ${empresa.direccion_empresa}, ${empresa.codigo_postal} ${empresa.ciudad}, ${empresa.provincia}<br>
+                        Teléfono: ${empresa.telefono} | Email: ${empresa.email}
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error al cargar información de empresa:', error);
+                
+                // Mostrar información por defecto si hay error
+                const empresaInfoDiv = document.getElementById('empresaInfo');
+                if (empresaInfoDiv) {
+                    empresaInfoDiv.innerHTML = `
+                        <strong>Responsable del tratamiento:</strong><br>
+                        Delfín Check-in<br>
+                        NIF: B-12345678<br>
+                        Sistema de registro de viajeros conforme al RD 933/2021
+                    `;
+                }
+            }
+        }
+        
         // ===== BUILDER DE PAYLOAD DEFENSIVO =====
         const toISODate = (d) => {
             if (!d) return null;
@@ -11083,6 +11177,17 @@
                 });
 
                 // --- Validaciones robustas previas ---
+                
+                // Validar consentimiento de datos personales (OBLIGATORIO)
+                const consentCheckbox = document.getElementById('consentCheckbox');
+                if (!consentCheckbox || !consentCheckbox.checked) {
+                    const currentLang = document.documentElement.lang || 'es';
+                    const consentError = translations[currentLang]['consent.required'] || 'Debe aceptar el tratamiento de datos personales para continuar';
+                    console.log('❌ ERROR CONSENTIMIENTO: Checkbox no marcado');
+                    showError(consentError);
+                    return;
+                }
+                
                 console.log('🔍 DEBUG VALIDACIÓN DOCUMENTO:', {
                     tipo: formData.get('tipoDocumento'),
                     numero: formData.get('numeroDocumento')
