@@ -10817,12 +10817,33 @@
                 const tenantId = urlParams.get('tenant_id') || 'default';
                 
                 console.log('🏢 Cargando información de empresa para tenant:', tenantId);
+                console.log('🔗 URL de la API:', `https://admin.delfincheckin.com/api/public/empresa-info?tenant_id=${tenantId}`);
+                
+                // Mostrar estado de carga
+                const empresaInfoDiv = document.getElementById('empresaInfo');
+                if (empresaInfoDiv) {
+                    empresaInfoDiv.innerHTML = `
+                        <div class="space-y-1">
+                            <div class="text-blue-600">🔄 Cargando datos de la empresa...</div>
+                            <div class="text-xs text-gray-500">Tenant ID: ${tenantId}</div>
+                        </div>
+                    `;
+                }
                 
                 // Hacer petición a la API para obtener datos de la empresa
                 const response = await fetch(`https://admin.delfincheckin.com/api/public/empresa-info?tenant_id=${tenantId}`);
                 
+                console.log('📡 Respuesta de la API:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    url: response.url
+                });
+                
                 if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    const errorText = await response.text();
+                    console.error('❌ Error en la respuesta:', errorText);
+                    throw new Error(`Error ${response.status}: ${response.statusText} - ${errorText}`);
                 }
                 
                 const data = await response.json();
@@ -10831,7 +10852,6 @@
                 console.log('✅ Datos de empresa cargados:', empresa);
                 
                 // Mostrar información de la empresa en el consentimiento
-                const empresaInfoDiv = document.getElementById('empresaInfo');
                 if (empresaInfoDiv && empresa) {
                     empresaInfoDiv.innerHTML = `
                         <div class="space-y-1">
@@ -10856,9 +10876,11 @@
                 if (empresaInfoDiv) {
                     empresaInfoDiv.innerHTML = `
                         <div class="space-y-1">
+                            <div class="text-orange-600">⚠️ API no disponible - usando datos por defecto</div>
                             <div><strong>Identificación:</strong> Delfín Check-in – NIF/CIF B-12345678</div>
                             <div><strong>Domicilio:</strong> Sistema de registro de viajeros conforme al RD 933/2021</div>
                             <div><strong>Contacto:</strong> soporte@delfincheckin.com</div>
+                            <div class="text-xs text-gray-500">Error: ${error.message}</div>
                         </div>
                     `;
                 }
