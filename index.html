@@ -1487,7 +1487,9 @@
         // Función para obtener traducción actual
         function getTranslation(key) {
             const currentLang = document.documentElement.lang || 'es';
-            return translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
+            const translation = translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
+            console.log(`🔍 getTranslation("${key}") con idioma "${currentLang}": "${translation}"`);
+            return translation;
         }
 
         // Lista completa de países con códigos ISO3 oficiales para MIR - 272 países
@@ -1864,9 +1866,14 @@
             });
             
             // Actualizar textos de la interfaz
-            document.querySelectorAll('[data-translate]').forEach(element => {
-                const key = element.dataset.translate;
-                element.textContent = getTranslation(key);
+            const elementsToTranslate = document.querySelectorAll('[data-i18n]');
+            console.log('🔍 Elementos a traducir encontrados:', elementsToTranslate.length);
+            
+            elementsToTranslate.forEach(element => {
+                const key = element.dataset.i18n;
+                const translation = getTranslation(key);
+                console.log(`🔍 Traduciendo "${key}": "${element.textContent}" -> "${translation}"`);
+                element.textContent = translation;
             });
             
             // Poblar selects de países con el nuevo idioma
