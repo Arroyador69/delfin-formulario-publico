@@ -888,7 +888,7 @@
                                             <p class="text-gray-700" data-i18n="privacy.processor.text">
                                                 El sistema Delfín Check-in, NIF 49128023T, actúa como encargado del tratamiento, prestando la plataforma tecnológica que permite al alojamiento recoger, validar y transmitir los datos al Sistema de Hospedajes (SES-Hospedajes) del Ministerio del Interior.
                                             </p>
-                                            <p class="text-gray-600 mt-1">Contacto técnico: soporte@delfincheckin.com</p>
+                                            <p class="text-gray-600 mt-1" data-i18n="privacy.technical.contact">Contacto técnico: soporte@delfincheckin.com</p>
                                         </div>
                                         
                                         <div>
@@ -1094,7 +1094,11 @@
                 "privacy.obligation.title": "8. Obligación de facilitar los datos",
                 "privacy.obligation.text": "La cumplimentación de los datos requeridos es obligatoria por ley. La negativa a proporcionar la información exigida puede impedir legalmente la prestación del servicio de hospedaje.",
                 "privacy.acceptance.title": "9. Aceptación",
-                "privacy.acceptance.text": "Al enviar este formulario, el viajero declara que: (1) Ha leído y comprendido la presente información sobre protección de datos, (2) Acepta los Términos y Condiciones del alojamiento, (3) Comprende que la comunicación de sus datos al Ministerio del Interior es un requisito legal obligatorio para poder alojarse."
+                "privacy.acceptance.text": "Al enviar este formulario, el viajero declara que: (1) Ha leído y comprendido la presente información sobre protección de datos, (2) Acepta los Términos y Condiciones del alojamiento, (3) Comprende que la comunicación de sus datos al Ministerio del Interior es un requisito legal obligatorio para poder alojarse.",
+                "privacy.identification": "Identificación",
+                "privacy.address": "Domicilio",
+                "privacy.contact": "Contacto",
+                "privacy.technical.contact": "Contacto técnico: soporte@delfincheckin.com"
             },
             en: {
                 "header.title": "Delfín Check-in",
@@ -1222,7 +1226,11 @@
                 "privacy.obligation.title": "8. Obligation to provide data",
                 "privacy.obligation.text": "Providing the required data is mandatory by law. Refusal to provide the required information may legally prevent the provision of accommodation services.",
                 "privacy.acceptance.title": "9. Acceptance",
-                "privacy.acceptance.text": "By submitting this form, the traveler declares that: (1) They have read and understood this data protection information, (2) They accept the accommodation Terms and Conditions, (3) They understand that communication of their data to the Ministry of the Interior is a mandatory legal requirement to be able to stay."
+                "privacy.acceptance.text": "By submitting this form, the traveler declares that: (1) They have read and understood this data protection information, (2) They accept the accommodation Terms and Conditions, (3) They understand that communication of their data to the Ministry of the Interior is a mandatory legal requirement to be able to stay.",
+                "privacy.identification": "Identification",
+                "privacy.address": "Address",
+                "privacy.contact": "Contact",
+                "privacy.technical.contact": "Technical contact: soporte@delfincheckin.com"
             },
             fr: {
                 "header.title": "Delfín Check-in",
@@ -1350,7 +1358,11 @@
                 "privacy.obligation.title": "8. Obligation de fournir les données",
                 "privacy.obligation.text": "La fourniture des données requises est obligatoire par la loi. Le refus de fournir les informations exigées peut légalement empêcher la prestation du service d'hébergement.",
                 "privacy.acceptance.title": "9. Acceptation",
-                "privacy.acceptance.text": "En soumettant ce formulaire, le voyageur déclare que : (1) Il a lu et compris ces informations sur la protection des données, (2) Il accepte les Conditions Générales d'hébergement, (3) Il comprend que la communication de ses données au Ministère de l'Intérieur est une exigence légale obligatoire pour pouvoir séjourner."
+                "privacy.acceptance.text": "En soumettant ce formulaire, le voyageur déclare que : (1) Il a lu et compris ces informations sur la protection des données, (2) Il accepte les Conditions Générales d'hébergement, (3) Il comprend que la communication de ses données au Ministère de l'Intérieur est une exigence légale obligatoire pour pouvoir séjourner.",
+                "privacy.identification": "Identification",
+                "privacy.address": "Adresse",
+                "privacy.contact": "Contact",
+                "privacy.technical.contact": "Contact technique: soporte@delfincheckin.com"
             },
             ru: {
                 "header.title": "Delfín Check-in",
@@ -1480,7 +1492,11 @@
                 "privacy.obligation.title": "8. Обязанность предоставления данных",
                 "privacy.obligation.text": "Предоставление требуемых данных является обязательным по закону. Отказ предоставить требуемую информацию может юридически препятствовать предоставлению услуг размещения.",
                 "privacy.acceptance.title": "9. Принятие",
-                "privacy.acceptance.text": "Отправляя эту форму, путешественник заявляет, что: (1) Он прочитал и понял эту информацию о защите данных, (2) Он принимает Условия размещения, (3) Он понимает, что передача его данных в Министерство внутренних дел является обязательным правовым требованием для возможности размещения."
+                "privacy.acceptance.text": "Отправляя эту форму, путешественник заявляет, что: (1) Он прочитал и понял эту информацию о защите данных, (2) Он принимает Условия размещения, (3) Он понимает, что передача его данных в Министерство внутренних дел является обязательным правовым требованием для возможности размещения.",
+                "privacy.identification": "Идентификация",
+                "privacy.address": "Адрес",
+                "privacy.contact": "Контакт",
+                "privacy.technical.contact": "Технический контакт: soporte@delfincheckin.com"
             }
         };
 
@@ -1879,8 +1895,56 @@
             // Poblar selects de países con el nuevo idioma
             populateCountrySelects(lang);
             
+            // Actualizar información de empresa si está cargada
+            updateEmpresaInfoLanguage(lang);
+            
             // Guardar preferencia en localStorage
             localStorage.setItem('preferredLanguage', lang);
+        }
+
+        // Función para actualizar información de empresa al cambiar idioma
+        function updateEmpresaInfoLanguage(lang) {
+            const empresaInfoDiv = document.getElementById('empresaInfo');
+            if (empresaInfoDiv && empresaInfoDiv.innerHTML.includes('Identificación') || empresaInfoDiv.innerHTML.includes('Identification')) {
+                // Si hay información de empresa cargada, actualizarla
+                const identification = getTranslation('privacy.identification');
+                const address = getTranslation('privacy.address');
+                const contact = getTranslation('privacy.contact');
+                
+                // Extraer los datos de la empresa del HTML actual
+                const currentHTML = empresaInfoDiv.innerHTML;
+                const empresaMatch = currentHTML.match(/<strong>.*?<\/strong>\s*(.*?)\s*–\s*NIF\/CIF\s*(.*?)<\/div>/);
+                const domicilioMatch = currentHTML.match(/<strong>.*?<\/strong>\s*(.*?)<\/div>/);
+                const contactoMatch = currentHTML.match(/<strong>.*?<\/strong>\s*(.*?)<\/div>/);
+                
+                if (empresaMatch && domicilioMatch && contactoMatch) {
+                    const nombreEmpresa = empresaMatch[1];
+                    const nifEmpresa = empresaMatch[2];
+                    const direccionEmpresa = domicilioMatch[1];
+                    const telefonoEmpresa = contactoMatch[1];
+                    
+                    empresaInfoDiv.innerHTML = `
+                        <div class="space-y-1">
+                            <div><strong>${identification}:</strong> ${nombreEmpresa} – NIF/CIF ${nifEmpresa}</div>
+                            <div><strong>${address}:</strong> ${direccionEmpresa}</div>
+                            <div><strong>${contact}:</strong> ${telefonoEmpresa}</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Actualizar contacto técnico
+            const processorContact = document.querySelector('#privacyInfo .text-gray-600.mt-1');
+            if (processorContact) {
+                const technicalContactLabel = lang === 'es' ? 'Contacto técnico' : 
+                                            lang === 'en' ? 'Technical contact' :
+                                            lang === 'fr' ? 'Contact technique' : 'Технический контакт';
+                const currentText = processorContact.textContent;
+                const emailMatch = currentText.match(/: (.*)$/);
+                if (emailMatch) {
+                    processorContact.textContent = `${technicalContactLabel}: ${emailMatch[1]}`;
+                }
+            }
         }
 
         // Función para inicializar idioma
@@ -10860,11 +10924,16 @@
                 
                 // Mostrar información de la empresa en el consentimiento
                 if (empresaInfoDiv && empresa) {
+                    const currentLang = document.documentElement.lang || 'es';
+                    const identification = getTranslation('privacy.identification');
+                    const address = getTranslation('privacy.address');
+                    const contact = getTranslation('privacy.contact');
+                    
                     empresaInfoDiv.innerHTML = `
                         <div class="space-y-1">
-                            <div><strong>Identificación:</strong> ${empresa.nombre_empresa} – NIF/CIF ${empresa.nif_empresa}</div>
-                            <div><strong>Domicilio:</strong> ${empresa.direccion_empresa}, ${empresa.codigo_postal} ${empresa.ciudad}, ${empresa.provincia}</div>
-                            <div><strong>Contacto:</strong> ${empresa.telefono}</div>
+                            <div><strong>${identification}:</strong> ${empresa.nombre_empresa} – NIF/CIF ${empresa.nif_empresa}</div>
+                            <div><strong>${address}:</strong> ${empresa.direccion_empresa}, ${empresa.codigo_postal} ${empresa.ciudad}, ${empresa.provincia}</div>
+                            <div><strong>${contact}:</strong> ${empresa.telefono}</div>
                         </div>
                     `;
                 }
@@ -10872,7 +10941,11 @@
                 // Actualizar también el contacto técnico en el punto 2
                 const processorContact = document.querySelector('#privacyInfo .text-gray-600.mt-1');
                 if (processorContact && empresa.email) {
-                    processorContact.textContent = `Contacto técnico: ${empresa.email}`;
+                    const currentLang = document.documentElement.lang || 'es';
+                    const technicalContactLabel = currentLang === 'es' ? 'Contacto técnico' : 
+                                                currentLang === 'en' ? 'Technical contact' :
+                                                currentLang === 'fr' ? 'Contact technique' : 'Технический контакт';
+                    processorContact.textContent = `${technicalContactLabel}: ${empresa.email}`;
                 }
                 
             } catch (error) {
@@ -10881,12 +10954,17 @@
                 // Mostrar información por defecto si hay error
                 const empresaInfoDiv = document.getElementById('empresaInfo');
                 if (empresaInfoDiv) {
+                    const currentLang = document.documentElement.lang || 'es';
+                    const identification = getTranslation('privacy.identification');
+                    const address = getTranslation('privacy.address');
+                    const contact = getTranslation('privacy.contact');
+                    
                     empresaInfoDiv.innerHTML = `
                         <div class="space-y-1">
                             <div class="text-orange-600">⚠️ API no disponible - usando datos por defecto</div>
-                            <div><strong>Identificación:</strong> Delfín Check-in – NIF/CIF B-12345678</div>
-                            <div><strong>Domicilio:</strong> Sistema de registro de viajeros conforme al RD 933/2021</div>
-                            <div><strong>Contacto:</strong> soporte@delfincheckin.com</div>
+                            <div><strong>${identification}:</strong> Delfín Check-in – NIF/CIF B-12345678</div>
+                            <div><strong>${address}:</strong> Sistema de registro de viajeros conforme al RD 933/2021</div>
+                            <div><strong>${contact}:</strong> soporte@delfincheckin.com</div>
                             <div class="text-xs text-gray-500">Error: ${error.message}</div>
                         </div>
                     `;
@@ -10895,7 +10973,11 @@
                 // Mantener contacto técnico por defecto en caso de error
                 const processorContact = document.querySelector('#privacyInfo .text-gray-600.mt-1');
                 if (processorContact) {
-                    processorContact.textContent = `Contacto técnico: soporte@delfincheckin.com`;
+                    const currentLang = document.documentElement.lang || 'es';
+                    const technicalContactLabel = currentLang === 'es' ? 'Contacto técnico' : 
+                                                currentLang === 'en' ? 'Technical contact' :
+                                                currentLang === 'fr' ? 'Contact technique' : 'Технический контакт';
+                    processorContact.textContent = `${technicalContactLabel}: soporte@delfincheckin.com`;
                 }
             }
         }
