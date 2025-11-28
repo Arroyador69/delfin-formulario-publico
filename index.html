@@ -11505,31 +11505,48 @@
                 });
 
                 // --- Validaciones robustas previas ---
+                console.log('🔍 INICIANDO VALIDACIONES...');
                 
                 // Validar consentimiento de datos personales (OBLIGATORIO)
+                console.log('✅ Validando consentimiento...');
                 const consentCheckbox = document.getElementById('consentCheckbox');
+                console.log('🔍 Checkbox encontrado:', !!consentCheckbox);
+                console.log('🔍 Checkbox marcado:', consentCheckbox ? consentCheckbox.checked : 'N/A');
                 if (!consentCheckbox || !consentCheckbox.checked) {
                     const currentLang = document.documentElement.lang || 'es';
                     const consentError = translations[currentLang]['consent.required'] || 'Debe aceptar el tratamiento de datos personales para continuar';
-                    console.log('❌ ERROR CONSENTIMIENTO: Checkbox no marcado');
+                    console.error('❌ ERROR CONSENTIMIENTO: Checkbox no marcado o no encontrado');
+                    console.error('❌ Checkbox elemento:', consentCheckbox);
+                    console.error('❌ Checkbox checked:', consentCheckbox ? consentCheckbox.checked : 'N/A');
                     showError(consentError);
+                    // Scroll al checkbox para que el usuario lo vea
+                    if (consentCheckbox) {
+                        consentCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        consentCheckbox.focus();
+                    }
                     return;
                 }
+                console.log('✅ Consentimiento validado');
                 
+                console.log('✅ Validando documento...');
                 console.log('🔍 DEBUG VALIDACIÓN DOCUMENTO:', {
                     tipo: formData.get('tipoDocumento'),
                     numero: formData.get('numeroDocumento')
                 });
                 const docErr = validateDoc(formData.get('tipoDocumento'), formData.get('numeroDocumento'));
                 if (docErr) { 
-                    console.log('❌ ERROR DOCUMENTO:', docErr);
+                    console.error('❌ ERROR DOCUMENTO:', docErr);
                     showError(docErr); 
                     return; 
                 }
+                console.log('✅ Documento validado');
 
                 // Validar teléfono obligatorio
+                console.log('✅ Validando teléfono...');
                 const telefono = String(formData.get('telefono') || '').trim();
+                console.log('🔍 Teléfono recibido:', telefono);
                 if (!telefono) { 
+                    console.error('❌ ERROR: Teléfono vacío');
                     showError('El teléfono es obligatorio'); 
                     return;
                 }
@@ -11537,26 +11554,40 @@
                 // Validar medio de pago solo cuando tipo es "Plataforma" (según normas MIR)
                 const tipoPago = String(formData.get('tipoPago') || '').trim();
                 const medioPago = String(formData.get('medioPago') || '').trim();
+                console.log('🔍 Tipo de pago:', tipoPago, 'Medio de pago:', medioPago);
                 if (tipoPago === 'Plataforma' && !medioPago) {
+                    console.error('❌ ERROR: Medio de pago requerido para tipo Plataforma');
                     showError('El medio de pago es obligatorio cuando el tipo de pago es "Plataforma"');
                     return;
                 }
                 // Validar formato de teléfono internacional (permite +, espacios, guiones, paréntesis)
                 const telefonoLimpio = telefono.replace(/[\s\-\(\)]/g, '');
+                console.log('🔍 Teléfono limpio:', telefonoLimpio, 'Longitud:', telefonoLimpio.length);
                 if (telefonoLimpio.length < 7) { 
+                    console.error('❌ ERROR: Teléfono demasiado corto');
                     showError('El teléfono debe tener al menos 7 dígitos'); 
                     return; 
                 }
                 if (!/^[\+]?[\d\s\-\(\)]{7,20}$/.test(telefono)) { 
+                    console.error('❌ ERROR: Formato de teléfono inválido');
                     showError('Formato de teléfono inválido. Use formato internacional (ej: +34 666 123 456)'); 
                     return; 
                 }
+                console.log('✅ Teléfono validado');
 
                 // Validar fecha de nacimiento obligatoria (formato ISO)
+                console.log('✅ Validando fecha de nacimiento...');
                 const birthISO = toISODate(formData.get('fechaNacimiento'));
-                if (!birthISO) { showError('Fecha de nacimiento requerida (AAAA-MM-DD)'); return; }
+                console.log('🔍 Fecha de nacimiento original:', formData.get('fechaNacimiento'), 'ISO:', birthISO);
+                if (!birthISO) { 
+                    console.error('❌ ERROR: Fecha de nacimiento inválida o vacía');
+                    showError('Fecha de nacimiento requerida (AAAA-MM-DD)'); 
+                    return; 
+                }
+                console.log('✅ Fecha de nacimiento validada');
 
                 // Solo validar INE vs CP para españoles
+                console.log('✅ Validando municipio/INE...');
                 const paisValue = String(formData.get('pais') || '').toLowerCase().trim();
                 const esEspanol = paisValue === 'españa' || paisValue === 'spain' || paisValue === 'es' || paisValue === 'esp' || paisValue === 'espana';
                 
@@ -11570,11 +11601,14 @@
                 if (esEspanol) {
                     // Validar código INE obligatorio para españoles
                     const codigoINE = String(formData.get('codigoMunicipio') || '').trim();
+                    console.log('🔍 Código INE recibido:', codigoINE);
                     if (!codigoINE) {
+                        console.error('❌ ERROR: Código INE vacío para español');
                         showError('Para españoles es obligatorio el código INE del municipio', 'codigoMunicipio');
                         return;
                     }
                     if (codigoINE.length !== 5 || !/^\d{5}$/.test(codigoINE)) {
+                        console.error('❌ ERROR: Código INE con formato inválido');
                         showError('El código INE debe tener exactamente 5 dígitos (ejemplo: 28001)', 'codigoMunicipio');
                         return;
                     }
@@ -11584,6 +11618,7 @@
                         pad5(formData.get('codigoMunicipio'))
                     );
                     if (muniErr) { 
+                        console.error('❌ ERROR: Validación municipio vs CP:', muniErr);
                         // Determinar qué campo tiene el error
                         const cp = pad5(formData.get('codigoPostal'));
                         const ine = pad5(formData.get('codigoMunicipio'));
@@ -11602,6 +11637,7 @@
                         showError(muniErr, fieldId); 
                         return; 
                     }
+                    console.log('✅ Código INE validado para español');
                 } else {
                     // Para extranjeros, asegurar que el nombre del municipio esté presente
                     const nombreMunicipio = String(formData.get('nombreMunicipio') || '').trim();
@@ -11610,12 +11646,14 @@
                         length: nombreMunicipio.length
                     });
                     if (!nombreMunicipio) {
-                        console.log('❌ ERROR: Nombre del municipio vacío para extranjero');
+                        console.error('❌ ERROR: Nombre del municipio vacío para extranjero');
                         showError('Para extranjeros es obligatorio el nombre del municipio');
                         return;
                     }
+                    console.log('✅ Nombre de municipio validado para extranjero');
                 }
 
+                console.log('✅ Validando orden de fechas...');
                 console.log('🔍 DEBUG VALIDACIÓN ORDEN FECHAS:', {
                     fechaContrato,
                     fechaEntrada,
@@ -11632,16 +11670,18 @@
                     fechaPago
                 });
                 if (orderErr) { 
-                    console.log('❌ ERROR ORDEN FECHAS:', orderErr);
+                    console.error('❌ ERROR ORDEN FECHAS:', orderErr);
                     showError(orderErr); 
                     return; 
                 }
+                console.log('✅ Orden de fechas validado');
 
                 // Validar caducidad de tarjeta solo si el tipo de pago es "Tarjeta"
+                console.log('✅ Validando caducidad de tarjeta...');
                 const tipoPagoValue = formData.get('tipoPago');
                 console.log('🔍 DEBUG TIPO PAGO:', tipoPagoValue);
                 
-                if (tipoPagoValue === 'Tarjeta' || tipoPagoValue === 'Card') {
+                if (tipoPagoValue === 'Tarjeta' || tipoPagoValue === 'Card' || tipoPagoValue === 'TARJT') {
                     console.log('🔍 DEBUG VALIDACIÓN CADUCIDAD:', {
                         caducidad: formData.get('caducidadTarjeta'),
                         tipoPago: tipoPagoValue
@@ -11649,14 +11689,27 @@
                     
                     const cardErr = validateCardExpiry(formData.get('caducidadTarjeta'));
                     if (cardErr) { 
-                        console.log('❌ ERROR CADUCIDAD:', cardErr);
+                        console.error('❌ ERROR CADUCIDAD:', cardErr);
                         showError(cardErr, 'caducidadTarjeta'); 
                         return; 
                     }
+                    console.log('✅ Caducidad de tarjeta validada');
+                } else {
+                    console.log('✅ No se requiere validación de caducidad (tipo de pago:', tipoPagoValue, ')');
                 }
+                
+                console.log('✅ TODAS LAS VALIDACIONES PASARON - Procediendo al envío...');
 
                 // ===== USAR BUILDER DEFENSIVO =====
                 const cleanData = buildPayloadDefensive(formData);
+                
+                // Añadir tenant_id al payload
+                const urlParams = new URLSearchParams(window.location.search);
+                const tenantId = urlParams.get('tenant_id') || 'default';
+                cleanData.tenant_id = tenantId;
+                
+                console.log('🏢 Tenant ID añadido al payload:', tenantId);
+                
                 // Forzar persistencia de fechaNacimiento si existe
                 try {
                   if (cleanData && Array.isArray(cleanData.viajeros) && cleanData.viajeros[0]) {
@@ -11715,12 +11768,17 @@
                 
                 // 🔬 DEBUG: Endpoint de debug eliminado para evitar mensajes de error confusos
                 
+                console.log('═══════════════════════════════════════════════');
                 console.log('🚀 INICIANDO ENVÍO AL SERVIDOR...');
+                console.log('═══════════════════════════════════════════════');
+                console.log('📤 URL:', apiUrl);
                 console.log('📤 Datos a enviar:', JSON.stringify(cleanData, null, 2));
+                console.log('═══════════════════════════════════════════════');
                 
                 let response;
                 try {
                     // Enviar datos a la API de Vercel (nuevo endpoint flexible)
+                    console.log('⏳ Realizando petición fetch...');
                     response = await fetch(apiUrl, {
                         method: 'POST',
                         mode: 'cors',
@@ -11731,12 +11789,21 @@
                         body: JSON.stringify(cleanData),
                     });
                     console.log('✅ FETCH COMPLETADO - Respuesta recibida');
+                    console.log('✅ Status:', response.status, response.statusText);
                 } catch (fetchError) {
-                    console.error('❌ ERROR EN FETCH:', fetchError);
+                    console.error('═══════════════════════════════════════════════');
+                    console.error('❌ ERROR EN FETCH:');
+                    console.error('═══════════════════════════════════════════════');
                     console.error('❌ Tipo de error:', fetchError.name);
                     console.error('❌ Mensaje:', fetchError.message);
                     console.error('❌ Stack:', fetchError.stack);
-                    showError(`Error de conexión: ${fetchError.message}`);
+                    console.error('═══════════════════════════════════════════════');
+                    
+                    let errorMsg = `Error de conexión: ${fetchError.message}`;
+                    if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+                        errorMsg = 'Error de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo.';
+                    }
+                    showError(errorMsg);
                     return;
                 }
                 
@@ -11768,12 +11835,20 @@
                 console.log('═══════════════════════════════════════════════\n');
                 
                 if (!response.ok) {
+                  console.error('═══════════════════════════════════════════════');
+                  console.error('❌ RESPUESTA DEL SERVIDOR CON ERROR:');
+                  console.error('═══════════════════════════════════════════════');
+                  console.error('❌ Status:', response.status);
+                  console.error('❌ Status Text:', response.statusText);
+                  
                   let errorMessage = `Error ${response.status}: ${response.statusText}`;
                   let rawText = '';
                   try {
                     const ct = response.headers.get('content-type') || '';
+                    console.error('❌ Content-Type:', ct);
                     if (ct.includes('application/json')) {
                       const errorData = await response.json();
+                      console.error('❌ Error data:', errorData);
                       if (isDebug()) {
                         const dr = document.getElementById('debugResponse');
                         if (dr) dr.textContent = 'Response JSON (error):\n' + JSON.stringify(errorData, null, 2);
@@ -11795,6 +11870,7 @@
                       }
                     } else {
                       rawText = await response.text();
+                      console.error('❌ Error text:', rawText);
                       if (isDebug()) {
                         const dr = document.getElementById('debugResponse');
                         if (dr) dr.textContent = 'Response TEXT (error):\n' + rawText;
@@ -11802,11 +11878,13 @@
                       if (rawText) errorMessage = rawText;
                     }
                   } catch (err) {
+                    console.error('❌ Error parseando respuesta:', err);
                     if (isDebug()) {
                       const dr = document.getElementById('debugResponse');
                       if (dr) dr.textContent = 'Response parse error: ' + (err && err.message ? err.message : String(err));
                     }
                   }
+                  console.error('═══════════════════════════════════════════════');
                   throw new Error(errorMessage);
                 }
                 
@@ -11828,8 +11906,17 @@
                 document.documentElement.setAttribute('lang', currentLang);
                 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('═══════════════════════════════════════════════');
+                console.error('❌ ERROR CAPTURADO EN CATCH:');
+                console.error('═══════════════════════════════════════════════');
+                console.error('❌ Error completo:', error);
+                console.error('❌ Error message:', error && error.message ? error.message : 'Sin mensaje');
+                console.error('❌ Error stack:', error && error.stack ? error.stack : 'Sin stack');
+                console.error('═══════════════════════════════════════════════');
+                
                 let msg = error && error.message ? String(error.message) : 'Error desconocido';
+                
+                // Añadir sugerencias según el tipo de error
                 if (/fecha|date|datetime/i.test(msg)) {
                   msg += ' · Revisa formatos: contrato YYYY-MM-DD, entrada/salida YYYY-MM-DDThh:mm:ss.';
                 }
@@ -11839,6 +11926,10 @@
                 if (/invalido|inválid|invalid/i.test(msg)) {
                   msg += ' · Si el mensaje no especifica el campo, añade ?debug=1 a la URL para ver la respuesta exacta del servidor.';
                 }
+                if (/consent|consentimiento|tratamiento de datos/i.test(msg)) {
+                  msg += ' · Asegúrate de marcar el checkbox de aceptación de términos y condiciones.';
+                }
+                
                 showError(msg);
             } finally {
                 // Restaurar botón
