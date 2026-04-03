@@ -98,6 +98,14 @@
             border-color: #ef4444 !important;
             border-style: solid !important;
         }
+        /* Errores de validación devueltos por el servidor (bajo cada campo) */
+        .server-field-error-msg {
+            color: #b91c1c;
+            font-size: 0.8125rem;
+            line-height: 1.35;
+            margin-top: 0.35rem;
+            margin-bottom: 0;
+        }
         .signature-pad-wrapper canvas {
             width: 100%;
             height: 160px;
@@ -572,8 +580,8 @@
                                     />
                                     <div id="municipioResults1" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
-                                    <span id="ineHelp1">
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <span id="ineHelp1" data-i18n="travelers.municipalityHelp" data-i18n-html>
                                         <strong>SOLO para españoles:</strong> Escribe el nombre de tu municipio arriba y se asignará automáticamente el código INE<br>
                                         Ejemplo: escribe "Fuengirola" → aparece código 29042 arriba<br>
                                         <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
@@ -592,8 +600,10 @@
                                     class="form-input"
                                     placeholder="Helsinki, Paris, London..."
                                 />
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityNameHelp">
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <span data-i18n="travelers.municipalityNameHelp" data-i18n-html>
                                     <strong class="text-green-600">Solo para extranjeros:</strong> Nombre de la ciudad/municipio donde resides
+                                    </span>
                                 </p>
                             </div>
                         </div>
@@ -796,8 +806,8 @@
                                     />
                                     <div id="municipioResults2" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityHelp">
-                                    <span id="ineHelp2">
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <span id="ineHelp2" data-i18n="travelers.municipalityHelp" data-i18n-html>
                                         <strong>SOLO para españoles:</strong> Escribe el nombre de tu municipio arriba y se asignará automáticamente el código INE<br>
                                         Ejemplo: escribe "Fuengirola" → aparece código 29042 arriba<br>
                                         <strong>IMPORTANTE:</strong> Este NO es el código postal, sino el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio)
@@ -816,8 +826,10 @@
                                     class="form-input"
                                     placeholder="Helsinki, Paris, London..."
                                 />
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.municipalityNameHelp">
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <span data-i18n="travelers.municipalityNameHelp" data-i18n-html>
                                     <strong class="text-green-600">Solo para extranjeros:</strong> Nombre de la ciudad/municipio donde resides
+                                    </span>
                                 </p>
                             </div>
                         </div>
@@ -864,7 +876,7 @@
                         <div class="ml-3">
                             <p class="text-sm font-medium">
                                 <strong data-i18n="messages.error.title">Error al enviar el registro.</strong> 
-                                <span id="errorDetails" data-i18n="messages.error.body">Por favor, inténtelo de nuevo.</span>
+                                <span id="errorDetails" class="block mt-1 font-normal whitespace-pre-wrap">Por favor, inténtelo de nuevo.</span>
                             </p>
                         </div>
                     </div>
@@ -1154,6 +1166,11 @@
                 "submit.sending": "Enviando...",
                 "validation.documentRequired": "Si selecciona tipo de documento, debe proporcionar el número",
                 "validation.documentEmpty": "El número de documento no puede estar vacío",
+                "validation.dateEntryExitRequired": "La fecha y hora de entrada y la de salida son obligatorias y deben ser válidas.",
+                "validation.dateContractAfterCheckIn": "La fecha de contrato no puede ser posterior a la fecha de entrada.",
+                "validation.dateCheckInAfterCheckOut": "La fecha de entrada no puede ser posterior a la fecha de salida.",
+                "validation.dateBirthAfterCheckIn": "La fecha de nacimiento no puede ser posterior a la fecha de entrada del alojamiento.",
+                "validation.datePayAfterCheckOut": "La fecha de pago no puede ser posterior a la fecha de salida.",
                 "consent.title": "He leído y acepto los Términos y Condiciones del alojamiento y la información sobre protección de datos",
                 "consent.summary": "Conforme al Real Decreto 933/2021 y al RGPD, los datos serán comunicados obligatoriamente al Ministerio del Interior.",
                 "consent.showDetails": "Ver información completa sobre protección de datos",
@@ -1293,6 +1310,11 @@
                 "submit.sending": "Sending...",
                 "validation.documentRequired": "If you select document type, you must provide the number",
                 "validation.documentEmpty": "Document number cannot be empty",
+                "validation.dateEntryExitRequired": "Check-in and check-out date-times are required and must be valid.",
+                "validation.dateContractAfterCheckIn": "Contract date cannot be after the check-in date.",
+                "validation.dateCheckInAfterCheckOut": "Check-in cannot be after check-out.",
+                "validation.dateBirthAfterCheckIn": "Date of birth cannot be after the check-in date.",
+                "validation.datePayAfterCheckOut": "Payment date cannot be after the check-out date.",
                 "consent.title": "I have read and accept the accommodation Terms and Conditions and the data protection information",
                 "consent.summary": "In accordance with Royal Decree 933/2021 and GDPR, data will be mandatorily communicated to the Ministry of the Interior.",
                 "consent.showDetails": "View complete data protection information",
@@ -1432,6 +1454,11 @@
                 "submit.sending": "Envoi en cours...",
                 "validation.documentRequired": "Si vous sélectionnez un type de document, vous devez fournir le numéro",
                 "validation.documentEmpty": "Le numéro de document ne peut pas être vide",
+                "validation.dateEntryExitRequired": "Les dates et heures d'arrivée et de départ sont obligatoires et doivent être valides.",
+                "validation.dateContractAfterCheckIn": "La date du contrat ne peut pas être postérieure à l'arrivée.",
+                "validation.dateCheckInAfterCheckOut": "L'arrivée ne peut pas être postérieure au départ.",
+                "validation.dateBirthAfterCheckIn": "La date de naissance ne peut pas être postérieure à l'arrivée.",
+                "validation.datePayAfterCheckOut": "La date de paiement ne peut pas être postérieure au départ.",
                 "consent.title": "J'ai lu et j'accepte les Conditions Générales d'hébergement et les informations sur la protection des données",
                 "consent.summary": "Conformément au Décret Royal 933/2021 et au RGPD, les données seront communiquées obligatoirement au Ministère de l'Intérieur.",
                 "consent.showDetails": "Voir les informations complètes sur la protection des données",
@@ -1573,6 +1600,11 @@
                 "submit.sending": "Отправка...",
                 "validation.documentRequired": "Если выбран тип документа, необходимо указать номер",
                 "validation.documentEmpty": "Номер документа не может быть пустым",
+                "validation.dateEntryExitRequired": "Обязательны корректные дата и время заезда и выезда.",
+                "validation.dateContractAfterCheckIn": "Дата договора не может быть позже даты заезда.",
+                "validation.dateCheckInAfterCheckOut": "Заезд не может быть позже выезда.",
+                "validation.dateBirthAfterCheckIn": "Дата рождения не может быть позже даты заезда.",
+                "validation.datePayAfterCheckOut": "Дата оплаты не может быть позже даты выезда.",
                 "consent.title": "Я прочитал и принимаю Условия размещения и информацию о защите данных",
                 "consent.summary": "В соответствии с Королевским указом 933/2021 и GDPR, данные будут переданы в обязательном порядке в Министерство внутренних дел.",
                 "consent.showDetails": "Просмотреть полную информацию о защите данных",
@@ -1617,6 +1649,16 @@
             const translation = translations[currentLang] && translations[currentLang][key] || translations.es[key] || key;
             console.log(`🔍 getTranslation("${key}") con idioma "${currentLang}": "${translation}"`);
             return translation;
+        }
+
+        /** Aplica texto plano o HTML según data-i18n-html (solo cadenas de nuestro diccionario i18n). */
+        function applyI18nToElement(element, text) {
+            if (!element) return;
+            if (element.hasAttribute && element.hasAttribute('data-i18n-html')) {
+                element.innerHTML = text;
+            } else {
+                element.textContent = text;
+            }
         }
 
         // Lista completa de países con códigos ISO3 oficiales para MIR - 272 países
@@ -2000,7 +2042,7 @@
                 const key = element.dataset.i18n;
                 const translation = getTranslation(key);
                 console.log(`🔍 Traduciendo "${key}": "${element.textContent}" -> "${translation}"`);
-                element.textContent = translation;
+                applyI18nToElement(element, translation);
             });
             
             // Poblar selects de países con el nuevo idioma
@@ -11443,46 +11485,330 @@
             return String(str || '').toUpperCase().slice(0, 3);
         }
 
-        // ---- Validaciones extra robustas MIR ----
-        function showError(msg, fieldId = null) {
-            const errorDetails = document.getElementById('errorDetails');
-            if (errorDetails) errorDetails.textContent = msg;
-            
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.style.display = 'block';
+        /** Si un proxy antiguo envolvió el JSON de registro-flex en `error: "Error en registro-flex: {...}"`, recupera el objeto interno. */
+        function tryUnwrapProxiedError(errorData) {
+            if (!errorData || typeof errorData !== 'object') return errorData;
+            const e = errorData.error;
+            if (typeof e !== 'string') return errorData;
+            const idx = e.indexOf('{');
+            if (idx === -1) return errorData;
+            try {
+                const inner = JSON.parse(e.slice(idx));
+                if (inner && typeof inner === 'object' && (inner.issues != null || inner.code != null || inner.message != null)) {
+                    return inner;
+                }
+            } catch (_) {}
+            return errorData;
+        }
 
-            // Asegurar que el mensaje de éxito no quede visible a la vez
+        /** Convierte path estilo Zod (["viajeros",0,"segundoApellido"]) a viajeros[0].segundoApellido */
+        function formatIssuePathForDisplay(p) {
+            if (p == null) return '';
+            if (Array.isArray(p)) {
+                let s = '';
+                for (let i = 0; i < p.length; i++) {
+                    const seg = p[i];
+                    const isIndex = typeof seg === 'number' || (typeof seg === 'string' && /^\d+$/.test(seg));
+                    if (isIndex) {
+                        s += '[' + parseInt(String(seg), 10) + ']';
+                    } else if (s === '') {
+                        s = String(seg);
+                    } else {
+                        s += '.' + String(seg);
+                    }
+                }
+                return s;
+            }
+            return String(p);
+        }
+
+        /** Mapea ruta MIR (viajeros[0].segundoApellido, contrato.fechaContrato) al atributo name del formulario. */
+        function mirPathToFormFieldName(pathStr) {
+            if (!pathStr) return null;
+            let p = String(pathStr).trim();
+            if (p.indexOf('body.') === 0) p = p.slice(5);
+            if (p.indexOf('contrato.') === 0) {
+                const c = p.slice('contrato.'.length);
+                const cm = {
+                    fechaContrato: 'fechaContrato',
+                    entrada: 'fechaEntrada',
+                    salida: 'fechaSalida',
+                    tipoPago: 'tipoPago',
+                    nHabitaciones: 'numHabitaciones',
+                    numHabitaciones: 'numHabitaciones',
+                    fechaPago: 'fechaPago',
+                    medioPago: 'medioPago'
+                };
+                return cm[c] || null;
+            }
+            const vm = p.match(/^viajeros\[(\d+)\]\.(.+)$/);
+            if (!vm) return null;
+            const idx = parseInt(vm[1], 10);
+            const field = vm[2];
+            const t2 = idx >= 1;
+            const map0 = {
+                nombre: 'nombre',
+                primerApellido: 'apellido1',
+                segundoApellido: 'apellido2',
+                fechaNacimiento: 'fechaNacimiento',
+                tipoDocumento: 'tipoDocumento',
+                numeroDocumento: 'numeroDocumento',
+                direccion: 'direccion',
+                cp: 'codigoPostal',
+                nacionalidad: 'nacionalidad',
+                sexo: 'sexo',
+                telefono: 'telefono',
+                correo: 'correo',
+                ine: 'codigoMunicipio',
+                nombreMunicipio: 'nombreMunicipio',
+                paisResidencia: 'pais'
+            };
+            const map1 = {
+                nombre: 'nombre2',
+                primerApellido: 'apellido1_2',
+                segundoApellido: 'apellido2_2',
+                fechaNacimiento: 'fechaNacimiento2',
+                tipoDocumento: 'tipoDocumento2',
+                numeroDocumento: 'numeroDocumento2',
+                direccion: 'direccion2',
+                cp: 'codigoPostal2',
+                nacionalidad: 'nacionalidad2',
+                sexo: 'sexo2',
+                telefono: 'telefono2',
+                correo: 'correo2',
+                ine: 'codigoMunicipio2',
+                nombreMunicipio: 'nombreMunicipio2',
+                paisResidencia: 'pais2'
+            };
+            const M = t2 ? map1 : map0;
+            return M[field] || null;
+        }
+
+        function extractFocusFieldFromErrorPayload(errorData) {
+            const data = tryUnwrapProxiedError(errorData);
+            if (!data || typeof data !== 'object') return null;
+            const arrays = [
+                data.issues,
+                data.details,
+                data.errors,
+                data.validation
+            ].filter(function (a) { return Array.isArray(a); });
+            for (let i = 0; i < arrays.length; i++) {
+                const arr = arrays[i];
+                for (let j = 0; j < arr.length; j++) {
+                    const item = arr[j];
+                    if (!item || typeof item !== 'object') continue;
+                    if (item.path == null) continue;
+                    const pathStr = formatIssuePathForDisplay(item.path);
+                    const field = mirPathToFormFieldName(pathStr);
+                    if (field) return field;
+                }
+            }
+            return null;
+        }
+
+        /** Resume cuerpos JSON de error de la API (issues, details, etc.) para mostrarlos en pantalla. */
+        function formatServerErrorMessage(errorData, status, statusText, rawBodyText) {
+            const fallback = ('Error ' + status + ': ' + (statusText || '')).trim();
+            const raw = (rawBodyText || '').trim();
+            let data = errorData;
+            if (data && typeof data === 'object') {
+                data = tryUnwrapProxiedError(data);
+            }
+            if (!data || typeof data !== 'object') {
+                if (raw.length > 4000) return raw.slice(0, 4000) + '…';
+                return raw || fallback;
+            }
+            const lines = [];
+            const seen = new Set();
+            function addLine(s) {
+                if (s == null || s === '') return;
+                const t = String(s).trim();
+                if (!t || seen.has(t)) return;
+                seen.add(t);
+                lines.push(t);
+            }
+            const arrays = [
+                data.issues,
+                data.details,
+                data.errors,
+                data.validation
+            ].filter(function (a) { return Array.isArray(a); });
+            for (let i = 0; i < arrays.length; i++) {
+                const arr = arrays[i];
+                for (let j = 0; j < arr.length; j++) {
+                    const item = arr[j];
+                    if (item == null) continue;
+                    if (typeof item === 'string') {
+                        addLine(item);
+                    } else if (typeof item === 'object') {
+                        const m = item.message || item.msg || item.detail || item.description || (typeof item.code === 'string' ? item.code : '');
+                        const pRaw = item.path != null ? item.path : (item.field != null ? item.field : item.instancePath);
+                        const pDisp = pRaw != null ? formatIssuePathForDisplay(pRaw) : '';
+                        const humanField = pDisp ? mirPathToFormFieldName(pDisp) : null;
+                        const labelExtra = humanField ? ' (campo del formulario: «' + humanField + '»)' : '';
+                        if (m) addLine((pDisp ? pDisp + ': ' + m : m) + labelExtra);
+                    }
+                }
+            }
+            let top = data.message;
+            if (top == null && typeof data.error === 'string') top = data.error;
+            if (top == null) top = data.detail || data.description;
+            if (typeof top !== 'string') top = top != null ? String(top) : '';
+            top = top.trim();
+            let out = '';
+            if (lines.length) {
+                const bullet = lines.map(function (l) { return '• ' + l; }).join('\n');
+                if (top && top !== 'Validación fallida' && lines.join('\n').indexOf(top) === -1) {
+                    out = top + '\n\n' + bullet;
+                } else {
+                    out = bullet;
+                }
+            } else if (top) {
+                out = top;
+            } else if (typeof data.error === 'string' && data.error.trim()) {
+                out = data.error.trim();
+            } else if (data.error && typeof data.error === 'object' && data.error.message) {
+                out = String(data.error.message);
+            } else {
+                try {
+                    const j = JSON.stringify(data);
+                    if (j && j !== '{}') out = j;
+                } catch (_) {}
+            }
+            if (!out) {
+                if (raw.length > 4000) return raw.slice(0, 4000) + '…';
+                return raw || fallback;
+            }
+            if (out.length > 8000) return out.slice(0, 8000) + '…';
+            return out;
+        }
+
+        function clearServerValidationFieldHints() {
+            var form = document.getElementById('guestRegistrationForm');
+            if (!form) return;
+            form.querySelectorAll('.server-field-error-msg').forEach(function (el) { el.remove(); });
+            form.querySelectorAll('[data-server-error-bound="1"]').forEach(function (el) {
+                el.removeAttribute('data-server-error-bound');
+                el.removeAttribute('aria-invalid');
+                el.removeAttribute('aria-describedby');
+            });
+        }
+
+        function clearServerErrorForTarget(ev) {
+            var t = ev.target;
+            if (!t || !t.getAttribute || t.getAttribute('data-server-error-bound') !== '1') return;
+            t.classList.remove('field-error');
+            t.removeAttribute('aria-invalid');
+            var id = t.getAttribute('aria-describedby');
+            if (id) {
+                var desc = document.getElementById(id);
+                if (desc && desc.classList.contains('server-field-error-msg')) desc.remove();
+                t.removeAttribute('aria-describedby');
+            }
+            t.removeAttribute('data-server-error-bound');
+        }
+
+        function bindServerErrorClearOnInput() {
+            var form = document.getElementById('guestRegistrationForm');
+            if (!form || form.dataset.serverValidationListen === '1') return;
+            form.dataset.serverValidationListen = '1';
+            form.addEventListener('input', clearServerErrorForTarget, true);
+            form.addEventListener('change', clearServerErrorForTarget, true);
+        }
+
+        /** Marca inputs y muestra texto bajo el campo según issues del backend (VALIDATION_ERROR). */
+        function applyServerFieldErrorsFromPayload(payload) {
+            if (!payload || !Array.isArray(payload.issues) || payload.issues.length === 0) return;
+            var form = document.getElementById('guestRegistrationForm');
+            if (!form) return;
+            clearServerValidationFieldHints();
+            var byField = {};
+            payload.issues.forEach(function (issue) {
+                if (!issue || typeof issue !== 'object') return;
+                var m = String(issue.message || issue.msg || issue.detail || '').trim();
+                if (!m) return;
+                var pathStr = formatIssuePathForDisplay(issue.path != null ? issue.path : '');
+                var fieldName = mirPathToFormFieldName(pathStr);
+                if (!fieldName) return;
+                if (!byField[fieldName]) byField[fieldName] = [];
+                if (byField[fieldName].indexOf(m) === -1) byField[fieldName].push(m);
+            });
+            var idx = 0;
+            Object.keys(byField).forEach(function (fieldName) {
+                var esc = (window.CSS && window.CSS.escape)
+                    ? window.CSS.escape(fieldName)
+                    : String(fieldName).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                var field = form.querySelector('[name="' + esc + '"]');
+                if (!field) return;
+                field.classList.add('field-error');
+                field.setAttribute('aria-invalid', 'true');
+                var errId = 'srv-err-' + (++idx) + '-' + String(fieldName).replace(/[^a-zA-Z0-9_-]/g, '');
+                var hint = document.createElement('p');
+                hint.id = errId;
+                hint.className = 'server-field-error-msg';
+                hint.setAttribute('role', 'alert');
+                hint.textContent = byField[fieldName].join(' · ');
+                field.parentNode.appendChild(hint);
+                field.setAttribute('aria-describedby', errId);
+                field.setAttribute('data-server-error-bound', '1');
+            });
+            bindServerErrorClearOnInput();
+        }
+
+        // ---- Validaciones extra robustas MIR ----
+        function showError(msg, fieldNameOrId = null) {
+            clearServerValidationFieldHints();
+            const detailText = typeof msg === 'string'
+                ? msg
+                : (msg && typeof msg.message === 'string' ? msg.message : String(msg || ''));
+            const errorDetails = document.getElementById('errorDetails');
+            if (errorDetails) errorDetails.textContent = detailText;
+
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.style.display = 'block';
+                errorMessage.setAttribute('role', 'alert');
+                try {
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } catch (_) {}
+            }
+
             try {
               const successMessage = document.getElementById('successMessage');
               if (successMessage) successMessage.style.display = 'none';
             } catch {}
-            
-            // Resaltar el campo específico si se proporciona
-            if (fieldId) {
-                const field = document.getElementById(fieldId);
+
+            document.querySelectorAll('.field-error').forEach(function (el) {
+                el.classList.remove('field-error');
+            });
+
+            if (fieldNameOrId) {
+                const form = document.getElementById('guestRegistrationForm');
+                let field = document.getElementById(fieldNameOrId);
+                if (!field && form) {
+                    try {
+                        const esc = (window.CSS && window.CSS.escape)
+                            ? window.CSS.escape(fieldNameOrId)
+                            : String(fieldNameOrId).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                        field = form.querySelector('[name="' + esc + '"]');
+                    } catch (_) {}
+                }
                 if (field) {
-                    // Remover resaltado anterior
-                    document.querySelectorAll('.field-error').forEach(el => {
-                        el.classList.remove('field-error');
-                    });
-                    
-                    // Resaltar el campo con error
                     field.classList.add('field-error');
-                    field.focus();
-                    
-                    // Remover resaltado después de 5 segundos
-                    setTimeout(() => {
-                        field.classList.remove('field-error');
-                    }, 5000);
+                    try {
+                        field.focus({ preventScroll: true });
+                        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } catch (_) {}
                 }
             }
-            
-            // Aplicar traducciones al mensaje de error
+
             const currentLang = document.documentElement.getAttribute('lang') || 'es';
-            document.querySelectorAll('#errorMessage [data-i18n]').forEach(element => {
+            document.querySelectorAll('#errorMessage [data-i18n]').forEach(function (element) {
+                if (element.id === 'errorDetails') return;
                 const key = element.getAttribute('data-i18n');
                 if (translations[currentLang] && translations[currentLang][key]) {
-                    element.textContent = translations[currentLang][key];
+                    applyI18nToElement(element, translations[currentLang][key]);
                 }
             });
         }
@@ -11517,14 +11843,42 @@
             const dContrato = parseDateOnly(fechaContrato);
             const dEntrada = parseDateTime(fechaEntrada);
             const dSalida  = parseDateTime(fechaSalida);
-            const dNacimiento = parseDateOnly(fechaNacimiento);
+            const nacStr = fechaNacimiento
+                ? String(fechaNacimiento).split('T')[0].trim()
+                : '';
+            const dNacimiento = parseDateOnly(nacStr);
             const dPago = fechaPago ? parseDateOnly(fechaPago) : null;
 
-            if (!dEntrada || !dSalida) return 'Fechas de entrada y salida son obligatorias';
-            if (dContrato && dEntrada && dContrato > dEntrada) return 'La fecha de contrato no puede ser posterior a la entrada';
-            if (dEntrada && dSalida && dEntrada > dSalida) return 'La fecha de entrada no puede ser posterior a la salida';
-            if (dNacimiento && dEntrada && dNacimiento > dEntrada) return 'La fecha de nacimiento no puede ser posterior a la fecha de entrada';
-            if (dPago && dSalida && dPago > dSalida) return 'La fecha de pago no puede ser posterior a la salida';
+            if (!dEntrada || !dSalida) {
+                return {
+                    message: getTranslation('validation.dateEntryExitRequired'),
+                    fieldNames: ['fechaEntrada', 'fechaSalida']
+                };
+            }
+            if (dContrato && dEntrada && dContrato > dEntrada) {
+                return {
+                    message: getTranslation('validation.dateContractAfterCheckIn'),
+                    fieldNames: ['fechaContrato', 'fechaEntrada']
+                };
+            }
+            if (dEntrada && dSalida && dEntrada > dSalida) {
+                return {
+                    message: getTranslation('validation.dateCheckInAfterCheckOut'),
+                    fieldNames: ['fechaEntrada', 'fechaSalida']
+                };
+            }
+            if (dNacimiento && dEntrada && dNacimiento > dEntrada) {
+                return {
+                    message: getTranslation('validation.dateBirthAfterCheckIn'),
+                    fieldNames: ['fechaNacimiento', 'fechaEntrada']
+                };
+            }
+            if (dPago && dSalida && dPago > dSalida) {
+                return {
+                    message: getTranslation('validation.datePayAfterCheckOut'),
+                    fieldNames: ['fechaPago', 'fechaSalida']
+                };
+            }
             return null;
         }
         function validateDoc(tipo, numero) {
@@ -11581,11 +11935,11 @@
             
             const submitButton = document.getElementById('submitButton');
             const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
+            const errorMessageEl = document.getElementById('errorMessage');
             
             // Ocultar mensajes anteriores
             successMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
+            errorMessageEl.style.display = 'none';
             
             // Deshabilitar botón y mostrar estado de envío
             submitButton.disabled = true;
@@ -11797,10 +12151,11 @@
                     fechaNacimiento: formData.get('fechaNacimiento'),
                     fechaPago
                 });
-                if (orderErr) { 
+                if (orderErr) {
                     console.error('❌ ERROR ORDEN FECHAS:', orderErr);
-                    showError(orderErr); 
-                    return; 
+                    const firstField = orderErr.fieldNames && orderErr.fieldNames[0] ? orderErr.fieldNames[0] : null;
+                    showError(orderErr.message, firstField);
+                    return;
                 }
                 console.log('✅ Orden de fechas validado');
 
@@ -11978,68 +12333,50 @@
                   console.error('═══════════════════════════════════════════════');
                   console.error('❌ Status:', response.status);
                   console.error('❌ Status Text:', response.statusText);
-                  
-                  let errorMessage = `Error ${response.status}: ${response.statusText}`;
-                  let rawText = '';
-                  try {
-                    const ct = response.headers.get('content-type') || '';
-                    console.error('❌ Content-Type:', ct);
-                    if (ct.includes('application/json')) {
-                      const errorData = await response.json();
-                      console.error('❌ Error data:', errorData);
-                      if (isDebug()) {
-                        const dr = document.getElementById('debugResponse');
-                        if (dr) dr.textContent = 'Response JSON (error):\n' + JSON.stringify(errorData, null, 2);
-                      }
-                      const candidates = [];
-                      if (errorData) {
-                        if (Array.isArray(errorData.details)) candidates.push(...errorData.details);
-                        if (Array.isArray(errorData.errors)) candidates.push(...errorData.errors);
-                        if (Array.isArray(errorData.issues)) candidates.push(...errorData.issues);
-                        if (errorData.validation && Array.isArray(errorData.validation)) candidates.push(...errorData.validation);
-                      }
-                      const first = candidates.find(x => x && (x.message || x.msg || x.detail));
-                      if (first) {
-                        errorMessage = first.message || first.msg || first.detail;
-                      } else if (errorData && (errorData.message || errorData.error || errorData.detail || errorData.description)) {
-                        errorMessage = errorData.message || errorData.error || errorData.detail || errorData.description;
-                      } else {
-                        errorMessage = JSON.stringify(errorData);
-                      }
-                    } else {
-                      rawText = await response.text();
-                      console.error('❌ Error text:', rawText);
-                      if (isDebug()) {
-                        const dr = document.getElementById('debugResponse');
-                        if (dr) dr.textContent = 'Response TEXT (error):\n' + rawText;
-                      }
-                      if (rawText) errorMessage = rawText;
-                    }
-                  } catch (err) {
-                    console.error('❌ Error parseando respuesta:', err);
-                    if (isDebug()) {
-                      const dr = document.getElementById('debugResponse');
-                      if (dr) dr.textContent = 'Response parse error: ' + (err && err.message ? err.message : String(err));
+                  console.error('❌ Error data (parsed):', responseBodyJson);
+                  console.error('❌ Body raw:', responseBodyText);
+                  if (isDebug()) {
+                    const dr = document.getElementById('debugResponse');
+                    if (dr) {
+                      dr.textContent = responseBodyJson != null
+                        ? 'Response JSON (error):\n' + JSON.stringify(responseBodyJson, null, 2)
+                        : 'Response TEXT (error):\n' + responseBodyText;
                     }
                   }
+                  const errUserText = formatServerErrorMessage(
+                    responseBodyJson,
+                    response.status,
+                    response.statusText,
+                    responseBodyText
+                  );
+                  const focusField = extractFocusFieldFromErrorPayload(responseBodyJson);
+                  const payloadForUi = tryUnwrapProxiedError(responseBodyJson);
                   console.error('═══════════════════════════════════════════════');
-                  throw new Error(errorMessage);
+                  const submitErr = new Error(errUserText);
+                  if (focusField) submitErr.focusField = focusField;
+                  if (payloadForUi && typeof payloadForUi === 'object') {
+                    submitErr.validationPayload = payloadForUi;
+                  } else if (responseBodyJson && typeof responseBodyJson === 'object') {
+                    submitErr.validationPayload = responseBodyJson;
+                  }
+                  throw submitErr;
                 }
                 
                 // Mostrar mensaje de éxito y ocultar cualquier error previo
                 successMessage.style.display = 'block';
-                if (errorMessage) errorMessage.style.display = 'none';
+                if (errorMessageEl) errorMessageEl.style.display = 'none';
                 
                 // Aplicar traducciones al mensaje de éxito
                 const currentLang = document.documentElement.getAttribute('lang') || 'es';
                 document.querySelectorAll('#successMessage [data-i18n]').forEach(element => {
                     const key = element.getAttribute('data-i18n');
                     if (translations[currentLang] && translations[currentLang][key]) {
-                        element.textContent = translations[currentLang][key];
+                        applyI18nToElement(element, translations[currentLang][key]);
                     }
                 });
                 
                 // Limpiar formulario pero mantener idioma seleccionado
+                clearServerValidationFieldHints();
                 document.getElementById('guestRegistrationForm').reset();
                 if (typeof window.hideTraveler2 === 'function') window.hideTraveler2();
                 document.documentElement.setAttribute('lang', currentLang);
@@ -12054,6 +12391,11 @@
                 console.error('═══════════════════════════════════════════════');
                 
                 let msg = error && error.message ? String(error.message) : 'Error desconocido';
+                let serverFocusField = (error && error.focusField) ? error.focusField : null;
+                const validationPayload = error && error.validationPayload ? error.validationPayload : null;
+                if (validationPayload && validationPayload.code === 'VALIDATION_ERROR' && Array.isArray(validationPayload.issues) && validationPayload.issues.length) {
+                  msg = 'Hay errores que revisar en el formulario (campos marcados en rojo abajo).\n\n' + msg;
+                }
                 
                 // Añadir sugerencias según el tipo de error
                 if (/fecha|date|datetime/i.test(msg)) {
@@ -12069,7 +12411,8 @@
                   msg += ' · Asegúrate de marcar el checkbox de aceptación de términos y condiciones.';
                 }
                 
-                showError(msg);
+                showError(msg, serverFocusField);
+                if (validationPayload) applyServerFieldErrorsFromPayload(validationPayload);
             } finally {
                 // Restaurar botón
                 submitButton.disabled = false;
