@@ -511,6 +511,24 @@
                                     class="form-input"
                                 />
                                 <div class="error-message hidden text-red-500 text-sm mt-1"></div>
+
+                                <!-- Cápsula opcional (solo tenants Standard/Pro): instrucciones de check-in por email -->
+                                <div id="checkinEmailOptInWrap" class="hidden mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                                    <div class="flex items-start gap-3">
+                                        <input id="checkinEmailOptIn" type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-semibold text-blue-900" data-i18n="checkinEmail.title">
+                                                Instrucciones de check‑in autónomo por email
+                                            </p>
+                                            <label for="checkinEmailOptIn" class="text-sm text-blue-900" data-i18n="checkinEmail.label">
+                                                Quiero recibir las instrucciones de check‑in en este correo.
+                                            </label>
+                                            <p class="mt-1 text-xs text-blue-800" data-i18n="checkinEmail.hint">
+                                                Tras confirmar la reserva, te enviaremos un email con las instrucciones. Revisa spam o papelera si no lo ves.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div>
@@ -1129,6 +1147,9 @@
                 "travelers.gender": "Sexo *",
                 "travelers.phone": "Teléfono *",
                 "travelers.email": "Correo electrónico *",
+                "checkinEmail.title": "Instrucciones de check‑in autónomo por email",
+                "checkinEmail.label": "Quiero recibir las instrucciones de check‑in en este correo.",
+                "checkinEmail.hint": "Tras confirmar la reserva, te enviaremos un email con las instrucciones. Revisa spam o papelera si no lo ves.",
                 "travelers.address": "Dirección *",
                 "travelers.postalCode": "Código postal *",
                 "travelers.country": "País de residencia *",
@@ -1274,6 +1295,9 @@
                 "travelers.gender": "Gender *",
                 "travelers.phone": "Phone *",
                 "travelers.email": "Email *",
+                "checkinEmail.title": "Self check-in instructions by email",
+                "checkinEmail.label": "I want to receive the check-in instructions at this email address.",
+                "checkinEmail.hint": "After the booking is confirmed, we will email you the instructions. Please check your spam or trash folder if you can’t find it.",
                 "travelers.address": "Address *",
                 "travelers.postalCode": "Postal Code *",
                 "travelers.country": "Country of Residence *",
@@ -1418,6 +1442,9 @@
                 "travelers.gender": "Sexe *",
                 "travelers.phone": "Téléphone *",
                 "travelers.email": "Email *",
+                "checkinEmail.title": "Instructions d’arrivée (check‑in) par e‑mail",
+                "checkinEmail.label": "Je souhaite recevoir les instructions d’arrivée à cette adresse e‑mail.",
+                "checkinEmail.hint": "Après confirmation de la réservation, nous vous enverrons un e‑mail avec les instructions. Vérifiez vos spams ou la corbeille si vous ne le voyez pas.",
                 "travelers.address": "Adresse *",
                 "travelers.postalCode": "Code postal *",
                 "travelers.country": "Pays de résidence *",
@@ -1553,6 +1580,9 @@
                 "travelers.gender": "Пол *",
                 "travelers.phone": "Телефон *",
                 "travelers.email": "Электронная почта *",
+                "checkinEmail.title": "Инструкции по самостоятельному заселению по email",
+                "checkinEmail.label": "Я хочу получить инструкции по заселению на этот адрес электронной почты.",
+                "checkinEmail.hint": "После подтверждения бронирования мы отправим письмо с инструкциями. Проверьте папку «Спам» или «Корзина», если не видите письмо.",
                 "travelers.address": "Адрес *",
                 "travelers.postalCode": "Почтовый индекс *",
                 "travelers.country": "Страна проживания *",
@@ -2102,8 +2132,14 @@
 
         // Función para inicializar idioma
         function initializeLanguage() {
-            const savedLang = localStorage.getItem('preferredLanguage') || 'es';
-            changeLanguage(savedLang);
+            const u = new URL(window.location.href);
+            const fromTenantLink = (u.searchParams.get('ui_locale') || '').trim().toLowerCase();
+            const savedLang = (localStorage.getItem('preferredLanguage') || '').trim().toLowerCase();
+            const initial =
+              (fromTenantLink && translations[fromTenantLink] ? fromTenantLink : '') ||
+              (savedLang && translations[savedLang] ? savedLang : '') ||
+              'es';
+            changeLanguage(initial);
         }
         
         // Función para inicializar países después de cargar todos los scripts
@@ -10913,6 +10949,17 @@
             console.log('🔍 DIAGNÓSTICO: populateCountrySelects disponible:', typeof populateCountrySelects !== 'undefined');
             
             initializeLanguage();
+
+            // Mostrar cápsula de instrucciones de check-in SOLO si el tenant lo tiene habilitado (Standard/Pro)
+            try {
+                const u = new URL(window.location.href);
+                const enabled = (u.searchParams.get('checkin_email_enabled') || '0') === '1';
+                const wrap = document.getElementById('checkinEmailOptInWrap');
+                if (wrap) {
+                    if (enabled) wrap.classList.remove('hidden');
+                    else wrap.classList.add('hidden');
+                }
+            } catch {}
             
             // Inicializar países con retry
             setTimeout(initializeCountriesWithRetry, 500);
@@ -12192,6 +12239,16 @@
                 cleanData.tenant_id = tenantId;
                 
                 console.log('🏢 Tenant ID añadido al payload:', tenantId);
+
+                // Idioma actual del formulario (para emails y plantillas)
+                const uiLocale = (document.documentElement.lang || urlParams.get('ui_locale') || 'es').trim();
+                cleanData.ui_locale = uiLocale;
+
+                // Opt-in para instrucciones de check-in (solo si el tenant lo tiene habilitado por plan)
+                const checkinEmailEnabled = (urlParams.get('checkin_email_enabled') || '0') === '1';
+                const optEl = document.getElementById('checkinEmailOptIn');
+                cleanData.checkin_instructions_opt_in =
+                  checkinEmailEnabled && optEl && optEl.checked === true;
                 
                 // Añadir firmas (una por viajero) al payload
                 if (typeof getSignatureData === 'function') {
