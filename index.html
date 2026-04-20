@@ -2413,7 +2413,21 @@
         }
 
         // ===== API endpoint helper (override via ?api= or localStorage) =====
-        const DEFAULT_API = 'https://admin.delfincheckin.com/api/registro-flex';
+        // Por defecto usamos el endpoint público multi-tenant:
+        //   https://admin.delfincheckin.com/api/public/form/{tenant_id}/submit
+        // Así el backend puede aplicar rate-limit/CORS y reenviar internamente al flujo MIR correcto.
+        const DEFAULT_API_BASE = 'https://admin.delfincheckin.com/api/public/form';
+        function getTenantIdFromUrl() {
+          try {
+            const u = new URL(window.location.href);
+            const tenantId = (u.searchParams.get('tenant_id') || '').trim();
+            return tenantId || null;
+          } catch { return null; }
+        }
+        function getDefaultSubmitUrl() {
+          const tenantId = getTenantIdFromUrl();
+          return tenantId ? `${DEFAULT_API_BASE}/${tenantId}/submit` : null;
+        }
         function getApiUrl() {
           try {
             const u = new URL(window.location.href);
@@ -2436,9 +2450,13 @@
             const fromStorage = localStorage.getItem('apiUrl');
             if (fromStorage) return fromStorage;
             
-            // Prioridad 4: Endpoint por defecto
-            return DEFAULT_API;
-          } catch { return DEFAULT_API; }
+            // Prioridad 4: Endpoint por defecto (requiere tenant_id)
+            const def = getDefaultSubmitUrl();
+            return def || `${DEFAULT_API_BASE}/__MISSING_TENANT__/submit`;
+          } catch { 
+            const def = getDefaultSubmitUrl();
+            return def || `${DEFAULT_API_BASE}/__MISSING_TENANT__/submit`; 
+          }
         }
 
         async function testConnectivity() {
@@ -12568,6 +12586,12 @@
                 console.log('- tenantId:', cleanData.tenantId);
                 console.log('- formData:', cleanData.formData);
                 
+                const tenantIdFromUrl = getTenantIdFromUrl && getTenantIdFromUrl();
+                if (!tenantIdFromUrl) {
+                    showError('❌ Enlace inválido: falta el parámetro tenant_id. Solicita al propietario un enlace nuevo del formulario.');
+                    return;
+                }
+
                 const apiUrl = getApiUrl();
                 console.log('\n🌐 URL de envío:', apiUrl);
                 console.log('═══════════════════════════════════════════════\n');
@@ -12851,7 +12875,7 @@
       <div class="mt-2 p-3 bg-gray-50 rounded border">
         <label class="text-xs text-gray-600">API URL</label>
         <div class="flex gap-2 mt-1">
-          <input id="apiUrlInput" class="form-input flex-1" type="text" placeholder="https://admin.delfincheckin.com/api/registro-flex" />
+          <input id="apiUrlInput" class="form-input flex-1" type="text" placeholder="https://admin.delfincheckin.com/api/public/form/{tenant_id}/submit" />
           <button id="saveApiUrlBtn" type="button" class="language-btn">Guardar</button>
           <button id="testApiBtn" type="button" class="language-btn">Probar</button>
         </div>
@@ -12878,7 +12902,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveBtn = document.getElementById('saveApiUrlBtn');
   const testBtn = document.getElementById('testApiBtn');
   if (input) { 
-    input.value = localStorage.getItem('apiUrl') || (typeof getApiUrl === 'function' ? getApiUrl() : 'https://admin.delfincheckin.com/api/registro-flex'); 
+    input.value = localStorage.getItem('apiUrl') || (typeof getApiUrl === 'function' ? getApiUrl() : 'https://admin.delfincheckin.com/api/public/form/{tenant_id}/submit'); 
   }
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
