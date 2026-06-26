@@ -455,7 +455,7 @@
                             </div>
 
                             <div id="soporteDocumentoWrap1" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentSupport">
+                                <label id="soporteDocumentoLabel1" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentSupportDni">
                                     Número de soporte del DNI <span class="text-red-500">*</span>
                                 </label>
                                 <input
@@ -466,8 +466,8 @@
                                     placeholder="Ej. CAA000000"
                                     autocomplete="off"
                                 />
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.documentSupportHint">
-                                    Obligatorio para DNI español (normativa MIR). Código alfanumérico del reverso del DNI.
+                                <p id="soporteDocumentoHint1" class="text-xs text-gray-500 mt-1" data-i18n="travelers.documentSupportHintDni">
+                                    Obligatorio si te identificas con DNI español (normativa MIR del Ministerio del Interior). Es el código alfanumérico impreso en el <strong>reverso del DNI</strong>, distinto del número de documento. No aplica a pasaporte ni a otros documentos extranjeros.
                                 </p>
                                 <div class="error-message hidden text-red-500 text-sm mt-1"></div>
                             </div>
@@ -732,7 +732,7 @@
                             </div>
 
                             <div id="soporteDocumentoWrap2" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentSupport">
+                                <label id="soporteDocumentoLabel2" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="travelers.documentSupportDni">
                                     Número de soporte del DNI <span class="text-red-500">*</span>
                                 </label>
                                 <input
@@ -743,8 +743,8 @@
                                     placeholder="Ej. CAA000000"
                                     autocomplete="off"
                                 />
-                                <p class="text-xs text-gray-500 mt-1" data-i18n="travelers.documentSupportHint">
-                                    Obligatorio para DNI español (normativa MIR). Código alfanumérico del reverso del DNI.
+                                <p id="soporteDocumentoHint2" class="text-xs text-gray-500 mt-1" data-i18n="travelers.documentSupportHintDni">
+                                    Obligatorio si te identificas con DNI español (normativa MIR del Ministerio del Interior). Es el código alfanumérico impreso en el <strong>reverso del DNI</strong>, distinto del número de documento. No aplica a pasaporte ni a otros documentos extranjeros.
                                 </p>
                             </div>
                             
@@ -1177,8 +1177,10 @@
                 "travelers.birthDate": "Fecha de nacimiento (DD/MM/AAAA) *",
                 "travelers.documentType": "Tipo de documento *",
                 "travelers.documentNumber": "Número de documento *",
-                "travelers.documentSupport": "Número de soporte del DNI *",
-                "travelers.documentSupportHint": "Obligatorio para DNI español (normativa MIR). Código alfanumérico del reverso del DNI.",
+                "travelers.documentSupportDni": "Número de soporte del DNI *",
+                "travelers.documentSupportNie": "Número de soporte del NIE *",
+                "travelers.documentSupportHintDni": "Obligatorio si te identificas con DNI español (normativa MIR del Ministerio del Interior). Es el código alfanumérico impreso en el reverso del DNI, distinto del número de documento. Si viajas con pasaporte u otro documento extranjero, no rellenes este campo.",
+                "travelers.documentSupportHintNie": "Obligatorio con NIE (normativa MIR). Es el número de soporte impreso en la tarjeta NIE, distinto del número NIE. No confundir con el código del DNI.",
                 "travelers.nationality": "Nacionalidad *",
                 "travelers.nationalityHelp": "Escriba el país en su idioma natural (ej: España, Francia). Se convertirá automáticamente al código ISO3.",
                 "travelers.selectNationality": "Seleccione nacionalidad",
@@ -1226,8 +1228,10 @@
                 "submit.sending": "Enviando...",
                 "validation.documentRequired": "Si selecciona tipo de documento, debe proporcionar el número",
                 "validation.documentEmpty": "El número de documento no puede estar vacío",
-                "validation.documentSupportRequired": "El número de soporte del DNI es obligatorio (código del reverso del documento, normativa MIR)",
-                "validation.documentSupportInvalid": "Número de soporte del DNI inválido (2-20 caracteres alfanuméricos)",
+                "validation.documentSupportRequiredDni": "El número de soporte del DNI es obligatorio (código del reverso del documento, normativa MIR)",
+                "validation.documentSupportRequiredNie": "El número de soporte del NIE es obligatorio (impreso en la tarjeta NIE, normativa MIR)",
+                "validation.documentSupportInvalidDni": "Número de soporte del DNI inválido (2-20 caracteres alfanuméricos)",
+                "validation.documentSupportInvalidNie": "Número de soporte del NIE inválido (2-20 caracteres alfanuméricos)",
                 "validation.dateEntryExitRequired": "La fecha y hora de entrada y la de salida son obligatorias y deben ser válidas.",
                 "validation.dateContractAfterCheckIn": "La fecha de contrato no puede ser posterior a la fecha de entrada.",
                 "validation.dateCheckInAfterCheckOut": "La fecha de entrada no puede ser posterior a la fecha de salida.",
@@ -1329,8 +1333,10 @@
                 "travelers.birthDate": "Birth Date (DD/MM/YYYY) *",
                 "travelers.documentType": "Document Type *",
                 "travelers.documentNumber": "Document Number *",
-                "travelers.documentSupport": "Spanish DNI support number *",
-                "travelers.documentSupportHint": "Required for Spanish DNI (MIR regulations). Alphanumeric code on the back of the DNI.",
+                "travelers.documentSupportDni": "Spanish DNI support number *",
+                "travelers.documentSupportNie": "NIE support number *",
+                "travelers.documentSupportHintDni": "Required if you identify with a Spanish DNI (MIR regulations, Ministry of the Interior). Alphanumeric code on the back of the DNI, different from the document number. Not required for passport or other foreign documents.",
+                "travelers.documentSupportHintNie": "Required with NIE (MIR regulations). Support number printed on the NIE card, different from the NIE number.",
                 "travelers.nationality": "Nationality *",
                 "travelers.nationalityHelp": "Write the country in natural language (e.g: Spain, France). Will automatically convert to ISO3 code.",
                 "travelers.selectNationality": "Select nationality",
@@ -1377,8 +1383,10 @@
                 "submit.sending": "Sending...",
                 "validation.documentRequired": "If you select document type, you must provide the number",
                 "validation.documentEmpty": "Document number cannot be empty",
-                "validation.documentSupportRequired": "Spanish DNI support number is required (back of the document, MIR regulations)",
-                "validation.documentSupportInvalid": "Invalid DNI support number (2-20 alphanumeric characters)",
+                "validation.documentSupportRequiredDni": "Spanish DNI support number is required (back of the document, MIR regulations)",
+                "validation.documentSupportRequiredNie": "NIE support number is required (printed on the NIE card, MIR regulations)",
+                "validation.documentSupportInvalidDni": "Invalid DNI support number (2-20 alphanumeric characters)",
+                "validation.documentSupportInvalidNie": "Invalid NIE support number (2-20 alphanumeric characters)",
                 "validation.dateEntryExitRequired": "Check-in and check-out date-times are required and must be valid.",
                 "validation.dateContractAfterCheckIn": "Contract date cannot be after the check-in date.",
                 "validation.dateCheckInAfterCheckOut": "Check-in cannot be after check-out.",
@@ -1480,8 +1488,10 @@
                 "travelers.birthDate": "Date de naissance (JJ/MM/AAAA) *",
                 "travelers.documentType": "Type de document *",
                 "travelers.documentNumber": "Numéro de document *",
-                "travelers.documentSupport": "Numéro de support du DNI espagnol *",
-                "travelers.documentSupportHint": "Obligatoire pour le DNI espagnol (norme MIR). Code alphanumérique au verso du DNI.",
+                "travelers.documentSupportDni": "Numéro de support du DNI espagnol *",
+                "travelers.documentSupportNie": "Numéro de support du NIE *",
+                "travelers.documentSupportHintDni": "Obligatoire si vous vous identifiez avec un DNI espagnol (norme MIR). Code alphanumérique au verso du DNI, différent du numéro de document. Non requis pour passeport ou autres documents étrangers.",
+                "travelers.documentSupportHintNie": "Obligatoire avec NIE (norme MIR). Numéro de support imprimé sur la carte NIE, différent du numéro NIE.",
                 "travelers.nationality": "Nationalité *",
                 "travelers.nationalityHelp": "Écrivez le pays dans sa langue naturelle (ex: Espagne, France). Se convertira automatiquement en code ISO3.",
                 "travelers.selectNationality": "Sélectionnez la nationalité",
@@ -1528,8 +1538,10 @@
                 "submit.sending": "Envoi en cours...",
                 "validation.documentRequired": "Si vous sélectionnez un type de document, vous devez fournir le numéro",
                 "validation.documentEmpty": "Le numéro de document ne peut pas être vide",
-                "validation.documentSupportRequired": "Le numéro de support du DNI espagnol est obligatoire (verso du document, norme MIR)",
-                "validation.documentSupportInvalid": "Numéro de support du DNI invalide (2-20 caractères alphanumériques)",
+                "validation.documentSupportRequiredDni": "Le numéro de support du DNI espagnol est obligatoire (verso du document, norme MIR)",
+                "validation.documentSupportRequiredNie": "Le numéro de support du NIE est obligatoire (carte NIE, norme MIR)",
+                "validation.documentSupportInvalidDni": "Numéro de support du DNI invalide (2-20 caractères alphanumériques)",
+                "validation.documentSupportInvalidNie": "Numéro de support du NIE invalide (2-20 caractères alphanumériques)",
                 "validation.dateEntryExitRequired": "Les dates et heures d'arrivée et de départ sont obligatoires et doivent être valides.",
                 "validation.dateContractAfterCheckIn": "La date du contrat ne peut pas être postérieure à l'arrivée.",
                 "validation.dateCheckInAfterCheckOut": "L'arrivée ne peut pas être postérieure au départ.",
@@ -1622,6 +1634,10 @@
                 "travelers.birthDate": "Дата рождения (ДД/ММ/ГГГГ) *",
                 "travelers.documentType": "Тип документа *",
                 "travelers.documentNumber": "Номер документа *",
+                "travelers.documentSupportDni": "Номер поддержки испанского DNI *",
+                "travelers.documentSupportNie": "Номер поддержки NIE *",
+                "travelers.documentSupportHintDni": "Обязательно при идентификации испанским DNI (нормы MIR). Буквенно-цифровой код на обратной стороне DNI. Не требуется для паспорта или других иностранных документов.",
+                "travelers.documentSupportHintNie": "Обязательно с NIE (нормы MIR). Номер поддержки на карте NIE, отличный от номера NIE.",
                 "travelers.nationality": "Национальность *",
                 "travelers.nationalityHelp": "Напишите страну на естественном языке (например: Россия, Франция). Автоматически преобразуется в код ISO3.",
                 "travelers.selectNationality": "Выберите национальность",
@@ -1653,6 +1669,10 @@
                 "travelers.birthDate": "Дата рождения (ДД/ММ/ГГГГ) *",
                 "travelers.documentType": "Тип документа *",
                 "travelers.documentNumber": "Номер документа *",
+                "travelers.documentSupportDni": "Номер поддержки испанского DNI *",
+                "travelers.documentSupportNie": "Номер поддержки NIE *",
+                "travelers.documentSupportHintDni": "Обязательно при идентификации испанским DNI (нормы MIR). Буквенно-цифровой код на обратной стороне DNI. Не требуется для паспорта или других иностранных документов.",
+                "travelers.documentSupportHintNie": "Обязательно с NIE (нормы MIR). Номер поддержки на карте NIE, отличный от номера NIE.",
                 "travelers.nationality": "Национальность *",
                 "travelers.nationalityHelp": "Напишите страну на естественном языке (например: Россия, Франция). Автоматически преобразуется в код ISO3.",
                 "travelers.selectNationality": "Выберите национальность",
@@ -1679,8 +1699,10 @@
                 "submit.sending": "Отправка...",
                 "validation.documentRequired": "Если выбран тип документа, необходимо указать номер",
                 "validation.documentEmpty": "Номер документа не может быть пустым",
-                "validation.documentSupportRequired": "Номер поддержки испанского DNI обязателен (обратная сторона документа, нормы MIR)",
-                "validation.documentSupportInvalid": "Неверный номер поддержки DNI (2-20 буквенно-цифровых символов)",
+                "validation.documentSupportRequiredDni": "Номер поддержки испанского DNI обязателен (обратная сторона документа, нормы MIR)",
+                "validation.documentSupportRequiredNie": "Номер поддержки NIE обязателен (карта NIE, нормы MIR)",
+                "validation.documentSupportInvalidDni": "Неверный номер поддержки DNI (2-20 буквенно-цифровых символов)",
+                "validation.documentSupportInvalidNie": "Неверный номер поддержки NIE (2-20 буквенно-цифровых символов)",
                 "validation.dateEntryExitRequired": "Обязательны корректные дата и время заезда и выезда.",
                 "validation.dateContractAfterCheckIn": "Дата договора не может быть позже даты заезда.",
                 "validation.dateCheckInAfterCheckOut": "Заезд не может быть позже выезда.",
@@ -2134,6 +2156,11 @@
             
             // Guardar preferencia en localStorage
             localStorage.setItem('preferredLanguage', lang);
+
+            if (typeof applySoporteDocumentoUi === 'function') {
+                applySoporteDocumentoUi('1');
+                applySoporteDocumentoUi('2');
+            }
         }
 
         // Función para actualizar información de empresa al cambiar idioma
@@ -11997,38 +12024,63 @@
             }
             return null;
         }
+        function soporteDocumentoKind(tipo) {
+            const t = String(tipo || '').toUpperCase();
+            if (t === 'NIF') return 'NIF';
+            if (t === 'NIE') return 'NIE';
+            return null;
+        }
         function requiresSoporteDocumento(tipo) {
-            return String(tipo || '').toUpperCase() === 'NIF';
+            return soporteDocumentoKind(tipo) !== null;
         }
         function validateSoporteDocumento(tipo, soporte) {
-            if (!requiresSoporteDocumento(tipo)) return null;
+            const kind = soporteDocumentoKind(tipo);
+            if (!kind) return null;
             const s = String(soporte || '').trim();
-            if (!s) return getTranslation('validation.documentSupportRequired');
-            const normalized = s.toUpperCase();
-            if (normalized.length < 2 || normalized.length > 20) {
-                return getTranslation('validation.documentSupportInvalid');
+            if (!s) {
+                return getTranslation(
+                    kind === 'NIF' ? 'validation.documentSupportRequiredDni' : 'validation.documentSupportRequiredNie'
+                );
             }
-            if (!/^[A-Z0-9]+$/.test(normalized)) {
-                return getTranslation('validation.documentSupportInvalid');
+            const normalized = s.toUpperCase();
+            if (normalized.length < 2 || normalized.length > 20 || !/^[A-Z0-9]+$/.test(normalized)) {
+                return getTranslation(
+                    kind === 'NIF' ? 'validation.documentSupportInvalidDni' : 'validation.documentSupportInvalidNie'
+                );
             }
             return null;
         }
-        window.delfinToggleSoporteDoc = function delfinToggleSoporteDoc(which) {
+        function applySoporteDocumentoUi(which) {
             const suffix = which === '2' ? '2' : '';
             const tipoEl = document.querySelector('[name="tipoDocumento' + suffix + '"]');
             const wrap = document.getElementById('soporteDocumentoWrap' + (which === '2' ? '2' : '1'));
             const input = document.querySelector('[name="soporteDocumento' + suffix + '"]');
+            const labelEl = document.getElementById('soporteDocumentoLabel' + (which === '2' ? '2' : '1'));
+            const hintEl = document.getElementById('soporteDocumentoHint' + (which === '2' ? '2' : '1'));
             if (!tipoEl || !wrap) return;
-            const show = requiresSoporteDocumento(tipoEl.value);
+            const kind = soporteDocumentoKind(tipoEl.value);
+            const show = Boolean(kind);
             wrap.classList.toggle('hidden', !show);
             if (input) {
                 input.required = show;
+                input.placeholder = kind === 'NIE' ? 'Ej. E12345678' : 'Ej. CAA000000';
                 if (!show) input.value = '';
             }
+            if (labelEl && hintEl && kind) {
+                const labelKey = kind === 'NIF' ? 'travelers.documentSupportDni' : 'travelers.documentSupportNie';
+                const hintKey = kind === 'NIF' ? 'travelers.documentSupportHintDni' : 'travelers.documentSupportHintNie';
+                labelEl.setAttribute('data-i18n', labelKey);
+                hintEl.setAttribute('data-i18n', hintKey);
+                labelEl.innerHTML = getTranslation(labelKey) + ' <span class="text-red-500">*</span>';
+                hintEl.innerHTML = getTranslation(hintKey);
+            }
+        }
+        window.delfinToggleSoporteDoc = function delfinToggleSoporteDoc(which) {
+            applySoporteDocumentoUi(which);
         };
         document.addEventListener('DOMContentLoaded', function () {
-            window.delfinToggleSoporteDoc('1');
-            window.delfinToggleSoporteDoc('2');
+            applySoporteDocumentoUi('1');
+            applySoporteDocumentoUi('2');
         });
         function sameProvince(cp, ine) {
             return String(cp || '').slice(0,2) === String(ine || '').slice(0,2);
