@@ -204,7 +204,7 @@
 
         <!-- Formulario funcional -->
         <div class="bg-white rounded-lg shadow-lg p-8">
-            <form id="guestRegistrationForm" class="space-y-8">
+            <form id="guestRegistrationForm" class="space-y-8" novalidate>
                 <!-- Sección Contrato -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -733,7 +733,6 @@
                                     type="text"
                                     name="numeroDocumento2"
                                     class="form-input"
-                                    required
                                 />
                             </div>
 
@@ -2655,6 +2654,7 @@
                     field.required = true;
                 }
             });
+            applySoporteDocumentoUi('2');
         }
 
         function hideTraveler2() {
@@ -2673,7 +2673,11 @@
                 if (field.type === 'checkbox') {
                     field.checked = false;
                 } else if (field.tagName === 'SELECT') {
-                    field.selectedIndex = 0;
+                    if (field.name === 'tipoDocumento2') {
+                        field.value = 'PAS';
+                    } else {
+                        field.selectedIndex = 0;
+                    }
                 } else {
                     field.value = '';
                 }
@@ -2683,6 +2687,7 @@
             const pais2 = form.querySelector('[name="pais2"]');
             if (nacionalidad2) nacionalidad2.value = 'ESP';
             if (pais2) pais2.value = 'ESP';
+            applySoporteDocumentoUi('2');
         }
 
         // Función global para actualizar campos según país (España vs Extranjero)
@@ -12337,6 +12342,10 @@
             }
             return null;
         }
+        function isTraveler2Visible() {
+            const s = document.getElementById('traveler2Section');
+            return s && !s.classList.contains('hidden');
+        }
         function applySoporteDocumentoUi(which) {
             const suffix = which === '2' ? '2' : '';
             const tipoEl = document.querySelector('[name="tipoDocumento' + suffix + '"]');
@@ -12346,7 +12355,8 @@
             const hintEl = document.getElementById('soporteDocumentoHint' + (which === '2' ? '2' : '1'));
             if (!tipoEl || !wrap) return;
             const kind = soporteDocumentoKind(tipoEl.value);
-            const show = Boolean(kind);
+            const travelerActive = which !== '2' || isTraveler2Visible();
+            const show = Boolean(kind) && travelerActive;
             wrap.classList.toggle('hidden', !show);
             if (input) {
                 input.required = show;
@@ -13006,11 +13016,6 @@
             });
             setTimeout(function() { resizeCanvas(canvas2, window._signaturePad2); }, 100);
         };
-
-        function isTraveler2Visible() {
-            const s = document.getElementById('traveler2Section');
-            return s && !s.classList.contains('hidden');
-        }
 
         window.getSignatureData = function() {
             var arr = [];
