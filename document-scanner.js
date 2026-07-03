@@ -437,13 +437,22 @@
   }
 
   function showError(msg) {
+    ensureModal();
     const box = document.getElementById('delfinDocScanError');
+    if (!box) return;
     box.textContent = msg;
     box.classList.remove('hidden');
   }
 
   function hideError() {
-    document.getElementById('delfinDocScanError').classList.add('hidden');
+    const box = document.getElementById('delfinDocScanError');
+    if (!box) return;
+    box.classList.add('hidden');
+  }
+
+  function hideModalPanel(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
   }
 
   function showReview(data) {
@@ -476,12 +485,13 @@
       docKind: getDocKindFromSelect(which),
       pendingData: null,
     };
+    ensureModal();
     hideError();
-    document.getElementById('delfinDocScanReview').classList.add('hidden');
-    document.getElementById('delfinDocScanApply').classList.add('hidden');
-    document.getElementById('delfinDocScanProcessing').classList.add('hidden');
+    hideModalPanel('delfinDocScanReview');
+    hideModalPanel('delfinDocScanApply');
+    hideModalPanel('delfinDocScanProcessing');
     refreshModalTexts();
-    ensureModal().classList.remove('hidden');
+    document.getElementById('delfinDocScanModal').classList.remove('hidden');
   }
 
   function closeModal() {
@@ -494,9 +504,10 @@
     const file = ev.target.files && ev.target.files[0];
     ev.target.value = '';
     if (!file) return;
+    ensureModal();
     hideError();
-    document.getElementById('delfinDocScanReview').classList.add('hidden');
-    document.getElementById('delfinDocScanApply').classList.add('hidden');
+    hideModalPanel('delfinDocScanReview');
+    hideModalPanel('delfinDocScanApply');
 
     const proc = document.getElementById('delfinDocScanProcessing');
     proc.textContent = t('scan.processing');
@@ -527,10 +538,7 @@
       if (side === 'front') {
         scanState.step = 'back';
         updateStepText();
-        if (!data.soporteDocumento) {
-          showError('');
-          document.getElementById('delfinDocScanError').classList.add('hidden');
-        }
+        hideError();
         return;
       }
 
