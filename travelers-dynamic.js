@@ -136,11 +136,6 @@
     } else {
       btn.style.display = 'inline-flex';
     }
-    var hint = document.getElementById('travelersCapacityHint');
-    if (hint) {
-      hint.textContent = t('travelers.capacityHint', { max: max, current: visible });
-      hint.classList.remove('hidden');
-    }
   }
 
   function bindCountrySelects(root) {
@@ -386,17 +381,6 @@
   }
 
   function init() {
-    var hint = document.getElementById('travelersCapacityHint');
-    if (!hint) {
-      var travelersTitle = document.querySelector('[data-i18n="travelers.title"]');
-      if (travelersTitle && travelersTitle.parentElement) {
-        hint = document.createElement('p');
-        hint.id = 'travelersCapacityHint';
-        hint.className = 'text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-4';
-        travelersTitle.parentElement.parentElement.insertBefore(hint, travelersTitle.parentElement.nextSibling);
-      }
-    }
-
     var extraContainer = document.getElementById('extraTravelersContainer');
     if (!extraContainer) {
       var t2 = document.getElementById('traveler2Section');
