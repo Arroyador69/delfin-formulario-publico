@@ -380,7 +380,13 @@
     return arr.length ? arr : null;
   }
 
+  function removeCapacityHint() {
+    var hint = document.getElementById('travelersCapacityHint');
+    if (hint) hint.remove();
+  }
+
   function init() {
+    removeCapacityHint();
     var extraContainer = document.getElementById('extraTravelersContainer');
     if (!extraContainer) {
       var t2 = document.getElementById('traveler2Section');
