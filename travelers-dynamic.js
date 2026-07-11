@@ -7,6 +7,8 @@
 
   var MIR_MAX = 50;
   var DEFAULT_MAX = 2;
+  var resolvedMaxGuests = null;
+  var maxGuestsFetchStarted = false;
 
   function clampMax(raw) {
     var n = parseInt(String(raw || ''), 10);
@@ -14,18 +16,83 @@
     return Math.max(1, Math.min(MIR_MAX, n));
   }
 
-  function getMaxGuests() {
+  function getUrlParams() {
     try {
-      var p = new URLSearchParams(window.location.search);
-      return clampMax(p.get('max_guests'));
+      return new URLSearchParams(window.location.search);
     } catch (e) {
-      return DEFAULT_MAX;
+      return new URLSearchParams();
     }
   }
 
+  function getMaxGuests() {
+    if (resolvedMaxGuests !== null) return resolvedMaxGuests;
+    return clampMax(getUrlParams().get('max_guests'));
+  }
+
+  function getAdminOrigin() {
+    var apiEndpoint = getUrlParams().get('api_endpoint') || '';
+    if (!apiEndpoint) return '';
+    try {
+      return new URL(apiEndpoint).origin;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function fetchMaxGuestsFromAdmin(done) {
+    if (maxGuestsFetchStarted) return;
+    maxGuestsFetchStarted = true;
+
+    var params = getUrlParams();
+    var tenantId = params.get('tenant_id');
+    if (!tenantId) {
+      resolvedMaxGuests = getMaxGuests();
+      if (typeof done === 'function') done(resolvedMaxGuests);
+      return;
+    }
+
+    var origin = getAdminOrigin();
+    if (!origin) {
+      resolvedMaxGuests = getMaxGuests();
+      if (typeof done === 'function') done(resolvedMaxGuests);
+      return;
+    }
+
+    var qs = new URLSearchParams({ tenant_id: tenantId });
+    var roomId = params.get('room_id');
+    var propertyId = params.get('property_id');
+    if (roomId) qs.set('room_id', roomId);
+    if (propertyId) qs.set('property_id', propertyId);
+
+    fetch(origin + '/api/public/form/max-guests?' + qs.toString())
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (data) {
+        var fromUrl = clampMax(getUrlParams().get('max_guests'));
+        if (data && data.max_guests != null) {
+          resolvedMaxGuests = clampMax(data.max_guests);
+        } else {
+          resolvedMaxGuests = fromUrl;
+        }
+        if (typeof done === 'function') done(resolvedMaxGuests);
+        updateAddButton();
+      })
+      .catch(function () {
+        resolvedMaxGuests = getMaxGuests();
+        if (typeof done === 'function') done(resolvedMaxGuests);
+      });
+  }
+
   function t(key, vars) {
-    var dict = (window.I18N && window.I18N[window.currentLang || 'es']) || {};
-    var s = dict[key] || key;
+    var s = key;
+    if (typeof window.getTranslation === 'function') {
+      s = window.getTranslation(key);
+    } else if (window.translations) {
+      var lang = document.documentElement.lang || 'es';
+      var dict = window.translations[lang] || window.translations.es || {};
+      s = dict[key] || key;
+    }
     if (vars) {
       Object.keys(vars).forEach(function (k) {
         s = s.replace('{' + k + '}', String(vars[k]));
@@ -385,6 +452,9 @@
     window.getSignatureData = getSignatureDataAll;
 
     updateAddButton();
+    fetchMaxGuestsFromAdmin(function () {
+      updateAddButton();
+    });
   }
 
   window.DelfinTravelers = {

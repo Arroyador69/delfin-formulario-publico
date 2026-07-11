@@ -2143,6 +2143,8 @@
             console.log(`🔍 getTranslation("${key}") con idioma "${currentLang}": "${translation}"`);
             return translation;
         }
+        window.getTranslation = getTranslation;
+        window.translations = translations;
 
         /** Aplica texto plano o HTML según data-i18n-html (solo cadenas de nuestro diccionario i18n). */
         function applyI18nToElement(element, text) {
@@ -2767,7 +2769,6 @@
         // Funciones para manejar el segundo viajero
         function showTraveler2() {
             document.getElementById('traveler2Section').classList.remove('hidden');
-            document.getElementById('addTraveler2').style.display = 'none';
             const sig2Wrap = document.getElementById('signatureTraveler2Wrap');
             if (sig2Wrap) sig2Wrap.classList.remove('hidden');
             if (typeof window.initSignaturePad2 === 'function') window.initSignaturePad2();
@@ -2793,7 +2794,6 @@
 
         function hideTraveler2() {
             document.getElementById('traveler2Section').classList.add('hidden');
-            document.getElementById('addTraveler2').style.display = 'block';
             const sig2Wrap = document.getElementById('signatureTraveler2Wrap');
             if (sig2Wrap) sig2Wrap.classList.add('hidden');
             if (window._signaturePad2) { window._signaturePad2.clear(); }
