@@ -2412,7 +2412,7 @@
         console.log('🌍 COUNTRIES_DATA COMPLETO MIR cargado en primer script:', COUNTRIES_DATA.length, 'países con códigos ISO3 oficiales');
 
         // Función robusta para poblar los selects de países
-        function populateCountrySelects(language = 'es') {
+        function populateCountrySelects(language = 'es', root) {
           console.log('🌍 INICIANDO: Poblando selects de países con idioma:', language);
           
           // Verificar que COUNTRIES_DATA esté disponible
@@ -2424,7 +2424,7 @@
             setTimeout(() => {
               if (typeof COUNTRIES_DATA !== 'undefined') {
                 console.log('✅ COUNTRIES_DATA cargado después del timeout');
-                populateCountrySelects(language);
+                populateCountrySelects(language, root);
               } else {
                 console.error('❌ COUNTRIES_DATA sigue sin estar disponible');
               }
@@ -2434,8 +2434,10 @@
           
           console.log('✅ COUNTRIES_DATA disponible con', COUNTRIES_DATA.length, 'países');
           
-          // Buscar todos los selects de países y nacionalidades
-          const selects = document.querySelectorAll('select[name="nacionalidad"], select[name="nacionalidad2"], select[name="pais"], select[name="pais2"]');
+          const scope = root && typeof root.querySelectorAll === 'function' ? root : document;
+          const selects = scope.querySelectorAll(
+            'select.nationality-select, select.country-select, select[name^="nacionalidad"], select[name^="pais"]'
+          );
           console.log('🎯 DIAGNÓSTICO: Selects encontrados:', selects.length);
           console.log('🔍 DIAGNÓSTICO: Todos los selects en la página:', document.querySelectorAll('select').length);
           console.log('🔍 DIAGNÓSTICO: Selects con name="pais":', document.querySelectorAll('select[name="pais"]').length);
@@ -2472,14 +2474,14 @@
             const emptyOption = document.createElement('option');
             emptyOption.value = '';
             
-            if (select.name === 'pais' || select.name === 'pais2') {
+            if (select.name.includes('pais')) {
               emptyOption.textContent = language === 'es' ? 'Seleccione país' :
                                        language === 'en' ? 'Select country' :
                                        language === 'fr' ? 'Sélectionnez le pays' :
                                        language === 'it' ? 'Seleziona paese' :
                                        language === 'pt' ? 'Selecione o país' :
                                        language === 'fi' ? 'Valitse maa' : 'Select country';
-            } else if (select.name === 'nacionalidad' || select.name === 'nacionalidad2') {
+            } else if (select.name.includes('nacionalidad')) {
               emptyOption.textContent = language === 'es' ? 'Seleccione nacionalidad' :
                                        language === 'en' ? 'Select nationality' :
                                        language === 'fr' ? 'Sélectionnez la nationalité' :
@@ -11789,9 +11791,9 @@
             function getISO3FromInput(inputName) {
                 const element = document.querySelector(`[name="${inputName}"]`);
                 
-                // Si es un select, devolver directamente el valor (ya es ISO3)
+                // Si es un select, devolver el valor ISO3 (vacío si no eligió)
                 if (element && element.tagName === 'SELECT') {
-                    return element.value || 'ESP';
+                    return element.value || '';
                 }
                 
                 // Si es un input con dataset.iso3, usar ese valor
@@ -11801,7 +11803,7 @@
                 
                 // Fallback: convertir el valor del formData
                 const value = formData.get(inputName);
-                return convertToISO3(value) || 'ESP';
+                return convertToISO3(value) || '';
             }
 
             const viajeros = (window.DelfinTravelers && typeof window.DelfinTravelers.collectViajeros === 'function')
@@ -12106,8 +12108,8 @@
             if (!vm) return null;
             const idx = parseInt(vm[1], 10);
             const field = vm[2];
-            const t2 = idx >= 1;
-            const map0 = {
+            const travelerNum = idx + 1;
+            const fieldMap = {
                 nombre: 'nombre',
                 primerApellido: 'apellido1',
                 segundoApellido: 'apellido2',
@@ -12124,25 +12126,16 @@
                 nombreMunicipio: 'nombreMunicipio',
                 paisResidencia: 'pais'
             };
-            const map1 = {
-                nombre: 'nombre2',
-                primerApellido: 'apellido1_2',
-                segundoApellido: 'apellido2_2',
-                fechaNacimiento: 'fechaNacimiento2',
-                tipoDocumento: 'tipoDocumento2',
-                numeroDocumento: 'numeroDocumento2',
-                direccion: 'direccion2',
-                cp: 'codigoPostal2',
-                nacionalidad: 'nacionalidad2',
-                sexo: 'sexo2',
-                telefono: 'telefono2',
-                correo: 'correo2',
-                ine: 'codigoMunicipio2',
-                nombreMunicipio: 'nombreMunicipio2',
-                paisResidencia: 'pais2'
-            };
-            const M = t2 ? map1 : map0;
-            return M[field] || null;
+            const base = fieldMap[field];
+            if (!base) return null;
+            if (travelerNum === 1) {
+                if (base === 'codigoMunicipio') return 'codigoMunicipio1';
+                return base;
+            }
+            if (base === 'apellido1') return 'apellido1_' + travelerNum;
+            if (base === 'apellido2') return 'apellido2_' + travelerNum;
+            if (base === 'codigoMunicipio') return 'codigoMunicipio' + travelerNum;
+            return base + travelerNum;
         }
 
         function extractFocusFieldFromErrorPayload(errorData) {
@@ -12624,12 +12617,21 @@
                 
                 // Validar firma del huésped (OBLIGATORIO según RD 933/2021)
                 console.log('✅ Validando firma...');
-                if (typeof isSignatureEmpty === 'function' && isSignatureEmpty()) {
+                const signatureEmpty = (window.DelfinTravelers && typeof window.DelfinTravelers.isSignatureEmpty === 'function')
+                    ? window.DelfinTravelers.isSignatureEmpty()
+                    : (typeof isSignatureEmpty === 'function' && isSignatureEmpty());
+                if (signatureEmpty) {
                     console.error('❌ ERROR FIRMA: Firma vacía');
                     const currentLang = document.documentElement.lang || 'es';
                     const sigError = translations[currentLang]['signature.required'] || 'La firma es obligatoria';
                     showError(sigError);
-                    if (typeof showSignatureError === 'function') showSignatureError();
+                    if (typeof showSignatureError === 'function') {
+                        if (window.DelfinTravelers && typeof window.DelfinTravelers.showSignatureError === 'function') {
+                            window.DelfinTravelers.showSignatureError();
+                        } else {
+                            showSignatureError();
+                        }
+                    }
                     return;
                 }
                 console.log('✅ Firma validada');
@@ -12666,6 +12668,14 @@
                     );
                     if (soporteErr2) {
                         showError(soporteErr2);
+                        return;
+                    }
+                }
+
+                if (window.DelfinTravelers && typeof window.DelfinTravelers.validateBeforeSubmit === 'function') {
+                    const travelersErr = window.DelfinTravelers.validateBeforeSubmit(formData);
+                    if (travelersErr) {
+                        showError(travelersErr.message, travelersErr.field);
                         return;
                     }
                 }
@@ -13297,5 +13307,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event listeners del sistema legacy eliminados - solo se usa el sistema moderno
 })();
 </script>
-<script src="travelers-dynamic.js?v=20260711b"></script>
+<script src="travelers-dynamic.js?v=20260713a"></script>
 

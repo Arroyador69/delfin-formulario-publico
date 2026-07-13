@@ -138,6 +138,126 @@
     }
   }
 
+  function bindTravelerIneFields(index) {
+    var paisEl = document.querySelector('[name="' + fieldName('pais', index) + '"]');
+    var ineEl = document.getElementById('codigoMunicipio' + index);
+    var municipioEl = document.querySelector('[name="' + fieldName('nombreMunicipio', index) + '"]');
+    if (!paisEl || !ineEl || !municipioEl || typeof updateFields !== 'function') return;
+    var apply = function () {
+      updateFields(paisEl, ineEl, null, municipioEl, null);
+    };
+    apply();
+    paisEl.addEventListener('change', apply);
+  }
+
+  function getISO3FromInput(inputName, formData) {
+    var el = document.querySelector('[name="' + inputName + '"]');
+    if (el && el.tagName === 'SELECT') return el.value || '';
+    if (el && el.dataset && el.dataset.iso3) return el.dataset.iso3;
+    var raw = formData ? formData.get(inputName) : '';
+    if (typeof convertToISO3 === 'function') return convertToISO3(raw) || '';
+    return String(raw || '').trim();
+  }
+
+  function validateBeforeSubmit(formData) {
+    var indices = getActiveIndices();
+    for (var i = 0; i < indices.length; i++) {
+      var idx = indices[i];
+      var nombre = String(formData.get(fieldName('nombre', idx)) || '').trim();
+      if (!nombre) continue;
+
+      var nacionalidad = getISO3FromInput(fieldName('nacionalidad', idx), formData);
+      if (!nacionalidad) {
+        return {
+          message: 'Seleccione la nacionalidad del viajero ' + idx,
+          field: fieldName('nacionalidad', idx),
+        };
+      }
+
+      var pais = getISO3FromInput(fieldName('pais', idx), formData);
+      if (!pais) {
+        return {
+          message: 'Seleccione el país de residencia del viajero ' + idx,
+          field: fieldName('pais', idx),
+        };
+      }
+
+      if (idx >= 3 && typeof validateDoc === 'function') {
+        var docErr = validateDoc(
+          formData.get(fieldName('tipoDocumento', idx)),
+          formData.get(fieldName('numeroDocumento', idx))
+        );
+        if (docErr) return { message: docErr, field: fieldName('numeroDocumento', idx) };
+      }
+
+      if (nacionalidad === 'ESP') {
+        var ap2 = String(formData.get(fieldName('apellido2', idx)) || '').trim();
+        if (!ap2) {
+          return {
+            message: 'El segundo apellido es obligatorio para españoles (viajero ' + idx + ')',
+            field: fieldName('apellido2', idx),
+          };
+        }
+      }
+
+      if (pais === 'ESP') {
+        var ineEl = document.getElementById('codigoMunicipio' + idx);
+        var ineVal = ineEl ? String(ineEl.value || '').trim() : '';
+        if (!/^\d{5}$/.test(ineVal)) {
+          return {
+            message: 'Para españoles es obligatorio el código INE del municipio (viajero ' + idx + ')',
+            field: 'codigoMunicipio' + idx,
+          };
+        }
+      } else {
+        var nm = String(formData.get(fieldName('nombreMunicipio', idx)) || '').trim();
+        if (!nm) {
+          return {
+            message: 'Indique el municipio/ciudad de residencia (viajero ' + idx + ')',
+            field: fieldName('nombreMunicipio', idx),
+          };
+        }
+      }
+    }
+    return null;
+  }
+
+  function isSignatureEmptyAll() {
+    var indices = getActiveIndices();
+    for (var i = 0; i < indices.length; i++) {
+      var idx = indices[i];
+      if (idx === 1) {
+        if (!window._signaturePad || window._signaturePad.isEmpty()) return true;
+      } else if (idx === 2) {
+        if (!window._signaturePad2 || window._signaturePad2.isEmpty()) return true;
+      } else {
+        var pad = signaturePads[idx];
+        if (!pad || pad.isEmpty()) return true;
+      }
+    }
+    return false;
+  }
+
+  function showSignatureErrorAll() {
+    var indices = getActiveIndices();
+    for (var i = 0; i < indices.length; i++) {
+      var idx = indices[i];
+      var empty = false;
+      if (idx === 1) empty = !window._signaturePad || window._signaturePad.isEmpty();
+      else if (idx === 2) empty = !window._signaturePad2 || window._signaturePad2.isEmpty();
+      else empty = !signaturePads[idx] || signaturePads[idx].isEmpty();
+      if (empty) {
+        var wrapId = idx === 1 ? 'signaturePadWrapper' : 'signaturePadWrapper' + idx;
+        var wrap = document.getElementById(wrapId);
+        if (wrap) {
+          wrap.classList.add('field-error');
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+    }
+  }
+
   function bindCountrySelects(root) {
     if (typeof populateCountrySelects === 'function') {
       setTimeout(function () {
@@ -273,8 +393,10 @@
     var container = document.getElementById('extraTravelersContainer');
     if (!container) return;
     container.insertAdjacentHTML('beforeend', buildTravelerSectionHtml(nextIndex));
-    bindCountrySelects(container);
+    var newSection = document.getElementById('travelerSection' + nextIndex);
+    bindCountrySelects(newSection || container);
     if (typeof setupMunicipioSelector === 'function') setupMunicipioSelector(nextIndex);
+    bindTravelerIneFields(nextIndex);
 
     var sigContainer = document.getElementById('dynamicSignaturesContainer');
     if (sigContainer) {
@@ -312,14 +434,6 @@
     var toISO = typeof toISODate === 'function' ? toISODate : function (v) { return String(v || ''); };
     var mapDoc = typeof mapDocType === 'function' ? mapDocType : function (v) { return v || 'PAS'; };
     var mapSx = typeof mapSexo === 'function' ? mapSexo : function (v) { return v || 'H'; };
-    var convISO3 = typeof convertToISO3 === 'function' ? convertToISO3 : function (v) { return v || 'ESP'; };
-
-    function getISO3FromInput(inputName) {
-      var el = document.querySelector('[name="' + inputName + '"]');
-      if (el && el.tagName === 'SELECT') return el.value || 'ESP';
-      if (el && el.dataset && el.dataset.iso3) return el.dataset.iso3;
-      return convISO3(formData.get(inputName));
-    }
 
     indices.forEach(function (idx) {
       var nombreKey = fieldName('nombre', idx);
@@ -339,7 +453,7 @@
         numeroDocumento: String((formData.get(fieldName('numeroDocumento', idx)) || '')).toUpperCase().replace(/\s+/g, ''),
         soporteDocumento: String(formData.get(fieldName('soporteDocumento', idx)) || '').trim().toUpperCase() || null,
         sexo: mapSx(formData.get(fieldName('sexo', idx))),
-        nacionalidad: getISO3FromInput(fieldName('nacionalidad', idx)),
+        nacionalidad: getISO3FromInput(fieldName('nacionalidad', idx), formData),
         telefono: String(formData.get(fieldName('telefono', idx)) || '').replace(/\s+/g, ''),
         correo: String(formData.get(fieldName('correo', idx)) || '').trim().toLowerCase(),
         direccion: String(formData.get(fieldName('direccion', idx)) || '').trim(),
@@ -349,7 +463,7 @@
         })(),
         ine: ineVal,
         nombreMunicipio: String(formData.get(fieldName('nombreMunicipio', idx)) || '').trim(),
-        paisResidencia: getISO3FromInput(fieldName('pais', idx)),
+        paisResidencia: getISO3FromInput(fieldName('pais', idx), formData),
       };
 
       if (v.paisResidencia === 'ESP') {
@@ -440,6 +554,7 @@
     }
 
     window.getSignatureData = getSignatureDataAll;
+    window.isSignatureEmpty = isSignatureEmptyAll;
 
     updateAddButton();
     fetchMaxGuestsFromAdmin(function () {
@@ -452,6 +567,9 @@
     getActiveIndices: getActiveIndices,
     collectViajeros: collectViajeros,
     updateAddButton: updateAddButton,
+    validateBeforeSubmit: validateBeforeSubmit,
+    isSignatureEmpty: isSignatureEmptyAll,
+    showSignatureError: showSignatureErrorAll,
   };
 
   if (document.readyState === 'loading') {
