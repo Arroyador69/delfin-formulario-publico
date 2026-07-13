@@ -141,13 +141,29 @@
   function bindTravelerIneFields(index) {
     var paisEl = document.querySelector('[name="' + fieldName('pais', index) + '"]');
     var ineEl = document.getElementById('codigoMunicipio' + index);
-    var municipioEl = document.querySelector('[name="' + fieldName('nombreMunicipio', index) + '"]');
+    var municipioEl = document.getElementById('nombreMunicipio' + index);
+    var ineRequired = document.getElementById('ineRequired' + index);
+    var municipioRequired = document.getElementById('municipioRequired' + index);
     if (!paisEl || !ineEl || !municipioEl || typeof updateFields !== 'function') return;
     var apply = function () {
-      updateFields(paisEl, ineEl, null, municipioEl, null);
+      updateFields(paisEl, ineEl, ineRequired, municipioEl, municipioRequired);
     };
     apply();
     paisEl.addEventListener('change', apply);
+  }
+
+  function bindTravelerDocType(index) {
+    var tipoEl = document.querySelector('[name="' + fieldName('tipoDocumento', index) + '"]');
+    if (!tipoEl) return;
+    tipoEl.addEventListener('change', function () {
+      if (typeof applySoporteDocumentoUi === 'function') applySoporteDocumentoUi(String(index));
+    });
+    if (typeof applySoporteDocumentoUi === 'function') applySoporteDocumentoUi(String(index));
+  }
+
+  function bindTravelerFieldLogic(index) {
+    bindTravelerIneFields(index);
+    bindTravelerDocType(index);
   }
 
   function getISO3FromInput(inputName, formData) {
@@ -188,6 +204,14 @@
           formData.get(fieldName('numeroDocumento', idx))
         );
         if (docErr) return { message: docErr, field: fieldName('numeroDocumento', idx) };
+      }
+
+      if (typeof validateSoporteDocumento === 'function') {
+        var soporteErr = validateSoporteDocumento(
+          formData.get(fieldName('tipoDocumento', idx)),
+          formData.get(fieldName('soporteDocumento', idx))
+        );
+        if (soporteErr) return { message: soporteErr, field: fieldName('soporteDocumento', idx) };
       }
 
       if (nacionalidad === 'ESP') {
@@ -266,6 +290,50 @@
     }
   }
 
+  function soporteDocumentoBlock(index) {
+    var name = fieldName('soporteDocumento', index);
+    return (
+      '<div id="soporteDocumentoWrap' + index + '" class="hidden md:col-span-2">' +
+      '<label id="soporteDocumentoLabel' + index + '" class="block text-sm font-medium text-gray-700 mb-2">' +
+      t('travelers.documentSupportDni') + '</label>' +
+      '<input type="text" name="' + name + '" class="form-input" maxlength="20" placeholder="Ej. CAA000000" autocomplete="off" />' +
+      '<p id="soporteDocumentoHint' + index + '" class="text-xs text-gray-500 mt-1">' +
+      t('travelers.documentSupportHintDni') + '</p></div>'
+    );
+  }
+
+  function ineContainerBlock(index) {
+    var codigoName = fieldName('codigoMunicipio', index);
+    return (
+      '<div id="ineContainer' + index + '" class="md:col-span-2">' +
+      '<label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.municipalityCode') +
+      ' <span id="ineRequired' + index + '" class="text-red-500">*</span></label>' +
+      '<div class="relative">' +
+      '<input type="text" name="' + codigoName + '" id="codigoMunicipio' + index +
+      '" class="form-input" maxlength="5" placeholder="29042" readonly />' +
+      '<input type="text" id="municipioSearch' + index +
+      '" class="form-input mt-2" placeholder="Buscar municipio (ej: Fuengirola, Málaga...)" autocomplete="off" />' +
+      '<div id="municipioResults' + index +
+      '" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div>' +
+      '</div>' +
+      '<p class="text-xs text-gray-500 mt-1"><span data-i18n="travelers.municipalityHelp" data-i18n-html>' +
+      t('travelers.municipalityHelp') + '</span></p></div>'
+    );
+  }
+
+  function municipioNameBlock(index) {
+    var name = fieldName('nombreMunicipio', index);
+    return (
+      '<div class="md:col-span-2">' +
+      '<label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.municipalityName') +
+      ' <span id="municipioRequired' + index + '" class="text-red-500 hidden">*</span></label>' +
+      '<input type="text" name="' + name + '" id="nombreMunicipio' + index +
+      '" class="form-input" placeholder="Helsinki, Paris, London..." />' +
+      '<p class="text-xs text-gray-500 mt-1"><span data-i18n="travelers.municipalityNameHelp" data-i18n-html>' +
+      t('travelers.municipalityNameHelp') + '</span></p></div>'
+    );
+  }
+
   function buildTravelerSectionHtml(index) {
     var title = t('travelers.travelerN', { n: index });
     return (
@@ -281,19 +349,16 @@
       dateField('fechaNacimiento', index, t('travelers.birthDate')) +
       selectDoc(index) +
       inputField('numeroDocumento', index, t('travelers.documentNumber'), true) +
-      inputField('soporteDocumento', index, t('travelers.documentSupportDni'), false) +
-      selectField('sexo', index, t('travelers.gender')) +
+      soporteDocumentoBlock(index) +
       nationalitySelect(index) +
+      selectField('sexo', index, t('travelers.gender')) +
       inputField('telefono', index, t('travelers.phone'), true) +
       inputField('correo', index, t('travelers.email'), true) +
       inputField('direccion', index, t('travelers.address'), true) +
       inputField('codigoPostal', index, t('travelers.postalCode'), true) +
       countrySelect(index) +
-      '<div class="relative"><label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.municipalityCode') + '</label>' +
-      '<input type="text" name="' + fieldName('codigoMunicipio', index) + '" id="codigoMunicipio' + index + '" class="form-input" readonly />' +
-      '<input type="text" id="municipioSearch' + index + '" class="form-input mt-2" autocomplete="off" />' +
-      '<div id="municipioResults' + index + '" class="absolute z-10 w-full bg-white border rounded-md shadow-lg hidden max-h-48 overflow-y-auto"></div></div>' +
-      inputField('nombreMunicipio', index, t('travelers.municipalityName'), false) +
+      ineContainerBlock(index) +
+      municipioNameBlock(index) +
       '</div></div>'
     );
   }
@@ -327,14 +392,18 @@
 
   function nationalitySelect(index) {
     var name = fieldName('nacionalidad', index);
-    return '<div><label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.nationality') + '</label>' +
-      '<select name="' + name + '" class="form-input nationality-select" required><option value="">—</option></select></div>';
+    return '<div><label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.nationality') +
+      ' <span class="text-red-500">*</span></label>' +
+      '<select name="' + name + '" class="form-input nationality-select" required><option value="">—</option></select>' +
+      '<p class="text-xs text-gray-500 mt-1">Seleccione la nacionalidad del viajero. Se usará el código ISO3 estándar para el registro MIR.</p></div>';
   }
 
   function countrySelect(index) {
     var name = fieldName('pais', index);
-    return '<div><label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.country') + '</label>' +
-      '<select name="' + name + '" class="form-input country-select" required><option value="">—</option></select></div>';
+    return '<div><label class="block text-sm font-medium text-gray-700 mb-2">' + t('travelers.country') +
+      ' <span class="text-red-500">*</span></label>' +
+      '<select name="' + name + '" class="form-input country-select" required><option value="">—</option></select>' +
+      '<p class="text-xs text-gray-500 mt-1">Seleccione el país de residencia del viajero. Se usará el código ISO3 estándar para el registro MIR.</p></div>';
   }
 
   function buildSignatureHtml(index) {
@@ -396,7 +465,7 @@
     var newSection = document.getElementById('travelerSection' + nextIndex);
     bindCountrySelects(newSection || container);
     if (typeof setupMunicipioSelector === 'function') setupMunicipioSelector(nextIndex);
-    bindTravelerIneFields(nextIndex);
+    bindTravelerFieldLogic(nextIndex);
 
     var sigContainer = document.getElementById('dynamicSignaturesContainer');
     if (sigContainer) {

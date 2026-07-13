@@ -12482,15 +12482,21 @@
             return s && !s.classList.contains('hidden');
         }
         function applySoporteDocumentoUi(which) {
-            const suffix = which === '2' ? '2' : '';
+            const index = parseInt(String(which), 10) || (which === '2' ? 2 : 1);
+            const suffix = index === 1 ? '' : String(index);
             const tipoEl = document.querySelector('[name="tipoDocumento' + suffix + '"]');
-            const wrap = document.getElementById('soporteDocumentoWrap' + (which === '2' ? '2' : '1'));
+            const wrap = document.getElementById('soporteDocumentoWrap' + index);
             const input = document.querySelector('[name="soporteDocumento' + suffix + '"]');
-            const labelEl = document.getElementById('soporteDocumentoLabel' + (which === '2' ? '2' : '1'));
-            const hintEl = document.getElementById('soporteDocumentoHint' + (which === '2' ? '2' : '1'));
+            const labelEl = document.getElementById('soporteDocumentoLabel' + index);
+            const hintEl = document.getElementById('soporteDocumentoHint' + index);
             if (!tipoEl || !wrap) return;
             const kind = soporteDocumentoKind(tipoEl.value);
-            const travelerActive = which !== '2' || isTraveler2Visible();
+            let travelerActive = true;
+            if (index === 2) travelerActive = isTraveler2Visible();
+            else if (index > 2) {
+                const section = document.getElementById('travelerSection' + index);
+                travelerActive = !!(section && !section.classList.contains('hidden'));
+            }
             const show = Boolean(kind) && travelerActive;
             wrap.classList.toggle('hidden', !show);
             if (input) {
@@ -13307,5 +13313,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event listeners del sistema legacy eliminados - solo se usa el sistema moderno
 })();
 </script>
-<script src="travelers-dynamic.js?v=20260713a"></script>
+<script src="travelers-dynamic.js?v=20260713b"></script>
 
