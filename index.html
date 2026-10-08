@@ -64,6 +64,91 @@
             border-radius: 0.5rem;
             margin-top: 1rem;
         }
+        /* Pantalla de confirmación (móvil-first): reemplaza el formulario tras el envío */
+        #submissionResultOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, #ecfdf5 0%, #f0f9ff 55%, #ffffff 100%);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: env(safe-area-inset-top) 1.25rem env(safe-area-inset-bottom);
+        }
+        #submissionResultOverlay.is-visible { display: flex; }
+        #submissionResultOverlay .result-card {
+            margin: auto;
+            width: 100%;
+            max-width: 28rem;
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+            padding: 1.75rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+        #submissionResultOverlay .result-icon {
+            width: 4.5rem;
+            height: 4.5rem;
+            margin: 0 auto 1rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #submissionResultOverlay .result-icon.success { background: #d1fae5; color: #047857; }
+        #submissionResultOverlay .result-icon.already { background: #dbeafe; color: #1d4ed8; }
+        #submissionResultOverlay .result-icon.uncertain { background: #fef3c7; color: #b45309; }
+        #submissionResultOverlay h2 {
+            font-size: 1.5rem;
+            line-height: 1.25;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.75rem;
+        }
+        #submissionResultOverlay .result-body {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: #334155;
+            margin: 0 0 0.75rem;
+        }
+        #submissionResultOverlay .result-hint {
+            font-size: 0.95rem;
+            line-height: 1.45;
+            color: #475569;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 0.85rem 1rem;
+            margin: 1rem 0 0;
+            text-align: left;
+        }
+        #submissionResultOverlay .result-ref {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            word-break: break-all;
+        }
+        #submitFeedback {
+            display: none;
+            margin-top: 0.75rem;
+            padding: 0.85rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            text-align: left;
+        }
+        #submitFeedback.is-error {
+            display: block;
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        #submitFeedback.is-info {
+            display: block;
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
         .language-btn {
             padding: 0.5rem 1rem;
             border: 1px solid #d1d5db;
@@ -133,6 +218,21 @@
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
+    <!-- Confirmación a pantalla completa (éxito / ya enviado / estado dudoso) -->
+    <div id="submissionResultOverlay" aria-live="polite" aria-modal="true" role="dialog">
+        <div class="result-card">
+            <div id="resultIcon" class="result-icon success" aria-hidden="true">
+                <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h2 id="resultTitle">¡Registro enviado!</h2>
+            <p id="resultBody" class="result-body">Tu parte de viajero se ha recibido correctamente.</p>
+            <p id="resultHint" class="result-hint">No hace falta volver a rellenar el formulario. Puedes cerrar esta página.</p>
+            <p id="resultRef" class="result-ref" hidden></p>
+        </div>
+    </div>
+
     <!-- Header con selector de idioma -->
     <header class="bg-white shadow-sm border-b">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1128,6 +1228,11 @@
                         </svg>
                         <span data-i18n="submit.button">Enviar Registro</span>
                     </button>
+                    <!-- Feedback pegado al botón (clave en móvil: el huésped ve el resultado donde acaba de pulsar) -->
+                    <div id="submitFeedback" role="alert"></div>
+                    <p class="text-xs text-gray-500 mt-3 text-center" data-i18n="submit.waitHint">
+                        Tras pulsar, espera unos segundos. No cierres la página ni pulses otra vez.
+                    </p>
                 </div>
             </form>
         </div>
@@ -1234,13 +1339,21 @@
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Código municipio INE (5) *",
                 "travelers.municipalityHelp": "<strong>SOLO residentes en España:</strong> Escribe el nombre del municipio donde estás empadronado en España y el sistema encontrará el código INE automáticamente.<br><strong>IMPORTANTE:</strong> No es el código postal; es el código INE del municipio (5 dígitos: 2 de provincia + 3 de municipio).",
-                "messages.success.title": "¡Registro enviado correctamente!",
-                "messages.success.body": "Los datos han sido enviados al dashboard del administrador.",
-                "messages.success.thanks": "¡Gracias por completar el registro!",
-                "messages.error.title": "Error al enviar el registro.",
-                "messages.error.body": "Por favor, inténtelo de nuevo.",
+                "messages.success.title": "¡Registro enviado!",
+                "messages.success.body": "Tu parte de viajero se ha recibido correctamente. El alojamiento ya lo tiene.",
+                "messages.success.thanks": "¡Gracias! Ya puedes cerrar esta página. No hace falta volver a enviar el formulario.",
+                "messages.success.hint": "Si el alojamiento te pide el parte, dile que ya está enviado en Delfín Check-in. No rellenes el formulario otra vez.",
+                "messages.already.title": "Ya estaba enviado",
+                "messages.already.body": "Este registro ya se recibió correctamente. No se ha creado un duplicado.",
+                "messages.already.hint": "No hace falta volver a rellenar. Puedes cerrar esta página con tranquilidad.",
+                "messages.uncertain.title": "Comprueba antes de reenviar",
+                "messages.uncertain.body": "La conexión se interrumpió. El registro puede haberse enviado igual.",
+                "messages.uncertain.hint": "Importante: no vuelvas a rellenar el formulario ahora. Espera o contacta al alojamiento para confirmar. Así evitamos partes duplicados.",
+                "messages.error.title": "No se pudo completar el envío",
+                "messages.error.body": "Revisa los campos marcados. Solo vuelve a enviar si ves un error claro de datos.",
                 "submit.button": "Enviar Registro",
-                "submit.sending": "Enviando...",
+                "submit.sending": "Enviando… no cierres ni pulses otra vez",
+                "submit.waitHint": "Tras pulsar, espera unos segundos. No cierres la página ni pulses otra vez.",
                 "validation.documentRequired": "Si selecciona tipo de documento, debe proporcionar el número",
                 "validation.documentEmpty": "El número de documento no puede estar vacío",
                 "validation.documentSupportRequiredDni": "El número de soporte del DNI es obligatorio (código del reverso del documento, normativa MIR)",
@@ -1410,13 +1523,21 @@
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Municipality INE code (5) *",
                 "travelers.municipalityHelp": "<strong>ONLY residents in Spain:</strong> Type the name of the municipality where you are registered as resident in Spain and the system will automatically find the INE code.<br><strong>IMPORTANT:</strong> This is not the postal code; it is the INE municipality code (5 digits: 2 for province + 3 for municipality).",
-                "messages.success.title": "Registration sent successfully!",
-                "messages.success.body": "Data has been sent to the admin dashboard.",
-                "messages.success.thanks": "Thank you for completing the registration!",
-                "messages.error.title": "Error sending registration.",
-                "messages.error.body": "Please try again.",
+                "messages.success.title": "Registration submitted!",
+                "messages.success.body": "Your guest registration was received successfully. The host already has it.",
+                "messages.success.thanks": "Thank you! You can close this page. No need to submit again.",
+                "messages.success.hint": "If the host asks for the form, tell them it is already in Delfín Check-in. Do not fill it out again.",
+                "messages.already.title": "Already submitted",
+                "messages.already.body": "This registration was already received. No duplicate was created.",
+                "messages.already.hint": "No need to fill the form again. You can safely close this page.",
+                "messages.uncertain.title": "Check before resubmitting",
+                "messages.uncertain.body": "The connection was interrupted. Your registration may still have been sent.",
+                "messages.uncertain.hint": "Important: do not fill the form again now. Wait or contact the host to confirm. This avoids duplicate registrations.",
+                "messages.error.title": "Could not complete submission",
+                "messages.error.body": "Please review the marked fields. Only resubmit if there is a clear data error.",
                 "submit.button": "Send Registration",
-                "submit.sending": "Sending...",
+                "submit.sending": "Sending… don’t close or tap again",
+                "submit.waitHint": "After tapping, wait a few seconds. Don’t close the page or tap again.",
                 "validation.documentRequired": "If you select document type, you must provide the number",
                 "validation.documentEmpty": "Document number cannot be empty",
                 "validation.documentSupportRequiredDni": "Spanish DNI support number is required (back of the document, MIR regulations)",
@@ -1586,13 +1707,21 @@
                 "travelers.countries.portugal": "Portugal",
                 "travelers.municipalityCode": "Code municipal INE (5) *",
                 "travelers.municipalityHelp": "<strong>SEULEMENT résidents en Espagne:</strong> Écrivez le nom de la municipalité où vous êtes enregistré(e) (empadronado) en Espagne et le système trouvera automatiquement le code INE.<br><strong>IMPORTANT:</strong> Ce n’est pas le code postal; c’est le code INE de la municipalité (5 chiffres: 2 province + 3 municipalité).",
-                "messages.success.title": "Enregistrement envoyé avec succès !",
-                "messages.success.body": "Les données ont été envoyées au tableau de bord administrateur.",
-                "messages.success.thanks": "Merci d'avoir complété l'enregistrement !",
-                "messages.error.title": "Erreur lors de l'envoi de l'enregistrement.",
-                "messages.error.body": "Veuillez réessayer.",
+                "messages.success.title": "Enregistrement envoyé !",
+                "messages.success.body": "Votre fiche voyageur a bien été reçue. L'hébergement l'a déjà.",
+                "messages.success.thanks": "Merci ! Vous pouvez fermer cette page. Inutile de renvoyer le formulaire.",
+                "messages.success.hint": "Si l'hébergement vous demande la fiche, dites que c'est déjà dans Delfín Check-in. Ne remplissez pas à nouveau.",
+                "messages.already.title": "Déjà envoyé",
+                "messages.already.body": "Cet enregistrement a déjà été reçu. Aucun doublon n'a été créé.",
+                "messages.already.hint": "Inutile de remplir à nouveau. Vous pouvez fermer cette page.",
+                "messages.uncertain.title": "Vérifiez avant de renvoyer",
+                "messages.uncertain.body": "La connexion a été interrompue. L'envoi a peut‑être quand même réussi.",
+                "messages.uncertain.hint": "Important : ne remplissez pas le formulaire maintenant. Attendez ou contactez l'hébergement pour confirmer et éviter les doublons.",
+                "messages.error.title": "Envoi non terminé",
+                "messages.error.body": "Vérifiez les champs indiqués. Ne renvoyez que s'il y a une erreur claire de données.",
                 "submit.button": "Envoyer l'Enregistrement",
-                "submit.sending": "Envoi en cours...",
+                "submit.sending": "Envoi… ne fermez pas et ne retapez pas",
+                "submit.waitHint": "Après avoir appuyé, attendez quelques secondes. Ne fermez pas la page et ne retapez pas.",
                 "validation.documentRequired": "Si vous sélectionnez un type de document, vous devez fournir le numéro",
                 "validation.documentEmpty": "Le numéro de document ne peut pas être vide",
                 "validation.documentSupportRequiredDni": "Le numéro de support du DNI espagnol est obligatoire (verso du document, norme MIR)",
@@ -1745,13 +1874,21 @@
                 "travelers.countries.germany": "Germania",
                 "travelers.countries.italy": "Italia",
                 "travelers.countries.portugal": "Portogallo",
-                "messages.success.title": "Registrazione inviata con successo!",
-                "messages.success.body": "I dati sono stati inviati al dashboard di amministrazione.",
-                "messages.success.thanks": "Grazie per aver completato la registrazione!",
-                "messages.error.title": "Errore durante l'invio della registrazione.",
-                "messages.error.body": "Per favore riprova.",
+                "messages.success.title": "Registrazione inviata!",
+                "messages.success.body": "La scheda viaggiatore è stata ricevuta correttamente. La struttura la ha già.",
+                "messages.success.thanks": "Grazie! Puoi chiudere questa pagina. Non serve inviare di nuovo.",
+                "messages.success.hint": "Se la struttura ti chiede la scheda, di' che è già su Delfín Check-in. Non compilare di nuovo.",
+                "messages.already.title": "Già inviata",
+                "messages.already.body": "Questa registrazione era già stata ricevuta. Non è stato creato un duplicato.",
+                "messages.already.hint": "Non serve compilare di nuovo. Puoi chiudere questa pagina con tranquillità.",
+                "messages.uncertain.title": "Verifica prima di reinviare",
+                "messages.uncertain.body": "La connessione si è interrotta. La registrazione potrebbe essere stata inviata lo stesso.",
+                "messages.uncertain.hint": "Importante: non compilare di nuovo ora. Attendi o contatta la struttura per confermare ed evitare duplicati.",
+                "messages.error.title": "Invio non completato",
+                "messages.error.body": "Controlla i campi evidenziati. Reinvia solo se c'è un errore chiaro nei dati.",
                 "submit.button": "Invia registrazione",
-                "submit.sending": "Invio...",
+                "submit.sending": "Invio… non chiudere e non premere di nuovo",
+                "submit.waitHint": "Dopo aver premuto, attendi qualche secondo. Non chiudere la pagina e non premere di nuovo.",
                 "validation.documentRequired": "Se selezioni il tipo di documento, devi fornire il numero",
                 "validation.documentEmpty": "Il numero del documento non può essere vuoto",
                 "validation.documentSupportRequiredDni": "Il numero di supporto del DNI spagnolo è obbligatorio (retro del documento, normativa MIR)",
@@ -1904,13 +2041,21 @@
                 "travelers.countries.germany": "Alemanha",
                 "travelers.countries.italy": "Itália",
                 "travelers.countries.portugal": "Portugal",
-                "messages.success.title": "Cadastro enviado com sucesso!",
-                "messages.success.body": "Os dados foram enviados para o painel de administração.",
-                "messages.success.thanks": "Obrigado por concluir o registro!",
-                "messages.error.title": "Erro ao enviar cadastro.",
-                "messages.error.body": "Por favor, tente novamente.",
+                "messages.success.title": "Registo enviado!",
+                "messages.success.body": "O seu parte de viajante foi recebido corretamente. O alojamento já o tem.",
+                "messages.success.thanks": "Obrigado! Pode fechar esta página. Não é preciso enviar de novo.",
+                "messages.success.hint": "Se o alojamento pedir o formulário, diga que já está no Delfín Check-in. Não preencha outra vez.",
+                "messages.already.title": "Já estava enviado",
+                "messages.already.body": "Este registo já tinha sido recebido. Não foi criado um duplicado.",
+                "messages.already.hint": "Não é preciso preencher de novo. Pode fechar esta página com tranquilidade.",
+                "messages.uncertain.title": "Confirme antes de reenviar",
+                "messages.uncertain.body": "A ligação foi interrompida. O registo pode ter sido enviado na mesma.",
+                "messages.uncertain.hint": "Importante: não preencha o formulário agora. Espere ou contacte o alojamento para confirmar e evitar duplicados.",
+                "messages.error.title": "Não foi possível concluir o envio",
+                "messages.error.body": "Reveja os campos assinalados. Só volte a enviar se houver um erro claro nos dados.",
                 "submit.button": "Enviar registro",
-                "submit.sending": "Enviando...",
+                "submit.sending": "A enviar… não feche nem toque outra vez",
+                "submit.waitHint": "Depois de tocar, espere alguns segundos. Não feche a página nem toque outra vez.",
                 "validation.documentRequired": "Se você selecionar o tipo de documento, deverá fornecer o número",
                 "validation.documentEmpty": "O número do documento não pode ficar vazio",
                 "validation.documentSupportRequiredDni": "O número de suporte do DNI espanhol é obrigatório (verso do documento, normativa MIR)",
@@ -2063,13 +2208,21 @@
                 "travelers.countries.germany": "Saksa",
                 "travelers.countries.italy": "Italia",
                 "travelers.countries.portugal": "Portugali",
-                "messages.success.title": "Ilmoittautuminen onnistui!",
-                "messages.success.body": "Tiedot on lähetetty järjestelmänvalvojan hallintapaneeliin.",
-                "messages.success.thanks": "Kiitos rekisteröinnin suorittamisesta!",
-                "messages.error.title": "Virhe rekisteröinnin lähettämisessä.",
-                "messages.error.body": "Yritä uudelleen.",
+                "messages.success.title": "Ilmoittautuminen lähetetty!",
+                "messages.success.body": "Matkustajailmoitus vastaanotettiin. Majoituspaikka on jo saanut sen.",
+                "messages.success.thanks": "Kiitos! Voit sulkea sivun. Älä lähetä lomaketta uudelleen.",
+                "messages.success.hint": "Jos majoitus kysyy lomaketta, kerro että se on jo Delfín Check-inissä. Älä täytä uudelleen.",
+                "messages.already.title": "Jo lähetetty",
+                "messages.already.body": "Tämä ilmoitus oli jo vastaanotettu. Kaksoiskappaletta ei luotu.",
+                "messages.already.hint": "Ei tarvitse täyttää uudelleen. Voit sulkea sivun huoletta.",
+                "messages.uncertain.title": "Tarkista ennen uudelleenlähetystä",
+                "messages.uncertain.body": "Yhteys katkesi. Ilmoitus on ehkä silti lähetetty.",
+                "messages.uncertain.hint": "Tärkeää: älä täytä lomaketta nyt uudelleen. Odota tai kysy majoitukselta vahvistus, jotta vältätte kaksoiskappaleet.",
+                "messages.error.title": "Lähetystä ei voitu viimeistellä",
+                "messages.error.body": "Tarkista merkityt kentät. Lähetä uudelleen vain jos tiedoissa on selvä virhe.",
                 "submit.button": "Lähetä rekisteröinti",
-                "submit.sending": "Lähetetään...",
+                "submit.sending": "Lähetetään… älä sulje äläkä napauta uudelleen",
+                "submit.waitHint": "Napautuksen jälkeen odota hetki. Älä sulje sivua äläkä napauta uudelleen.",
                 "validation.documentRequired": "Jos valitset asiakirjan tyypin, sinun on annettava numero",
                 "validation.documentEmpty": "Asiakirjan numero ei voi olla tyhjä",
                 "validation.documentSupportRequiredDni": "Espanjalaisen DNI:n tukinumero on pakollinen (DNI:n kääntöpuoli, MIR-säännöt)",
@@ -12310,6 +12463,132 @@
             bindServerErrorClearOnInput();
         }
 
+        // ---- Confirmación de envío / anti-duplicados (móvil-first) ----
+        var __delfinSubmitLock = false;
+        var __delfinSubmitCompleted = false;
+        var __delfinClientSubmissionId = (function () {
+            try {
+                if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                    return window.crypto.randomUUID();
+                }
+            } catch (_) {}
+            return 'sub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 12);
+        })();
+
+        function tMsg(key, fallback) {
+            var lang = document.documentElement.getAttribute('lang') || document.documentElement.lang || 'es';
+            if (translations[lang] && translations[lang][key]) return translations[lang][key];
+            if (translations.es && translations.es[key]) return translations.es[key];
+            return fallback || key;
+        }
+
+        function getSubmissionStorageKey() {
+            var tid = '';
+            try {
+                tid = (typeof getTenantIdFromUrl === 'function' && getTenantIdFromUrl()) ||
+                    new URLSearchParams(window.location.search).get('tenant_id') || '';
+            } catch (_) {}
+            return tid ? ('delfin_checkin_done:' + tid) : '';
+        }
+
+        function persistSubmissionDone(meta) {
+            try {
+                var key = getSubmissionStorageKey();
+                if (!key) return;
+                sessionStorage.setItem(key, JSON.stringify({
+                    at: new Date().toISOString(),
+                    id: meta && meta.id ? meta.id : null,
+                    reserva_ref: meta && meta.reserva_ref ? meta.reserva_ref : null,
+                    client_submission_id: __delfinClientSubmissionId,
+                    mode: meta && meta.mode ? meta.mode : 'success'
+                }));
+            } catch (_) {}
+        }
+
+        function readPersistedSubmission() {
+            try {
+                var key = getSubmissionStorageKey();
+                if (!key) return null;
+                var raw = sessionStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function showSubmitFeedback(text, kind) {
+            var el = document.getElementById('submitFeedback');
+            if (!el) return;
+            el.textContent = text || '';
+            el.classList.remove('is-error', 'is-info');
+            if (!text) {
+                el.style.display = 'none';
+                return;
+            }
+            el.classList.add(kind === 'info' ? 'is-info' : 'is-error');
+            try {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (_) {}
+        }
+
+        function showSubmissionResultScreen(mode, meta) {
+            var overlay = document.getElementById('submissionResultOverlay');
+            if (!overlay) return;
+            var icon = document.getElementById('resultIcon');
+            var title = document.getElementById('resultTitle');
+            var body = document.getElementById('resultBody');
+            var hint = document.getElementById('resultHint');
+            var refEl = document.getElementById('resultRef');
+            var m = mode || 'success';
+
+            if (icon) {
+                icon.className = 'result-icon ' + (m === 'uncertain' ? 'uncertain' : (m === 'already' ? 'already' : 'success'));
+                if (m === 'uncertain') {
+                    icon.innerHTML = '<svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>';
+                } else if (m === 'already') {
+                    icon.innerHTML = '<svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                } else {
+                    icon.innerHTML = '<svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+                }
+            }
+
+            var prefix = m === 'uncertain' ? 'messages.uncertain' : (m === 'already' ? 'messages.already' : 'messages.success');
+            if (title) title.textContent = tMsg(prefix + '.title', '¡Registro enviado!');
+            if (body) body.textContent = tMsg(prefix + '.body', 'Tu parte de viajero se ha recibido correctamente.');
+            if (hint) hint.textContent = tMsg(prefix + '.hint', tMsg('messages.success.thanks', 'Puedes cerrar esta página.'));
+            if (refEl) {
+                var ref = (meta && (meta.reserva_ref || meta.id)) || '';
+                if (ref) {
+                    refEl.hidden = false;
+                    refEl.textContent = 'Ref: ' + ref;
+                } else {
+                    refEl.hidden = true;
+                    refEl.textContent = '';
+                }
+            }
+
+            overlay.classList.add('is-visible');
+            try { document.body.style.overflow = 'hidden'; } catch (_) {}
+            try { window.scrollTo(0, 0); } catch (_) {}
+
+            var formWrap = document.querySelector('form#guestRegistrationForm');
+            if (formWrap) {
+                var card = formWrap.closest('.bg-white');
+                if (card) card.style.display = 'none';
+            }
+            var header = document.querySelector('header');
+            if (header) header.style.display = 'none';
+
+            __delfinSubmitCompleted = true;
+            persistSubmissionDone({ mode: m, id: meta && meta.id, reserva_ref: meta && meta.reserva_ref });
+        }
+
+        (function restoreSubmissionIfAlreadyDone() {
+            var saved = readPersistedSubmission();
+            if (!saved) return;
+            showSubmissionResultScreen(saved.mode === 'uncertain' ? 'already' : (saved.mode || 'already'), saved);
+        })();
+
         // ---- Validaciones extra robustas MIR ----
         function showError(msg, fieldNameOrId = null) {
             clearServerValidationFieldHints();
@@ -12323,10 +12602,10 @@
             if (errorMessage) {
                 errorMessage.style.display = 'block';
                 errorMessage.setAttribute('role', 'alert');
-                try {
-                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } catch (_) {}
             }
+
+            // En móvil el feedback junto al botón es lo que realmente ven tras pulsar Enviar
+            showSubmitFeedback(detailText, 'error');
 
             try {
               const successMessage = document.getElementById('successMessage');
@@ -12355,6 +12634,11 @@
                         field.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     } catch (_) {}
                 }
+            } else {
+                try {
+                    var btn = document.getElementById('submitButton');
+                    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (_) {}
             }
 
             const currentLang = document.documentElement.getAttribute('lang') || 'es';
@@ -12555,19 +12839,30 @@
 
         document.getElementById('guestRegistrationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            if (__delfinSubmitCompleted) {
+                showSubmissionResultScreen('already', readPersistedSubmission() || {});
+                return;
+            }
+            if (__delfinSubmitLock) {
+                showSubmitFeedback(tMsg('submit.sending', 'Enviando… no cierres ni pulses otra vez'), 'info');
+                return;
+            }
+            __delfinSubmitLock = true;
             
             const submitButton = document.getElementById('submitButton');
             const successMessage = document.getElementById('successMessage');
             const errorMessageEl = document.getElementById('errorMessage');
             
             // Ocultar mensajes anteriores
-            successMessage.style.display = 'none';
-            errorMessageEl.style.display = 'none';
+            if (successMessage) successMessage.style.display = 'none';
+            if (errorMessageEl) errorMessageEl.style.display = 'none';
+            showSubmitFeedback('', null);
             
             // Deshabilitar botón y mostrar estado de envío
             submitButton.disabled = true;
             const currentLang = document.documentElement.lang || 'es';
-            const sendingText = translations[currentLang]['submit.sending'] || 'Enviando...';
+            const sendingText = translations[currentLang]['submit.sending'] || 'Enviando… no cierres ni pulses otra vez';
             submitButton.innerHTML = `
                 <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                 ${sendingText}
@@ -12849,12 +13144,14 @@
                 // ===== USAR BUILDER DEFENSIVO =====
                 const cleanData = buildPayloadDefensive(formData);
                 
-                // Añadir tenant_id al payload
+                // Añadir tenant_id + clave de idempotencia al payload
                 const urlParams = new URLSearchParams(window.location.search);
                 const tenantId = urlParams.get('tenant_id') || 'default';
                 cleanData.tenant_id = tenantId;
+                cleanData.client_submission_id = __delfinClientSubmissionId;
                 
                 console.log('🏢 Tenant ID añadido al payload:', tenantId);
+                console.log('🔑 client_submission_id:', __delfinClientSubmissionId);
 
                 // Idioma actual del formulario (para emails y plantillas)
                 const uiLocale = (document.documentElement.lang || urlParams.get('ui_locale') || 'es').trim();
@@ -12956,7 +13253,9 @@
                         mode: 'cors',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json'
+                            'Accept': 'application/json',
+                            'X-Client-Submission-Id': __delfinClientSubmissionId,
+                            'Idempotency-Key': __delfinClientSubmissionId
                         },
                         body: JSON.stringify(cleanData),
                     });
@@ -12964,18 +13263,17 @@
                     console.log('✅ Status:', response.status, response.statusText);
                 } catch (fetchError) {
                     console.error('═══════════════════════════════════════════════');
-                    console.error('❌ ERROR EN FETCH:');
+                    console.error('❌ ERROR EN FETCH (posible envío ya guardado):');
                     console.error('═══════════════════════════════════════════════');
                     console.error('❌ Tipo de error:', fetchError.name);
                     console.error('❌ Mensaje:', fetchError.message);
                     console.error('❌ Stack:', fetchError.stack);
                     console.error('═══════════════════════════════════════════════');
-                    
-                    let errorMsg = `Error de conexión: ${fetchError.message}`;
-                    if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
-                        errorMsg = 'Error de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo.';
-                    }
-                    showError(errorMsg);
+
+                    // Tras timeout/corte de red NO invitar a "reintentar": el parte puede haberse guardado.
+                    __delfinSubmitCompleted = true;
+                    showSubmissionResultScreen('uncertain', {});
+                    showSubmitFeedback(tMsg('messages.uncertain.hint', ''), 'info');
                     return;
                 }
                 
@@ -13041,24 +13339,17 @@
                   throw submitErr;
                 }
                 
-                // Mostrar mensaje de éxito y ocultar cualquier error previo
-                successMessage.style.display = 'block';
+                // Éxito real o "ya enviado" (idempotencia / dedupe)
+                const already = !!(responseBodyJson && (responseBodyJson.alreadySubmitted === true || responseBodyJson.already_submitted === true));
+                const resultMeta = {
+                    id: responseBodyJson && (responseBodyJson.id || responseBodyJson.guest_id),
+                    reserva_ref: responseBodyJson && responseBodyJson.reserva_ref
+                };
+                __delfinSubmitCompleted = true;
+                showSubmissionResultScreen(already ? 'already' : 'success', resultMeta);
                 if (errorMessageEl) errorMessageEl.style.display = 'none';
-                
-                // Aplicar traducciones al mensaje de éxito
-                const currentLang = document.documentElement.getAttribute('lang') || 'es';
-                document.querySelectorAll('#successMessage [data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (translations[currentLang] && translations[currentLang][key]) {
-                        applyI18nToElement(element, translations[currentLang][key]);
-                    }
-                });
-                
-                // Limpiar formulario pero mantener idioma seleccionado
+                if (successMessage) successMessage.style.display = 'none';
                 clearServerValidationFieldHints();
-                document.getElementById('guestRegistrationForm').reset();
-                if (typeof window.hideTraveler2 === 'function') window.hideTraveler2();
-                document.documentElement.setAttribute('lang', currentLang);
                 
             } catch (error) {
                 console.error('═══════════════════════════════════════════════');
@@ -13068,12 +13359,20 @@
                 console.error('❌ Error message:', error && error.message ? error.message : 'Sin mensaje');
                 console.error('❌ Error stack:', error && error.stack ? error.stack : 'Sin stack');
                 console.error('═══════════════════════════════════════════════');
+
+                // Si el servidor dice que ya existía, tratarlo como éxito (no confudir al huésped)
+                const alreadyMsg = error && error.message ? String(error.message) : '';
+                if (/ya se hab[ií]a enviado|ya existe un registro reciente|alreadySubmitted|already submitted/i.test(alreadyMsg)) {
+                    __delfinSubmitCompleted = true;
+                    showSubmissionResultScreen('already', {});
+                    return;
+                }
                 
                 let msg = error && error.message ? String(error.message) : 'Error desconocido';
                 let serverFocusField = (error && error.focusField) ? error.focusField : null;
                 const validationPayload = error && error.validationPayload ? error.validationPayload : null;
                 if (validationPayload && validationPayload.code === 'VALIDATION_ERROR' && Array.isArray(validationPayload.issues) && validationPayload.issues.length) {
-                  msg = 'Hay errores que revisar en el formulario (campos marcados en rojo abajo).\n\n' + msg;
+                  msg = 'Hay errores que revisar en el formulario (campos marcados en rojo).\n\n' + msg;
                 }
                 
                 // Añadir sugerencias según el tipo de error
@@ -13083,9 +13382,6 @@
                 if (/municipio|postal|\bINE\b/i.test(msg)) {
                   msg += ' · Recuerda: INE (5 dígitos) debe ser distinto al CP y compartir provincia (dos primeros dígitos).';
                 }
-                if (/invalido|inválid|invalid/i.test(msg)) {
-                  msg += ' · Si el mensaje no especifica el campo, añade ?debug=1 a la URL para ver la respuesta exacta del servidor.';
-                }
                 if (/consent|consentimiento|tratamiento de datos/i.test(msg)) {
                   msg += ' · Asegúrate de marcar el checkbox de aceptación de términos y condiciones.';
                 }
@@ -13093,16 +13389,28 @@
                 showError(msg, serverFocusField);
                 if (validationPayload) applyServerFieldErrorsFromPayload(validationPayload);
             } finally {
-                // Restaurar botón
-                submitButton.disabled = false;
-                const currentLang = document.documentElement.lang || 'es';
-                const buttonText = translations[currentLang]['submit.button'] || 'Enviar Registro';
-                submitButton.innerHTML = `
-                    <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    ${buttonText}
-                `;
+                // Solo reactivar el botón si NO se completó el envío (validación / error de datos)
+                if (__delfinSubmitCompleted) {
+                    __delfinSubmitLock = true;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        ${tMsg('messages.success.title', '¡Registro enviado!')}
+                    `;
+                } else {
+                    __delfinSubmitLock = false;
+                    submitButton.disabled = false;
+                    const lang = document.documentElement.lang || 'es';
+                    const buttonText = translations[lang]['submit.button'] || 'Enviar Registro';
+                    submitButton.innerHTML = `
+                        <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        ${buttonText}
+                    `;
+                }
             }
         });
     </script>
